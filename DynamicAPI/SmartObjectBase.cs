@@ -77,7 +77,10 @@ namespace Igorious.StardewValley.DynamicAPI
 
         protected bool CanPerformDropInRaw(Object item, Farmer farmer)
         {
-            return base.performObjectDropInAction(item, true, farmer);
+            base.performObjectDropInAction(item, true, farmer);
+            var result = (heldObject != null);
+            heldObject = null;
+            return result;
         }
     }
 }
