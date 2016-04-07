@@ -10,7 +10,7 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
 
         protected abstract IMachineOutput Configuration { get; }
         protected override OutputInfo Output => Configuration.Output;
-        protected override int MinutesUntilReady => Configuration.MinutesUntilReady;
+        protected override int? MinutesUntilReady => Configuration.MinutesUntilReady;
 
         protected override bool CanPerformDropIn(Object item, Farmer farmer)
         {

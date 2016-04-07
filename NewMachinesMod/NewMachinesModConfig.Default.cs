@@ -92,7 +92,7 @@ namespace Igorious.StardewValley.NewMachinesMod
                 }
             };
 
-            Overrides = new List<OverridableInformation>
+            ItemOverrides = new List<OverridableInformation>
             {
                 new OverridableInformation
                 {

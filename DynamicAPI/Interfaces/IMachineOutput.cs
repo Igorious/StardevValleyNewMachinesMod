@@ -5,6 +5,6 @@ namespace Igorious.StardewValley.DynamicAPI.Interfaces
     public interface IMachineOutput
     {
         OutputInfo Output { get; }
-        int MinutesUntilReady { get; }
+        int? MinutesUntilReady { get; }
     }
 }

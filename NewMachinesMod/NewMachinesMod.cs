@@ -55,9 +55,9 @@ namespace Igorious.StardewValley.NewMachinesMod
             CustomObjectInformations.AddBigCraftable(Config.Tank.ID + 1, Config.Tank.Name, Config.Tank.Description);
             CustomObjectInformations.AddBigCraftable(Config.VinegarJug);
 
-            foreach (var overrided in Config.Overrides)
+            foreach (var overridedItem in Config.ItemOverrides)
             {
-                CustomObjectInformations.OverrideItemInformation(overrided.ID, overrided.Name, overrided.Description);
+                CustomObjectInformations.OverrideItemInformation(overridedItem.ID, overridedItem.Name, overridedItem.Description);
             }
 
             foreach (var item in Config.Items)
