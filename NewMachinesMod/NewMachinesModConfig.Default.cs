@@ -102,11 +102,14 @@ namespace Igorious.StardewValley.NewMachinesMod
                 }
             };
 
+            const int MeadID = 900;
+            const int VodkaID = 901;
+
             Items = new List<ObjectInformation>
             {
                 new ObjectInformation
                 {
-                    ID = 816,
+                    ID = MeadID,
                     Category = Object.artisanGoodsCategory,
                     Description = "Drink from honey.",
                     Type = "Basic",
@@ -120,7 +123,7 @@ namespace Igorious.StardewValley.NewMachinesMod
 
                 new ObjectInformation
                 {
-                    ID = 817,
+                    ID = VodkaID,
                     Category = Object.artisanGoodsCategory,
                     Description = "Light alcohol drink.",
                     Type = "Basic",
@@ -141,8 +144,8 @@ namespace Igorious.StardewValley.NewMachinesMod
                 {
                     Items = new Dictionary<int, OutputItem>
                     {
-                        { (int)ItemID.Honey, new OutputItem {ID = 816} },
-                        { (int)ItemID.Potato, new OutputItem {ID = 817} },
+                        { (int)ItemID.Honey, new OutputItem {ID = MeadID} },
+                        { (int)ItemID.Potato, new OutputItem {ID = VodkaID} },
                     },
                 }
             };
