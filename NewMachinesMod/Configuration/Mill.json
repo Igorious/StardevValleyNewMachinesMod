@@ -1,0 +1,23 @@
+{
+    ID: 164,
+    Name: "Mill",
+    Description: "Small machine, that crushes seeds to flour.",
+    Skill: "Farming",
+    SkillLevel: 7,
+    MinutesUntilReady: 360,
+    Materials: {
+      388: 50,
+      709: 5,
+      335: 1,
+    },
+    Output: {
+      ID: 246,
+      Items: {
+        262: { Name: "Wheat Flour" },
+        300: { Name: "Amaranth Flour" },
+        270: { Name: "Corn Flour" },
+      },
+      Price: "p + 25",
+      Count: "(r1 <= 0.1 * q)? 2 : 1",
+    },
+}

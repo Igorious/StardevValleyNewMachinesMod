@@ -1,0 +1,24 @@
+[
+    {
+	  ID: 816,
+      Name: "Mead",
+      Price: 500,
+      Edibility: 20,
+      Type: "Basic",
+      Category: -26,
+      Description: "Drink from honey.",
+      Subcategory: "drink",     
+    },
+    {
+	  ID: 817,
+      Name: "Vodka",
+      Price: 400,
+      Edibility: 15,
+      Type: "Basic",
+      Category: -26,
+      Description: "Light alcohol drink.",
+      Subcategory: "drink",
+      SkillUps: [ -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 ],
+      Duration: 60,
+    },
+]

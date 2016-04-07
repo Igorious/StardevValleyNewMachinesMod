@@ -1,0 +1,21 @@
+{
+    ID: 166,
+    Name: "Tank",
+    Description: "Fill with water and use for sugar extraction from beet.",
+    Skill: "Farming",
+    SkillLevel: 8,
+    MinutesUntilReady: 360,
+    Materials: {
+      334: 1,
+      335: 1,
+      382: 5,
+    },
+    Output: {
+      ID: 245,
+      Items: {
+        284: { Name: "Beet Sugar" },
+      },
+      Price: "p + 25",
+      Count: "(r1 <= 0.1 * q)? 2 : 1",
+    },
+}
