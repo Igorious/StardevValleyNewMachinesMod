@@ -1,7 +1,10 @@
+using System;
 using System.Collections.Generic;
 using Igorious.StardewValley.DynamicAPI.Constants;
 using Igorious.StardewValley.DynamicAPI.Data;
+using Igorious.StardewValley.DynamicAPI.Extensions;
 using Igorious.StardewValley.DynamicAPI.Interfaces;
+using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
 
@@ -11,9 +14,11 @@ namespace Igorious.StardewValley.DynamicAPI.Services
     {
         #region Private Data
 
-        private static readonly List<CraftableInformation> _craftableInformations = new List<CraftableInformation>();
-        private static readonly List<ObjectInformation> _itemsInformations = new List<ObjectInformation>();
-        private static readonly List<OverridableInformation> _overridableInformations = new List<OverridableInformation>();
+        private static readonly List<CraftableInformation> CraftableInformations = new List<CraftableInformation>();
+        private static readonly List<ObjectInformation> ItemsInformations = new List<ObjectInformation>();
+        private static readonly List<TreeInformation> TreesInformations = new List<TreeInformation>();
+        private static readonly List<CropInformation> CropInformations = new List<CropInformation>();
+        private static readonly List<OverridableInformation> OverridableInformations = new List<OverridableInformation>();
         private static bool IsInitialized { get; set; }
 
         #endregion
@@ -26,7 +31,7 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         public static void AddBigCraftable(int id, string name, string description)
         {
             Initialize();
-            _craftableInformations.Add(new CraftableInformation { ID = id, Name = name, Description = description });
+            CraftableInformations.Add(new CraftableInformation { ID = id, Name = name, Description = description });
         }
 
         /// <summary>
@@ -43,7 +48,25 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         public static void AddItem(ObjectInformation information)
         {
             Initialize();
-            _itemsInformations.Add(information);
+            ItemsInformations.Add(information);
+        }
+
+        /// <summary>
+        /// Register information about item.
+        /// </summary>
+        public static void AddTree(TreeInformation information)
+        {
+            Initialize();
+            TreesInformations.Add(information);
+        }
+
+        /// <summary>
+        /// Register information about crop.
+        /// </summary>
+        public static void AddCrop(CropInformation information)
+        {
+            Initialize();
+            CropInformations.Add(information);
         }
 
         /// <summary>
@@ -52,7 +75,7 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         public static void OverrideItemInformation(int id, string newName = null, string newDescription = null, int? newPrice = null)
         {
             Initialize();
-            _overridableInformations.Add(new OverridableInformation { ID = id, Description = newDescription, Price = newPrice, Name = newName });
+            OverridableInformations.Add(new OverridableInformation { ID = id, Description = newDescription, Price = newPrice, Name = newName });
         }
 
         /// <summary>
@@ -77,14 +100,14 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         private static void LoadToGame()
         {
             var craftablesInformation = Game1.bigCraftablesInformation;
-            foreach (var craftableInformation in _craftableInformations)
+            foreach (var craftableInformation in CraftableInformations)
             {
                 if (craftablesInformation.ContainsKey(craftableInformation.ID)) continue;
                 craftablesInformation.Add(craftableInformation.ID, craftableInformation.ToString());
             }
 
             var objectInformation = Game1.objectInformation;
-            foreach (var overridableInformation in _overridableInformations)
+            foreach (var overridableInformation in OverridableInformations)
             {
                 var id = overridableInformation.ID;
                 string actualInfo;
@@ -94,11 +117,35 @@ namespace Igorious.StardewValley.DynamicAPI.Services
                 objectInformation.Add(id, OverrideInformation(actualInfo, overridableInformation));
             }
 
-            foreach (var itemInformation in _itemsInformations)
+            foreach (var itemInformation in ItemsInformations)
             {
                 if (objectInformation.ContainsKey(itemInformation.ID)) continue;
+                Log.SyncColour($"{itemInformation}", ConsoleColor.Green);
                 objectInformation.Add(itemInformation.ID, itemInformation.ToString());
             }
+
+            var cropsInformation = GetDataCache(@"Data\Crops");
+            foreach (var cropInformation in CropInformations)
+            {
+                if (cropsInformation.ContainsKey(cropInformation.SeedID)) continue;
+                Log.SyncColour($"{cropInformation}", ConsoleColor.Cyan);
+                cropsInformation.Add(cropInformation.SeedID, cropInformation.ToString());
+            }
+
+            var treesInformation = GetDataCache(@"Data\fruitTrees");
+            foreach (var treeInformation in TreesInformations)
+            {
+                if (treesInformation.ContainsKey(treeInformation.SapleID)) continue;
+                Log.SyncColour($"{treeInformation}", ConsoleColor.DarkMagenta);
+                treesInformation.Add(treeInformation.SapleID, treeInformation.ToString());
+            }
+        }
+
+        private static Dictionary<int, string> GetDataCache(string assetPath)
+        {
+            Game1.content.Load<Dictionary<int, string>>(assetPath);
+            var loadedAssets = Game1.content.GetField<Dictionary<string, object>>("loadedAssets");
+            return (Dictionary<int, string>)loadedAssets[assetPath];
         }
 
         private static string OverrideInformation(string actualInfo, OverridableInformation overridableInformation)

@@ -1,13 +1,18 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Igorious.StardewValley.DynamicAPI;
+using Igorious.StardewValley.DynamicAPI.Interfaces;
 using Igorious.StardewValley.DynamicAPI.Services;
 using Igorious.StardewValley.NewMachinesMod.SmartObjects;
 using Igorious.StardewValley.NewMachinesMod.SmartObjects.Base;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
+using StardewValley;
 
 namespace Igorious.StardewValley.NewMachinesMod
 {
@@ -50,10 +55,15 @@ namespace Igorious.StardewValley.NewMachinesMod
 
         private static void InitializeObjectInformation()
         {
-            CustomObjectInformations.AddBigCraftable(Config.Mill);
-            CustomObjectInformations.AddBigCraftable(Config.Tank);
-            CustomObjectInformations.AddBigCraftable(Config.Tank.ID + 1, Config.Tank.Name, Config.Tank.Description);
-            CustomObjectInformations.AddBigCraftable(Config.VinegarJug);
+            var craftables = new[] {Config.Mill, Config.Tank, Config.VinegarJug};
+            foreach (var craftable in craftables)
+            {
+                var length = craftable.ResourceLength;
+                for (var i = 0; i < length; i++)
+                {
+                    CustomObjectInformations.AddBigCraftable(craftable.ID + i, craftable.Name, craftable.Description);
+                }
+            }
 
             foreach (var overridedItem in Config.ItemOverrides)
             {
@@ -64,27 +74,36 @@ namespace Igorious.StardewValley.NewMachinesMod
             {
                 CustomObjectInformations.AddItem(item);
             }
+
+            foreach (var item in Config.Trees)
+            {
+                CustomObjectInformations.AddTree(item);
+            }
+
+            foreach (var item in Config.Crops)
+            {
+                CustomObjectInformations.AddCrop(item);
+            }
         }
 
         private static void OverrideTextures()
         {
-            var xnbIndexes = new[]
-            {
-                Config.Mill.ID,
-                Config.Mill.ID + 1,
-                Config.Tank.ID,
-                Config.Tank.ID + 1,
-                Config.VinegarJug.ID,
-            };
+            var craftables = new[] { Config.Mill, Config.Tank, Config.VinegarJug };
+            OverrideTextures(craftables, Textures.AddCraftableOverride);
+            OverrideTextures(Config.Items, Textures.AddItemOverride);
+            OverrideTextures(Config.Trees, Textures.AddTreeOverride);
+            OverrideTextures(Config.Crops, Textures.AddCropOverride);
+        }
 
-            for (var i = 0; i < xnbIndexes.Length; ++i)
+        private static void OverrideTextures(IEnumerable<IDrawable> items, Action<int, int> addOverride)
+        {
+            foreach (var item in items)
             {
-                Textures.AddCraftableOverride(xnbIndexes[i], i);
-            }
-
-            for (var i = 0; i < Config.Items.Count; ++i)
-            {
-                Textures.AddItemOverride(Config.Items[i].ID, i);
+                var length = item.ResourceLength;
+                for (var i = 0; i < length; ++i)
+                {
+                    if (item.ResourceIndex != null) addOverride(item.TextureIndex + i, item.ResourceIndex.Value + i);
+                }
             }
         }
 
@@ -92,12 +111,18 @@ namespace Igorious.StardewValley.NewMachinesMod
         {
             CompilingTask = Task.Run(() =>
             {
-                var machines = new[] { Config.Mill, Config.Tank, Config.VinegarJug };
+                var machines = new IMachineOutput[] { Config.Mill, Config.Tank, Config.VinegarJug, Config.KegEx };
                 foreach (var machine in machines)
                 {
                     MachineBase.GetCustomQualityFunc(machine.Output.Quality);
                     MachineBase.GetCustomCountFunc(machine.Output.Count);
                     MachineBase.GetCustomPriceFunc(machine.Output.Price);
+
+                    foreach (var outputItem in machine.Output.Items.Values)
+                    {
+                        MachineBase.GetCustomCountFunc(outputItem.Count);
+                        MachineBase.GetCustomPriceFunc(outputItem.Quality);
+                    }
                 }
             });
         }

@@ -4,8 +4,10 @@ using System.IO;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
+using StardewValley.TerrainFeatures;
 
 namespace Igorious.StardewValley.DynamicAPI.Services
 {
@@ -13,8 +15,10 @@ namespace Igorious.StardewValley.DynamicAPI.Services
     {
         #region Private Data
 
-        private static readonly Dictionary<int, int> _craftableSpriteOverrides = new Dictionary<int, int>();
-        private static readonly Dictionary<int, int> _itemSpriteOverrides = new Dictionary<int, int>();
+        private static readonly Dictionary<int, int> CraftableSpriteOverrides = new Dictionary<int, int>();
+        private static readonly Dictionary<int, int> ItemSpriteOverrides = new Dictionary<int, int>();
+        private static readonly Dictionary<int, int> CropSpriteOverrides = new Dictionary<int, int>();
+        private static readonly Dictionary<int, int> TreeSpriteOverrides = new Dictionary<int, int>();
         private static bool IsInitialized { get; set; }
 
         #endregion
@@ -27,7 +31,7 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         public static void AddCraftableOverride(int xnbIndex, int overrideIndex)
         {
             Initialize();
-            _craftableSpriteOverrides.Add(xnbIndex, overrideIndex);
+            CraftableSpriteOverrides.Add(xnbIndex, overrideIndex);
         }
 
         /// <summary>
@@ -36,7 +40,25 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         public static void AddItemOverride(int xnbIndex, int overrideIndex)
         {
             Initialize();
-            _itemSpriteOverrides.Add(xnbIndex, overrideIndex);
+            ItemSpriteOverrides.Add(xnbIndex, overrideIndex);
+        }
+
+        /// <summary>
+        /// Override fruit tree sprite with specific ID.
+        /// </summary>
+        public static void AddTreeOverride(int xnbIndex, int overrideIndex)
+        {
+            Initialize();
+            TreeSpriteOverrides.Add(xnbIndex, overrideIndex);
+        }
+
+        /// <summary>
+        /// Override fruit tree sprite with specific ID.
+        /// </summary>
+        public static void AddCropOverride(int xnbIndex, int overrideIndex)
+        {
+            Initialize();
+            CropSpriteOverrides.Add(xnbIndex, overrideIndex);
         }
 
         #endregion
@@ -52,20 +74,26 @@ namespace Igorious.StardewValley.DynamicAPI.Services
 
         private static void OverrideSprites()
         {
-            OverrideTexture(ref Game1.bigCraftableSpriteSheet, @"Resources\Craftable.png", _craftableSpriteOverrides, 16, 32);
-            OverrideTexture(ref Game1.objectSpriteSheet, @"Resources\Items.png", _itemSpriteOverrides, 16, 16);
+            OverrideTexture(ref Game1.bigCraftableSpriteSheet, @"Resources\Craftable.png", CraftableSpriteOverrides, 16, 32);
+            OverrideTexture(ref Game1.objectSpriteSheet, @"Resources\Items.png", ItemSpriteOverrides, 16, 16);
+            OverrideTexture(ref Game1.cropSpriteSheet, @"Resources\Crops.png", CropSpriteOverrides, 128, 32);
+
+            new FruitTree().loadSprite();
+            OverrideTexture(ref FruitTree.texture, @"Resources\Trees.png", TreeSpriteOverrides, 432, 80);
         }
 
         private static void OverrideTexture(ref Texture2D originalTexture, string overridingTexturePath, Dictionary<int, int> spriteOverrides, int gridWidth, int gridHeight)
         {
             if (spriteOverrides.Count == 0) return;
 
+            Log.Debug($"Loading {overridingTexturePath} textures");
             var maxHeight = GetSourceRectForObject(spriteOverrides.Keys.Max(), originalTexture, gridWidth, gridHeight).Bottom;
             if (maxHeight > originalTexture.Height)
             {
                 var allData = new Color[originalTexture.Width * originalTexture.Height];
                 originalTexture.GetData(allData);
 
+                Log.Debug($"Expected new data: {originalTexture.Width}x{maxHeight}");
                 var newData = new Color[originalTexture.Width * maxHeight];
                 Array.Copy(allData, newData, allData.Length);
 
@@ -83,11 +111,12 @@ namespace Igorious.StardewValley.DynamicAPI.Services
                     originalTexture.SetData(0, GetSourceRectForObject(spriteOverride.Key, originalTexture, gridWidth, gridHeight), data, 0, data.Length);
                 }
             }
+            Log.Debug($"Loaded {overridingTexturePath} textures");
         }
 
         private static Rectangle GetSourceRectForObject(int index, Texture2D texture, int gridWidth, int gridHeight)
         {
-            return new Rectangle(index % (texture.Width / 16) * gridWidth, index * 16 / texture.Width * gridHeight, gridWidth, gridHeight);
+            return new Rectangle(index % (texture.Width / gridWidth) * gridWidth, index / (texture.Width / gridWidth) * gridHeight, gridWidth, gridHeight);
         }
 
         #endregion

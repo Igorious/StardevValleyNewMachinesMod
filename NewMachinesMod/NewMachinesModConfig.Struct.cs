@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel;
 using Igorious.StardewValley.DynamicAPI.Data;
 using Igorious.StardewValley.DynamicAPI.Interfaces;
 
@@ -10,6 +11,10 @@ namespace Igorious.StardewValley.NewMachinesMod
         {
             public int ID { get; set; }
             public string Name { get; set; }
+            int IDrawable.TextureIndex => ID;
+            public int? ResourceIndex { get; set; }
+            [DefaultValue(1)]
+            public int ResourceLength { get; set; } = 1;
             public string Description { get; set; }
             public string Skill { get; set; }
             public int? SkillLevel { get; set; }
@@ -31,5 +36,8 @@ namespace Igorious.StardewValley.NewMachinesMod
         public OverrideMachineInfo KegEx { get; set; }
         public List<OverridableInformation> ItemOverrides { get; set; } = new List<OverridableInformation>();
         public List<ObjectInformation> Items { get; set; } = new List<ObjectInformation>();
+
+        public List<TreeInformation> Trees { get; set; } = new List<TreeInformation>();
+        public List<CropInformation> Crops { get; set; } = new List<CropInformation>();
     }
 }

@@ -11,6 +11,7 @@ namespace Igorious.StardewValley.NewMachinesMod
         {
             var defaultSetting = new NewMachinesModConfig().FillWithDefaults();
             var jsonSettings = new JsonSerializerSettings {DefaultValueHandling = DefaultValueHandling.Ignore};
+            if (!Directory.Exists(basePath)) Directory.CreateDirectory(basePath);
 
             var properties = GetType().GetProperties();
             foreach (var property in properties)

@@ -12,6 +12,8 @@ namespace Igorious.StardewValley.NewMachinesMod
             Mill = new MachineInfo
             {
                 ID = 164,
+                ResourceIndex = 0,
+                ResourceLength = 2,
                 MinutesUntilReady = 360,
                 Name = "Mill",
                 Description = "Small machine, that crushes seeds to flour.",
@@ -41,6 +43,8 @@ namespace Igorious.StardewValley.NewMachinesMod
             Tank = new MachineInfo
             {
                 ID = 166,
+                ResourceIndex = 2,
+                ResourceLength = 2,
                 MinutesUntilReady = 360,
                 Name = "Tank",
                 Description = "Fill with water and use for sugar extraction from beet.",
@@ -68,6 +72,7 @@ namespace Igorious.StardewValley.NewMachinesMod
             VinegarJug = new MachineInfo
             {
                 ID = 168,
+                ResourceIndex = 4,
                 MinutesUntilReady = 600,
                 Name = "Vinegar Jug",
                 Description = "Ceramic thing, that used to vinegar creation.",
@@ -119,6 +124,7 @@ namespace Igorious.StardewValley.NewMachinesMod
                     Subcategory = "drink",
                     SkillUps = ObjectInformation.NoSkillUps,
                     Duration = 0,
+                    ResourceIndex = 0,
                 },
 
                 new ObjectInformation
@@ -133,6 +139,7 @@ namespace Igorious.StardewValley.NewMachinesMod
                     Subcategory = "drink",
                     SkillUps = new int[10] {-1,-1, -1, -1, -1, -1, -1, -1, -1, -1},
                     Duration = 60,
+                    ResourceIndex = 1,
                 }
             };
 
@@ -147,6 +154,62 @@ namespace Igorious.StardewValley.NewMachinesMod
                         { (int)ItemID.Honey, new OutputItem {ID = MeadID} },
                         { (int)ItemID.Potato, new OutputItem {ID = VodkaID} },
                     },
+                }
+            };
+
+            Items.Add(new ObjectInformation
+            {
+                ID = 1001,
+                Category = Object.SeedsCategory,
+                Description = "Seed no1001",
+                Name = "Seed no1001",
+                Price = 1001,
+                Type = "Seeds", 
+                ResourceIndex = 4,
+            });
+            Items.Add(new ObjectInformation
+            {
+                ID = 1002,
+                Category = Object.SeedsCategory,
+                Description = "Takes 28 days to produce a mature cherry tree. Bears fruit in the spring. Only grows if the 8 surrounding \"tiles\" are empty.",
+                Name = "Test Sample",
+                Price = 1002,
+                Type = "Basic",  
+                ResourceIndex = 3,
+            });
+            Items.Add(new ObjectInformation
+            {
+                ID = 1003,
+                Category = Object.VegetableCategory,
+                Description = "Crop no1003",
+                Name = "Crop no1003",
+                Price = 1003,
+                Type = "Basic",   
+                Edibility = 30,
+                ResourceIndex = 7,
+            });
+
+            Crops = new List<CropInformation>
+            {
+                new CropInformation
+                {
+                    SeedID = 1001,
+                    TextureIndex = 70,
+                    ResourceIndex = 1,
+                    CropID = 1003,
+                    Seasons = new List<string> {"spring", "summer", "fall" },
+                    Phases = new List<int> {1, 1, 1 },
+                }
+            };
+
+            Trees = new List<TreeInformation>
+            {
+                new TreeInformation
+                {
+                    SapleID = 1002,
+                    FruitID = 1003,
+                    TextureIndex = 0,
+                    Season = "fall",               
                 }
             };
 
