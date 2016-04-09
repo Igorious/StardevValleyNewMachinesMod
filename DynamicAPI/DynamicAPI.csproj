@@ -50,7 +50,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Configurator.cs" />
+    <Compile Include="Attributes\ExpressionAttribute.cs" />
+    <Compile Include="Constants\ObjectCategory.cs" />
+    <Compile Include="Constants\Season.cs" />
+    <Compile Include="Data\SkillUpInformation.cs" />
+    <Compile Include="DynamicConfiguration.cs" />
     <Compile Include="Constants\CraftableID.cs" />
     <Compile Include="Constants\ItemID.cs" />
     <Compile Include="Constants\LocationName.cs" />
@@ -58,6 +62,9 @@
     <Compile Include="Constants\Sound.cs" />
     <Compile Include="Data\CropInformation.cs" />
     <Compile Include="Data\TreeInformation.cs" />
+    <Compile Include="Delegates\OutputDelegates.cs" />
+    <Compile Include="Extensions\JsonExtensions.cs" />
+    <Compile Include="Extensions\EnumExtensions.cs" />
     <Compile Include="Interfaces\IDrawable.cs" />
     <Compile Include="Interfaces\IMachineOutput.cs" />
     <Compile Include="Data\ObjectInformation.cs" />
@@ -70,12 +77,11 @@
     <Compile Include="Data\CraftableInformation.cs" />
     <Compile Include="Data\CraftingRecipeInformation.cs" />
     <Compile Include="Interfaces\IInformation.cs" />
-    <Compile Include="Services\CustomCraftingRecipes.cs" />
-    <Compile Include="Services\CustomObjectInformations.cs" />
+    <Compile Include="Services\CraftingRecipesService.cs" />
+    <Compile Include="Services\InformationService.cs" />
     <Compile Include="Data\MaterialInfo.cs" />
-    <Compile Include="Services\ObjectMapper.cs" />
-    <Compile Include="Data\OverridableInformation.cs" />
-    <Compile Include="Services\Textures.cs" />
+    <Compile Include="Services\ClassMapperService.cs" />
+    <Compile Include="Services\TexturesService.cs" />
     <Compile Include="SmartObjectBase.cs" />
     <Compile Include="Utils\ExpressionCompiler.cs" />
   </ItemGroup>

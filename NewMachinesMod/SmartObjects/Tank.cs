@@ -1,5 +1,4 @@
 using Igorious.StardewValley.DynamicAPI.Constants;
-using Igorious.StardewValley.DynamicAPI.Data;
 using Igorious.StardewValley.DynamicAPI.Interfaces;
 using Igorious.StardewValley.DynamicAPI.Services;
 using Igorious.StardewValley.NewMachinesMod.SmartObjects.Base;
@@ -11,18 +10,22 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects
 {
     public sealed class FullTank : Tank
     {
-        public FullTank() : base(ObjectMapper.GetID<FullTank>()) { }      
+        private static readonly int ID = ClassMapperService.Instance.GetID<FullTank>();
+
+        public FullTank() : base(ID) { }      
     }
 
     public class Tank : CustomMachineBase
     {
-        public Tank() : this(ObjectMapper.GetID<Tank>()) { }
+        private static readonly int ID = ClassMapperService.Instance.GetID<Tank>();
+
+        public Tank() : this(ID) { }
         protected Tank(int id) : base(id) { }
 
         protected bool IsEmpty
         {
-            get { return (ParentSheetIndex == ObjectMapper.GetID<Tank>()); }
-            set { ParentSheetIndex = ObjectMapper.GetID<Tank>() + (value? 0 : 1); }
+            get { return (ParentSheetIndex == ID); }
+            set { ParentSheetIndex = ID + (value? 0 : 1); }
         }
 
         public override bool minutesElapsed(int minutes, GameLocation environment)

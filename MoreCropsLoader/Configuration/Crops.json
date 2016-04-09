@@ -1,0 +1,495 @@
+[
+  {
+    SeedID: 745,
+    Phases: [
+      2,
+      1,
+      3,
+      3,
+      3
+    ],
+    Seasons: [
+      "Spring"
+    ],
+    TextureIndex: 36,
+    CropID: 400,
+    RegrowDays: 4,
+    MaxHarvestIncreaseForLevel: 5,
+    ExtraCropChance: 0.02
+  },
+  {
+    SeedID: 792,
+    Phases: [
+      2,
+      2,
+      3,
+      3,
+      3
+    ],
+    Seasons: [
+      "Spring"
+    ],
+    TextureIndex: 40,
+    CropID: 378,
+    MinHarvest: 2,
+    MaxHarvest: 4,
+    MaxHarvestIncreaseForLevel: 8,
+    ExtraCropChance: 0.2,
+    ResourceIndex: 0
+  },
+  {
+    SeedID: 793,
+    Phases: [
+      3,
+      3,
+      3,
+      3,
+      3
+    ],
+    Seasons: [
+      "Summer"
+    ],
+    TextureIndex: 41,
+    CropID: 380,
+    MinHarvest: 2,
+    MaxHarvest: 4,
+    MaxHarvestIncreaseForLevel: 8,
+    ExtraCropChance: 0.2,
+    ResourceIndex: 1
+  },
+  {
+    SeedID: 794,
+    Phases: [
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    Seasons: [
+      "Fall"
+    ],
+    TextureIndex: 42,
+    CropID: 380,
+    MinHarvest: 2,
+    MaxHarvest: 4,
+    MaxHarvestIncreaseForLevel: 8,
+    ExtraCropChance: 0.2,
+    ResourceIndex: 2
+  },
+  {
+    SeedID: 795,
+    Phases: [
+      2,
+      2,
+      2,
+      2,
+      2
+    ],
+    Seasons: [
+      "Spring",
+      "Summer"
+    ],
+    TextureIndex: 43,
+    CropID: 382,
+    MinHarvest: 2,
+    MaxHarvest: 4,
+    MaxHarvestIncreaseForLevel: 8,
+    ExtraCropChance: 0.2,
+    ResourceIndex: 3
+  },
+  {
+    SeedID: 796,
+    Phases: [
+      5,
+      5,
+      5,
+      5,
+      5
+    ],
+    Seasons: [
+      "Winter"
+    ],
+    TextureIndex: 44,
+    CropID: 386,
+    MinHarvest: 2,
+    MaxHarvest: 4,
+    MaxHarvestIncreaseForLevel: 8,
+    ExtraCropChance: 0.2,
+    ResourceIndex: 4
+  },
+  {
+    SeedID: 802,
+    Phases: [
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    Seasons: [
+      "Spring",
+      "Summer"
+    ],
+    TextureIndex: 46,
+    CropID: 802,
+    RegrowDays: 5,
+    MinHarvest: 2,
+    MaxHarvest: 3,
+    MaxHarvestIncreaseForLevel: 8,
+    ExtraCropChance: 0.2,
+    ResourceIndex: 6
+  },
+  {
+    SeedID: 810,
+    Phases: [
+      1,
+      2,
+      3,
+      3,
+      3
+    ],
+    Seasons: [
+      "Spring"
+    ],
+    TextureIndex: 45,
+    CropID: 809,
+    RegrowDays: 8,
+    MaxHarvest: 2,
+    MaxHarvestIncreaseForLevel: 8,
+    ExtraCropChance: 0.2,
+    ResourceIndex: 5
+  },
+  {
+    SeedID: 811,
+    Phases: [
+      1,
+      1,
+      1,
+      1,
+      2
+    ],
+    Seasons: [
+      "Fall"
+    ],
+    TextureIndex: 40,
+    CropID: 811,
+    MaxHarvest: 3,
+    MaxHarvestIncreaseForLevel: 8,
+    ExtraCropChance: 0.2,
+    ResourceIndex: 0
+  },
+  {
+    SeedID: 814,
+    Phases: [
+      1,
+      1,
+      1,
+      1
+    ],
+    Seasons: [
+      "Summer"
+    ],
+    TextureIndex: 47,
+    CropID: 813,
+    MaxHarvest: 3,
+    MaxHarvestIncreaseForLevel: 8,
+    ExtraCropChance: 0.2,
+    ResourceIndex: 7
+  },
+  {
+    SeedID: 816,
+    Phases: [
+      2,
+      2,
+      2,
+      2,
+      2
+    ],
+    Seasons: [
+      "Fall"
+    ],
+    TextureIndex: 48,
+    CropID: 815,
+    RegrowDays: 10,
+    MaxHarvest: 3,
+    MaxHarvestIncreaseForLevel: 8,
+    ExtraCropChance: 0.2,
+    ResourceIndex: 8
+  },
+  {
+    SeedID: 821,
+    Phases: [
+      3,
+      3,
+      3,
+      3,
+      2
+    ],
+    Seasons: [
+      "Fall"
+    ],
+    TextureIndex: 49,
+    CropID: 820,
+    RegrowDays: 14,
+    MaxHarvest: 3,
+    MaxHarvestIncreaseForLevel: 8,
+    ExtraCropChance: 0.2,
+    ResourceIndex: 9
+  },
+  {
+    SeedID: 823,
+    Phases: [
+      2,
+      2,
+      2,
+      2,
+      3
+    ],
+    Seasons: [
+      "Spring"
+    ],
+    TextureIndex: 50,
+    CropID: 822,
+    RegrowDays: 11,
+    MaxHarvest: 3,
+    MaxHarvestIncreaseForLevel: 8,
+    ExtraCropChance: 0.2,
+    ResourceIndex: 10
+  },
+  {
+    SeedID: 824,
+    Phases: [
+      1,
+      1,
+      2,
+      2,
+      2
+    ],
+    Seasons: [
+      "Fall"
+    ],
+    TextureIndex: 51,
+    CropID: 824,
+    MaxHarvest: 3,
+    MaxHarvestIncreaseForLevel: 8,
+    ExtraCropChance: 0.2,
+    ResourceIndex: 11
+  },
+  {
+    SeedID: 830,
+    Phases: [
+      1,
+      1,
+      1,
+      2,
+      2
+    ],
+    Seasons: [
+      "Summer"
+    ],
+    TextureIndex: 3,
+    CropID: 830,
+    MaxHarvest: 2,
+    MaxHarvestIncreaseForLevel: 8,
+    ExtraCropChance: 0.6
+  },
+  {
+    SeedID: 831,
+    Phases: [
+      2,
+      2,
+      3,
+      3,
+      3
+    ],
+    Seasons: [
+      "Fall"
+    ],
+    TextureIndex: 56,
+    CropID: 826,
+    RegrowDays: 13,
+    MinHarvest: 2,
+    MaxHarvest: 3,
+    MaxHarvestIncreaseForLevel: 8,
+    ExtraCropChance: 0.2,
+    ResourceIndex: 16
+  },
+  {
+    SeedID: 833,
+    Phases: [
+      1,
+      1,
+      2,
+      2,
+      2
+    ],
+    Seasons: [
+      "Spring"
+    ],
+    TextureIndex: 52,
+    CropID: 832,
+    RegrowDays: 8,
+    MinHarvest: 2,
+    MaxHarvest: 3,
+    MaxHarvestIncreaseForLevel: 8,
+    ExtraCropChance: 0.2,
+    ResourceIndex: 12
+  },
+  {
+    SeedID: 835,
+    Phases: [
+      2,
+      2,
+      2,
+      2,
+      3
+    ],
+    Seasons: [
+      "Spring"
+    ],
+    TextureIndex: 53,
+    CropID: 834,
+    RegrowDays: 11,
+    MaxHarvest: 2,
+    MaxHarvestIncreaseForLevel: 8,
+    ExtraCropChance: 0.2,
+    ResourceIndex: 13
+  },
+  {
+    SeedID: 837,
+    Phases: [
+      1,
+      1,
+      1,
+      1,
+      2
+    ],
+    Seasons: [
+      "Summer",
+      "Fall"
+    ],
+    TextureIndex: 54,
+    CropID: 836,
+    RegrowDays: 6,
+    MaxHarvest: 3,
+    MaxHarvestIncreaseForLevel: 8,
+    ExtraCropChance: 0.2,
+    ResourceIndex: 14
+  },
+  {
+    SeedID: 839,
+    Phases: [
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    Seasons: [
+      "Spring",
+      "Summer"
+    ],
+    TextureIndex: 54,
+    CropID: 838,
+    RegrowDays: 5,
+    MinHarvest: 10,
+    MaxHarvest: 25,
+    MaxHarvestIncreaseForLevel: 8,
+    ExtraCropChance: 0.1,
+    ResourceIndex: 14
+  },
+  {
+    SeedID: 845,
+    Phases: [
+      1,
+      1,
+      2,
+      2,
+      2
+    ],
+    Seasons: [
+      "Fall"
+    ],
+    TextureIndex: 55,
+    CropID: 844,
+    MaxHarvest: 3,
+    MaxHarvestIncreaseForLevel: 8,
+    ExtraCropChance: 0.5,
+    ResourceIndex: 15
+  },
+  {
+    SeedID: 846,
+    Phases: [
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    Seasons: [
+      "Winter"
+    ],
+    TextureIndex: 24,
+    CropID: 245,
+    MaxHarvest: 3,
+    MaxHarvestIncreaseForLevel: 8,
+    ExtraCropChance: 0.2
+  },
+  {
+    SeedID: 847,
+    Phases: [
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    Seasons: [
+      "Winter"
+    ],
+    TextureIndex: 20,
+    CropID: 246,
+    MaxHarvest: 3,
+    MaxHarvestIncreaseForLevel: 8,
+    ExtraCropChance: 0.2
+  },
+  {
+    SeedID: 848,
+    Phases: [
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    Seasons: [
+      "Winter"
+    ],
+    TextureIndex: 57,
+    CropID: 247,
+    MaxHarvest: 3,
+    MaxHarvestIncreaseForLevel: 8,
+    ExtraCropChance: 0.2,
+    ResourceIndex: 17
+  },
+  {
+    SeedID: 849,
+    Phases: [
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    Seasons: [
+      "Winter"
+    ],
+    TextureIndex: 58,
+    CropID: 419,
+    MaxHarvest: 3,
+    MaxHarvestIncreaseForLevel: 8,
+    ExtraCropChance: 0.2,
+    ResourceIndex: 18
+  }
+]

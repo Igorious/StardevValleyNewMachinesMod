@@ -1,7 +1,7 @@
 ﻿namespace Igorious.StardewValley.DynamicAPI.Interfaces
 {
-    public interface IInformation : IItem
+    public interface IInformation
     {
-        string Description { get; set; }
+        int ID { get; }
     }
 }

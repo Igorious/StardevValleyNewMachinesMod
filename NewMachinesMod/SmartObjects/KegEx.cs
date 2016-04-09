@@ -6,7 +6,10 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects
 {
     public sealed class KegEx : OverridedMachineBase
     {
-        public KegEx() : base(ObjectMapper.GetID<KegEx>()) {}
+        private static readonly int ID = ClassMapperService.Instance.GetID<KegEx>();
+
+        public KegEx() : base(ID) {}
+
         protected override IMachineOutput Configuration => NewMachinesMod.Config.KegEx;
     }
 }

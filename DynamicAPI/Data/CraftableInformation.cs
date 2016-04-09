@@ -1,18 +1,35 @@
+using System.ComponentModel;
+using Igorious.StardewValley.DynamicAPI.Interfaces;
 using StardewValley;
 
 namespace Igorious.StardewValley.DynamicAPI.Data
 {
-    public class CraftableInformation
+    public class CraftableInformation : IInformation
     {
-        public int ID { get; set; } = 0;
-        public string Name { get; set; } = string.Empty;
-        public int Price { get; set; } = 0;
+        public int ID { get; set; }
+
+        public string Name { get; set; }
+
+        public int Price { get; set; }
+
+        [DefaultValue(Object.inedible)]
         public int Edibility { get; set; } = Object.inedible;
+
+        [DefaultValue("Crafting")]
         public string Type { get; set; } = "Crafting";
+
+        [DefaultValue(Object.BigCraftableCategory)]
         public int Category { get; set; } = Object.BigCraftableCategory;
-        public string Description { get; set; } = string.Empty;
+
+        public string Description { get; set; }
+
+        [DefaultValue(true)]
         public bool CanSetOutdoor { get; set; } = true;
+
+        [DefaultValue(true)]
         public bool CanSetIndoor { get; set; } = true;
+
+        [DefaultValue(Object.fragility_Removable)]
         public int Fragility { get; set; } = Object.fragility_Removable;
 
         public override string ToString()

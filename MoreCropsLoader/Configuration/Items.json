@@ -1,31 +1,5 @@
 [
   {
-    ID: 900,
-    Name: "Mead",
-    Price: 500,
-    Edibility: 20,
-    Category: "ArtisanGoods",
-    Description: "Drink from honey.",
-    Subcategory: "drink",
-    ResourceIndex: 240
-  },
-  {
-    ID: 901,
-    Name: "Vodka",
-    Price: 400,
-    Edibility: 15,
-    Category: "ArtisanGoods",
-    Description: "Light alcohol drink.",
-    Subcategory: "drink",
-    SkillUps: {
-      Combat: -1,
-      Luck: 1,
-      Speed: -1
-    },
-    Duration: 60,
-    ResourceIndex: 241
-  },
-  {
     ID: 792,
     Name: "Copper Seeds",
     Price: 20,

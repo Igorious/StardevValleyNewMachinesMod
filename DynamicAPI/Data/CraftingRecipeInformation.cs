@@ -1,16 +1,20 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel;
+using Igorious.StardewValley.DynamicAPI.Interfaces;
 
 namespace Igorious.StardewValley.DynamicAPI.Data
 {
-    public class CraftingRecipeInformation
+    public class CraftingRecipeInformation : IInformation
     {
         public IEnumerable<MaterialInfo> Materials { get; set; } = new MaterialInfo[] {};
+
+        [DefaultValue("Home")]
         public string Area { get; set; } = "Home";
-        public int ID { get; set; } = 0;
+        public int ID { get; set; }
         public bool IsBig { get; set; } = true;
         public string Skill { get; set; } = null;
-        public int? SkillLevel { get; set; } = 0;
-        public string Name { get; set; } = string.Empty;
+        public int? SkillLevel { get; set; }
+        public string Name { get; set; }
 
         public override string ToString()
         {

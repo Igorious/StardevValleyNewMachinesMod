@@ -34,10 +34,8 @@ namespace Igorious.StardewValley.NewMachinesMod
         public MachineInfo Tank { get; set; }
         public MachineInfo VinegarJug { get; set; }
         public OverrideMachineInfo KegEx { get; set; }
-        public List<OverridableInformation> ItemOverrides { get; set; } = new List<OverridableInformation>();
+        public List<ObjectInformation> ItemOverrides { get; set; } = new List<ObjectInformation>();
         public List<ObjectInformation> Items { get; set; } = new List<ObjectInformation>();
 
-        public List<TreeInformation> Trees { get; set; } = new List<TreeInformation>();
-        public List<CropInformation> Crops { get; set; } = new List<CropInformation>();
     }
 }

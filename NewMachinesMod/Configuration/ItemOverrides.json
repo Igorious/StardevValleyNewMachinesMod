@@ -1,7 +1,7 @@
 [
-    {
-      ID: 246,
-      Name: "Flour",
-      Description: "A common cooking ingredient made from crushed seeds.",
-    }
+  {
+    ID: 246,
+    Name: "Flour",
+    Description: "A common cooking ingredient made from crushed seeds."
+  }
 ]

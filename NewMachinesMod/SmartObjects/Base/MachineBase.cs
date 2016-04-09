@@ -1,7 +1,7 @@
-﻿using System;
-using Igorious.StardewValley.DynamicAPI;
+﻿using Igorious.StardewValley.DynamicAPI;
 using Igorious.StardewValley.DynamicAPI.Constants;
 using Igorious.StardewValley.DynamicAPI.Data;
+using Igorious.StardewValley.DynamicAPI.Delegates;
 using Igorious.StardewValley.DynamicAPI.Utils;
 using StardewValley;
 using Object = StardewValley.Object;
@@ -32,25 +32,25 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
             PlaySound(Sound.Ship);
         }
 
-        public static Func<int, int, double, double, int> GetCustomQualityFunc(string body)
+        public static QualityExpression GetCustomQualityFunc(string body)
         {
             int value;
             if (int.TryParse(body, out value)) return (p, q, r1, r2) => value;
-            return ExpressionCompiler.CompileExpression<Func<int, int, double, double, int>>(body, "p", "q", "r1", "r2");
+            return ExpressionCompiler.CompileExpression<QualityExpression>(body);
         }
 
-        public static Func<int, int, double, double, int> GetCustomCountFunc(string body)
+        public static CountExpression GetCustomCountFunc(string body)
         {
             int value;
             if (int.TryParse(body, out value)) return (p, q, r1, r2) => value;
-            return ExpressionCompiler.CompileExpression<Func<int, int, double, double, int>>(body, "p", "q", "r1", "r2");
+            return ExpressionCompiler.CompileExpression<CountExpression>(body);
         }
 
-        public static Func<int, int, int> GetCustomPriceFunc(string body)
+        public static PriceExpression GetCustomPriceFunc(string body)
         {
             int value;
             if (int.TryParse(body, out value)) return (p, q) => value;
-            return ExpressionCompiler.CompileExpression<Func<int, int, int>>(body, "p", "q");
+            return ExpressionCompiler.CompileExpression<PriceExpression>(body);
         }
 
         protected virtual string GetOutputName(Object item)

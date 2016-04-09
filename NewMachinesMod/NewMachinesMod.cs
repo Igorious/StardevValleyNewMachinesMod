@@ -1,130 +1,95 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Igorious.StardewValley.DynamicAPI;
+using Igorious.StardewValley.DynamicAPI.Data;
+using Igorious.StardewValley.DynamicAPI.Delegates;
 using Igorious.StardewValley.DynamicAPI.Interfaces;
 using Igorious.StardewValley.DynamicAPI.Services;
+using Igorious.StardewValley.DynamicAPI.Utils;
 using Igorious.StardewValley.NewMachinesMod.SmartObjects;
-using Igorious.StardewValley.NewMachinesMod.SmartObjects.Base;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
-using StardewValley;
 
 namespace Igorious.StardewValley.NewMachinesMod
 {
     public class NewMachinesMod : Mod
     {
-        public static NewMachinesModConfig Config { get; private set; }
-        private static Task CompilingTask { get; set; }
+        public static NewMachinesModConfig Config { get; } = new NewMachinesModConfig();
 
         public override void Entry(params object[] objects)
         {
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
-            Config = new NewMachinesModConfig().Load(Path.Combine(PathOnDisk, @"Configuration"));
-            Configurator.PathOnDisk = PathOnDisk;
+            Config.Load(PathOnDisk);
 
             InitializeCraftingRecipes();
             InitializeObjectInformation();
             InitializeObjectMapping();
             OverrideTextures();
             PrecompileExpressions();
-
-            PlayerEvents.LoadedGame += (s, e) => CompilingTask?.Wait();
         }
 
         private static void InitializeObjectMapping()
         {
-            ObjectMapper.AddMapping<Mill>(Config.Mill);
-            ObjectMapper.AddMapping<Tank>(Config.Tank);
-            ObjectMapper.AddMapping<FullTank>(Config.Tank.ID + 1);
-            ObjectMapper.AddMapping<VinegarJug>(Config.VinegarJug);
-            ObjectMapper.AddMapping<KegEx>(Config.KegEx.ID);
-            ObjectMapper.TrackChanges();
+            ClassMapperService.Instance.Map<Mill>(Config.Mill.ID);
+            ClassMapperService.Instance.Map<Tank>(Config.Tank.ID);
+            ClassMapperService.Instance.Map<FullTank>(Config.Tank.ID + 1);
+            ClassMapperService.Instance.Map<VinegarJug>(Config.VinegarJug.ID);
+            ClassMapperService.Instance.Map<KegEx>(Config.KegEx.ID);
         }
 
         private static void InitializeCraftingRecipes()
         {
-            CustomCraftingRecipes.Add(Config.Mill);
-            CustomCraftingRecipes.Add(Config.Tank);
-            CustomCraftingRecipes.Add(Config.VinegarJug);
+            CraftingRecipesService.Instance.Register(Config.Mill);
+            CraftingRecipesService.Instance.Register(Config.Tank);
+            CraftingRecipesService.Instance.Register(Config.VinegarJug);
         }
 
         private static void InitializeObjectInformation()
         {
-            var craftables = new[] {Config.Mill, Config.Tank, Config.VinegarJug};
-            foreach (var craftable in craftables)
+            var craftableInformation = new[] {Config.Mill, Config.Tank, Config.VinegarJug}
+            .Select(i => new CraftableInformation
             {
-                var length = craftable.ResourceLength;
-                for (var i = 0; i < length; i++)
-                {
-                    CustomObjectInformations.AddBigCraftable(craftable.ID + i, craftable.Name, craftable.Description);
-                }
-            }
+                ID = i.ID,
+                Name = i.Name,
+                Description = i.Description,
+            }).ToList();
 
-            foreach (var overridedItem in Config.ItemOverrides)
-            {
-                CustomObjectInformations.OverrideItemInformation(overridedItem.ID, overridedItem.Name, overridedItem.Description);
-            }
-
-            foreach (var item in Config.Items)
-            {
-                CustomObjectInformations.AddItem(item);
-            }
-
-            foreach (var item in Config.Trees)
-            {
-                CustomObjectInformations.AddTree(item);
-            }
-
-            foreach (var item in Config.Crops)
-            {
-                CustomObjectInformations.AddCrop(item);
-            }
+            craftableInformation.ForEach(InformationService.Instance.Register);
+            Config.ItemOverrides.ForEach(InformationService.Instance.Override);
+            Config.Items.ForEach(InformationService.Instance.Register);
         }
 
-        private static void OverrideTextures()
+        private void OverrideTextures()
         {
-            var craftables = new[] { Config.Mill, Config.Tank, Config.VinegarJug };
-            OverrideTextures(craftables, Textures.AddCraftableOverride);
-            OverrideTextures(Config.Items, Textures.AddItemOverride);
-            OverrideTextures(Config.Trees, Textures.AddTreeOverride);
-            OverrideTextures(Config.Crops, Textures.AddCropOverride);
-        }
-
-        private static void OverrideTextures(IEnumerable<IDrawable> items, Action<int, int> addOverride)
-        {
-            foreach (var item in items)
-            {
-                var length = item.ResourceLength;
-                for (var i = 0; i < length; ++i)
-                {
-                    if (item.ResourceIndex != null) addOverride(item.TextureIndex + i, item.ResourceIndex.Value + i);
-                }
-            }
+            var textureService = new TexturesService(PathOnDisk);
+            var craftables = new List<IDrawable> { Config.Mill, Config.Tank, Config.VinegarJug };
+            craftables.ForEach(i => textureService.Override(Texture.Craftables, i));
+            Config.Items.ForEach(i => textureService.Override(Texture.Items, i));
         }
 
         private static void PrecompileExpressions()
         {
-            CompilingTask = Task.Run(() =>
+            var compilingTask = Task.Run(() =>
             {
                 var machines = new IMachineOutput[] { Config.Mill, Config.Tank, Config.VinegarJug, Config.KegEx };
                 foreach (var machine in machines)
                 {
-                    MachineBase.GetCustomQualityFunc(machine.Output.Quality);
-                    MachineBase.GetCustomCountFunc(machine.Output.Count);
-                    MachineBase.GetCustomPriceFunc(machine.Output.Price);
+                    var output = machine.Output;
+                    ExpressionCompiler.CompileExpression<CountExpression>(output.Count);
+                    ExpressionCompiler.CompileExpression<QualityExpression>(output.Quality);
+                    ExpressionCompiler.CompileExpression<PriceExpression>(output.Price);
 
-                    foreach (var outputItem in machine.Output.Items.Values)
+                    foreach (var outputItem in output.Items.Values)
                     {
-                        MachineBase.GetCustomCountFunc(outputItem.Count);
-                        MachineBase.GetCustomPriceFunc(outputItem.Quality);
+                        ExpressionCompiler.CompileExpression<CountExpression>(outputItem.Count);
+                        ExpressionCompiler.CompileExpression<QualityExpression>(outputItem.Quality);
                     }
                 }
             });
+
+            PlayerEvents.LoadedGame += (s, e) => compilingTask?.Wait();
         }
     }
 }

@@ -1,58 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Igorious.StardewValley.DynamicAPI.Data;
-using Igorious.StardewValley.DynamicAPI.Interfaces;
 using StardewModdingAPI.Events;
 using StardewValley;
 using Object = StardewValley.Object;
 
 namespace Igorious.StardewValley.DynamicAPI.Services
 {
-    public static class ObjectMapper
+    public sealed class ClassMapperService
     {
-        #region Private Data
+        #region Singleton Access
 
-        private static readonly Dictionary<int, Type> _typeMap = new Dictionary<int, Type>();
-
-        #endregion
-
-        #region	Public Properties
-
-        public static IReadOnlyDictionary<int, Type> TypeMap => _typeMap;
-
-        #endregion
-
-        #region	Public Methods
-
-        /// <summary>
-        /// Map game ID to specific class.
-        /// </summary>
-        public static void AddMapping<TObject>(int id) where TObject : SmartObjectBase, new()
-        {
-            _typeMap.Add(id, typeof(TObject));
-        }
-
-        /// <summary>
-        /// Map configuration to specific class.
-        /// </summary>
-        public static void AddMapping<TObject>(IItem item) where TObject : SmartObjectBase, new()
-        {
-            AddMapping<TObject>(item.ID);
-        }
-
-        /// <summary>
-        /// Get mapped ID for specific class.
-        /// </summary>
-        public static int GetID<TObject>() where TObject : Object
-        {
-            return TypeMap.First(kv => kv.Value == typeof(TObject)).Key;
-        }
-
-        /// <summary>
-        /// Allow auto-conversion between classes.
-        /// </summary>
-        public static void TrackChanges()
+        private ClassMapperService()
         {
             LocationEvents.LocationObjectsChanged += OnLocationObjectsChanged;
             TimeEvents.OnNewDay += (s, e) =>
@@ -70,16 +29,52 @@ namespace Igorious.StardewValley.DynamicAPI.Services
             };
         }
 
+        private static ClassMapperService _instance;
+
+        public static ClassMapperService Instance => _instance ?? (_instance = new ClassMapperService());
+
+        #endregion
+
+        #region Private Data
+
+        private readonly Dictionary<int, Type> _typeMap = new Dictionary<int, Type>();
+
+        #endregion
+
+        #region	Public Properties
+
+        public IReadOnlyDictionary<int, Type> TypeMap => _typeMap;
+
+        #endregion
+
+        #region	Public Methods
+
+        /// <summary>
+        /// Map game ID to specific class.
+        /// </summary>
+        public void Map<TObject>(int id) where TObject : SmartObjectBase, new()
+        {
+            _typeMap.Add(id, typeof(TObject));
+        }
+
+        /// <summary>
+        /// Get mapped ID for specific class.
+        /// </summary>
+        public int GetID<TObject>() where TObject : Object
+        {
+            return TypeMap.First(kv => kv.Value == typeof(TObject)).Key;
+        }
+
         #endregion
 
         #region	Auxiliary Methods
 
-        private static void OnLocationObjectsChanged(object sender, EventArgsLocationObjectsChanged eventArgsLocationObjectsChanged)
+        private void OnLocationObjectsChanged(object sender, EventArgsLocationObjectsChanged eventArgsLocationObjectsChanged)
         {
             CovertToSmartObjects();
         }
 
-        private static Object ToSmartObject(Object rawObject)
+        private Object ToSmartObject(Object rawObject)
         {
             var type = TypeMap[rawObject.ParentSheetIndex];
             var smartObject = (Object)Activator.CreateInstance(type);
@@ -87,14 +82,14 @@ namespace Igorious.StardewValley.DynamicAPI.Services
             return smartObject;
         }
 
-        private static Object ToRawObject(Object smartObject)
+        private Object ToRawObject(Object smartObject)
         {
             var rawObject = new Object(smartObject.TileLocation, smartObject.ParentSheetIndex);
             CopyProperties(smartObject, rawObject);
             return rawObject;
         }
 
-        private static void CopyProperties(Object from, Object to)
+        private void CopyProperties(Object from, Object to)
         {
             to.heldObject = from.heldObject;
             to.minutesUntilReady = from.minutesUntilReady;
@@ -102,12 +97,12 @@ namespace Igorious.StardewValley.DynamicAPI.Services
             to.TileLocation = from.TileLocation;
         }
 
-        private static void CovertToSmartObjects()
+        private void CovertToSmartObjects()
         {
             ConvertObjects(Game1.currentLocation, o => (o.GetType() != TypeMap[o.ParentSheetIndex]), ToSmartObject);
         }
 
-        private static void CovertToRawObjects()
+        private void CovertToRawObjects()
         {
             foreach (var gameLocation in Game1.locations)
             {
@@ -115,7 +110,7 @@ namespace Igorious.StardewValley.DynamicAPI.Services
             }
         }
 
-        private static void ConvertObjects(GameLocation location, Predicate<Object> condition, Func<Object, Object> convert)
+        private void ConvertObjects(GameLocation location, Predicate<Object> condition, Func<Object, Object> convert)
         {
             var objectInfos = location.Objects;
             var wrongObjectInfos = objectInfos.Where(o => TypeMap.Keys.Contains(o.Value.ParentSheetIndex) && condition(o.Value)).ToList();

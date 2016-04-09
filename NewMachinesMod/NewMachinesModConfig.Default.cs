@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
+using Igorious.StardewValley.DynamicAPI;
 using Igorious.StardewValley.DynamicAPI.Constants;
 using Igorious.StardewValley.DynamicAPI.Data;
-using StardewValley;
 
 namespace Igorious.StardewValley.NewMachinesMod
 {
-    public partial class NewMachinesModConfig
+    public partial class NewMachinesModConfig : DynamicConfiguration
     {
-        public NewMachinesModConfig FillWithDefaults()
+        public override void CreateDefaultConfiguration()
         {
             Mill = new MachineInfo
             {
@@ -97,9 +97,9 @@ namespace Igorious.StardewValley.NewMachinesMod
                 }
             };
 
-            ItemOverrides = new List<OverridableInformation>
+            ItemOverrides = new List<ObjectInformation>
             {
-                new OverridableInformation
+                new ObjectInformation
                 {
                     ID = (int)ItemID.WheatFlour,
                     Name = "Flour",
@@ -115,31 +115,29 @@ namespace Igorious.StardewValley.NewMachinesMod
                 new ObjectInformation
                 {
                     ID = MeadID,
-                    Category = Object.artisanGoodsCategory,
+                    Category = ObjectCategory.ArtisanGoods,
                     Description = "Drink from honey.",
                     Type = "Basic",
                     Name = "Mead",
                     Price = 500,
                     Edibility = 20,
                     Subcategory = "drink",
-                    SkillUps = ObjectInformation.NoSkillUps,
-                    Duration = 0,
-                    ResourceIndex = 0,
+                    ResourceIndex = 240,
                 },
 
                 new ObjectInformation
                 {
                     ID = VodkaID,
-                    Category = Object.artisanGoodsCategory,
+                    Category = ObjectCategory.ArtisanGoods,
                     Description = "Light alcohol drink.",
                     Type = "Basic",
                     Name = "Vodka",
                     Price = 400,
                     Edibility = 15,
                     Subcategory = "drink",
-                    SkillUps = new int[10] {-1,-1, -1, -1, -1, -1, -1, -1, -1, -1},
+                    SkillUps = new SkillUpInformation {Speed = -1, Combat = -1, Luck = +1},
                     Duration = 60,
-                    ResourceIndex = 1,
+                    ResourceIndex = 241,
                 }
             };
 
@@ -156,64 +154,6 @@ namespace Igorious.StardewValley.NewMachinesMod
                     },
                 }
             };
-
-            Items.Add(new ObjectInformation
-            {
-                ID = 1001,
-                Category = Object.SeedsCategory,
-                Description = "Seed no1001",
-                Name = "Seed no1001",
-                Price = 1001,
-                Type = "Seeds", 
-                ResourceIndex = 4,
-            });
-            Items.Add(new ObjectInformation
-            {
-                ID = 1002,
-                Category = Object.SeedsCategory,
-                Description = "Takes 28 days to produce a mature cherry tree. Bears fruit in the spring. Only grows if the 8 surrounding \"tiles\" are empty.",
-                Name = "Test Sample",
-                Price = 1002,
-                Type = "Basic",  
-                ResourceIndex = 3,
-            });
-            Items.Add(new ObjectInformation
-            {
-                ID = 1003,
-                Category = Object.VegetableCategory,
-                Description = "Crop no1003",
-                Name = "Crop no1003",
-                Price = 1003,
-                Type = "Basic",   
-                Edibility = 30,
-                ResourceIndex = 7,
-            });
-
-            Crops = new List<CropInformation>
-            {
-                new CropInformation
-                {
-                    SeedID = 1001,
-                    TextureIndex = 70,
-                    ResourceIndex = 1,
-                    CropID = 1003,
-                    Seasons = new List<string> {"spring", "summer", "fall" },
-                    Phases = new List<int> {1, 1, 1 },
-                }
-            };
-
-            Trees = new List<TreeInformation>
-            {
-                new TreeInformation
-                {
-                    SapleID = 1002,
-                    FruitID = 1003,
-                    TextureIndex = 0,
-                    Season = "fall",               
-                }
-            };
-
-            return this;
         }
     }
 }

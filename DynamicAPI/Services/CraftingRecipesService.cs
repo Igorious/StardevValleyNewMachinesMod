@@ -8,18 +8,25 @@ using StardewValley;
 
 namespace Igorious.StardewValley.DynamicAPI.Services
 {
-    public static class CustomCraftingRecipes
+    public sealed class CraftingRecipesService
     {
-        #region Private Data
+        #region Singleton Access
 
-        private static readonly List<CraftingRecipeInformation> _customRecipeInformations = new List<CraftingRecipeInformation>();
-        private static bool IsInitialized { get; set; }
+        private CraftingRecipesService()
+        {
+            GameEvents.LoadContent += (s, e) => LoadToGame();
+            PlayerEvents.LoadedGame += (s, e) => LoadToPlayer();
+        }
+
+        private static CraftingRecipesService _instance;
+
+        public static CraftingRecipesService Instance => _instance ?? (_instance = new CraftingRecipesService());
 
         #endregion
 
-        #region	Public Properties
+        #region Private Data
 
-        public static IReadOnlyList<CraftingRecipeInformation> CustomRecipeInformations => _customRecipeInformations;
+        private readonly List<CraftingRecipeInformation> _customRecipeInformations = new List<CraftingRecipeInformation>();
 
         #endregion
 
@@ -28,18 +35,17 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         /// <summary>
         /// Register a custom crafting recipe.
         /// </summary>
-        public static void Add(int id, string name, IEnumerable<MaterialInfo> materials, string skill, int? skillLevel = 0)
+        public void Register(int id, string name, IEnumerable<MaterialInfo> materials, string skill, int? skillLevel = 0)
         {
-            Initialize();
             _customRecipeInformations.Add(new CraftingRecipeInformation {ID = id, Name = name, Materials = materials, Skill = skill, SkillLevel = skillLevel});
         }
 
         /// <summary>
         /// Register a custom crafting recipe.
         /// </summary>
-        public static void Add(ICraftable craftableItem)
+        public void Register(ICraftable craftableItem)
         {
-            Add(craftableItem.ID, 
+            Register(craftableItem.ID, 
                 craftableItem.Name, 
                 craftableItem.Materials.Select(kv => new MaterialInfo(kv.Key, kv.Value)), 
                 craftableItem.Skill, 
@@ -50,27 +56,19 @@ namespace Igorious.StardewValley.DynamicAPI.Services
 
         #region	Auxiliary Methods
 
-        private static void Initialize()
+        private void LoadToGame()
         {
-            if (IsInitialized) return;
-            GameEvents.LoadContent += (s, e) => LoadToGame();
-            PlayerEvents.LoadedGame += (s, e) => LoadToPlayer();
-            IsInitialized = true;
-        }
-
-        private static void LoadToGame()
-        {
-            foreach (var recipeInformation in CustomRecipeInformations)
+            foreach (var recipeInformation in _customRecipeInformations)
             {
                 if (CraftingRecipe.craftingRecipes.ContainsKey(recipeInformation.Name)) continue;
                 CraftingRecipe.craftingRecipes.Add(recipeInformation.Name, recipeInformation.ToString());
             }
         }
 
-        private static void LoadToPlayer()
+        private void LoadToPlayer()
         {
             var player = Game1.player;
-            foreach (var recipeInformation in CustomRecipeInformations)
+            foreach (var recipeInformation in _customRecipeInformations)
             {
                 if (player.craftingRecipes.ContainsKey(recipeInformation.Name)) continue;
                 if (recipeInformation.Skill == null

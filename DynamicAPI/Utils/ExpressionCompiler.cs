@@ -3,22 +3,13 @@ using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
 using Microsoft.CSharp;
 
 namespace Igorious.StardewValley.DynamicAPI.Utils
 {
     public static class ExpressionCompiler
     {
-        #region Classes
-
-        private class ParameterInfo
-        {
-            public string Name { get; set; }
-            public Type Type { get; set; }
-        }
-
-        #endregion
-
         #region Private Data
 
         private static IDictionary<string, object> CachedFunctions { get; } = new Dictionary<string, object>();
@@ -27,20 +18,37 @@ namespace Igorious.StardewValley.DynamicAPI.Utils
 
         #region	Public Methods
 
-        public static TFunc CompileExpression<TFunc>(string body, params string[] args)
+        public static TDelegate CompileExpression<TDelegate>(string body)
         {
-            if (string.IsNullOrWhiteSpace(body)) return default(TFunc);
+            if (string.IsNullOrWhiteSpace(body)) return default(TDelegate);
+
+            var delegateInfo = typeof(TDelegate).GetMethod("Invoke");
+            var delegateParameters = delegateInfo.GetParameters();
+            var args = delegateParameters.Select(p => p.Name).ToList();
 
             var key = $"{string.Join(", ", args)} => {body}";
             object value;
-            if (CachedFunctions.TryGetValue(key, out value)) return (TFunc)value;
+            if (CachedFunctions.TryGetValue(key, out value)) return (TDelegate)value;
 
-            var genericArgs = typeof(TFunc).GetGenericArguments();
-            var argTypes = genericArgs.Take(genericArgs.Length - 1);
-            var resultType = genericArgs.Last();
+            var argTypes = delegateParameters.Select(p => p.ParameterType).ToArray();
+            var resultType = delegateInfo.ReturnType;
 
-            var methodInfo = CompileMethod(resultType, argTypes.Select((a, i) => new ParameterInfo {Name = args[i], Type = a}), body);
-            var expression = (TFunc)(object)Delegate.CreateDelegate(typeof(TFunc), methodInfo);
+            TDelegate expression;
+            int intValue;
+            if (int.TryParse(body, out intValue))
+            {
+                var dynamicMethod = new DynamicMethod("", resultType, argTypes);
+                var il = dynamicMethod.GetILGenerator();
+                il.Emit(OpCodes.Ldc_I4, intValue);
+                il.Emit(OpCodes.Ret);
+                expression = (TDelegate)(object)dynamicMethod.CreateDelegate(typeof(TDelegate));
+            }
+            else
+            {
+                var methodInfo = CompileMethod(resultType, delegateParameters, body);
+                expression = (TDelegate)(object)Delegate.CreateDelegate(typeof(TDelegate), methodInfo);
+            }
+          
             CachedFunctions.Add(key, expression);
             return expression;
         }
@@ -60,11 +68,13 @@ namespace Igorious.StardewValley.DynamicAPI.Utils
                 }
             }"
             .Replace("$TypeResult", result.FullName)
-            .Replace("$Arguments", string.Join(", ", parameters.Select(p => $"{p.Type.FullName} {p.Name}")))
+            .Replace("$Arguments", string.Join(", ", parameters.Select(p => $"{p.ParameterType.FullName} {p.Name}")))
             .Replace("$Body", body);
 
             var provider = new CSharpCodeProvider();
-            var results = provider.CompileAssemblyFromSource(new CompilerParameters() {GenerateInMemory = true }, code);
+            var compilerParameters = new CompilerParameters {GenerateInMemory = true, IncludeDebugInformation = true };
+            compilerParameters.ReferencedAssemblies.Add("System.dll");
+            var results = provider.CompileAssemblyFromSource(compilerParameters, code);
             if (results.Errors.HasErrors) return null;
 
             var dynamicFunction = results.CompiledAssembly.GetType("DynamicFunction");

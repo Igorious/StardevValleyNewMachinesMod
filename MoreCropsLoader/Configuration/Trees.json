@@ -1,0 +1,98 @@
+[
+  {
+    SapleID: 797,
+    TextureIndex: 0,
+    Season: "Spring",
+    FruitID: 378
+  },
+  {
+    SapleID: 798,
+    TextureIndex: 1,
+    Season: "Summer",
+    FruitID: 380
+  },
+  {
+    SapleID: 799,
+    TextureIndex: 2,
+    Season: "Fall",
+    FruitID: 384
+  },
+  {
+    SapleID: 800,
+    TextureIndex: 3,
+    Season: "Spring",
+    FruitID: 382
+  },
+  {
+    SapleID: 801,
+    TextureIndex: 0,
+    Season: "Winter",
+    FruitID: 386
+  },
+  {
+    SapleID: 806,
+    TextureIndex: 1,
+    Season: "Summer",
+    FruitID: 803
+  },
+  {
+    SapleID: 807,
+    TextureIndex: 2,
+    Season: "Spring",
+    FruitID: 808
+  },
+  {
+    SapleID: 819,
+    TextureIndex: 3,
+    Season: "Summer",
+    FruitID: 818
+  },
+  {
+    SapleID: 827,
+    TextureIndex: 4,
+    Season: "Spring",
+    FruitID: 812
+  },
+  {
+    SapleID: 828,
+    TextureIndex: 5,
+    Season: "Spring",
+    FruitID: 817
+  },
+  {
+    SapleID: 829,
+    TextureIndex: 6,
+    Season: "Summer",
+    FruitID: 825
+  },
+  {
+    SapleID: 841,
+    TextureIndex: 0,
+    Season: "Summer",
+    FruitID: 840
+  },
+  {
+    SapleID: 843,
+    TextureIndex: 1,
+    Season: "Winter",
+    FruitID: 842
+  },
+  {
+    SapleID: 851,
+    TextureIndex: 2,
+    Season: "Summer",
+    FruitID: 850
+  },
+  {
+    SapleID: 853,
+    TextureIndex: 3,
+    Season: "Winter",
+    FruitID: 852
+  },
+  {
+    SapleID: 855,
+    TextureIndex: 4,
+    Season: "Winter",
+    FruitID: 854
+  }
+]
