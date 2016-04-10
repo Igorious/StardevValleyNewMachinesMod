@@ -51,8 +51,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes\ExpressionAttribute.cs" />
+    <Compile Include="Constants\ObjectType.cs" />
+    <Compile Include="Constants\DayTime.cs" />
     <Compile Include="Constants\ObjectCategory.cs" />
     <Compile Include="Constants\Season.cs" />
+    <Compile Include="Data\ArchChance.cs" />
+    <Compile Include="Constants\MealCategory.cs" />
+    <Compile Include="Data\Color.cs" />
+    <Compile Include="Data\CookingRecipeInformation.cs" />
+    <Compile Include="Data\WayToGetCraftingRecipe.cs" />
+    <Compile Include="Data\WayToGetCookingRecipe.cs" />
     <Compile Include="Data\SkillUpInformation.cs" />
     <Compile Include="DynamicConfiguration.cs" />
     <Compile Include="Constants\CraftableID.cs" />
@@ -63,11 +71,12 @@
     <Compile Include="Data\CropInformation.cs" />
     <Compile Include="Data\TreeInformation.cs" />
     <Compile Include="Delegates\OutputDelegates.cs" />
+    <Compile Include="Extensions\BoolExtensions.cs" />
     <Compile Include="Extensions\JsonExtensions.cs" />
     <Compile Include="Extensions\EnumExtensions.cs" />
     <Compile Include="Interfaces\IDrawable.cs" />
     <Compile Include="Interfaces\IMachineOutput.cs" />
-    <Compile Include="Data\ObjectInformation.cs" />
+    <Compile Include="Data\ItemInformation.cs" />
     <Compile Include="Interfaces\ICraftable.cs" />
     <Compile Include="Interfaces\IItem.cs" />
     <Compile Include="Interfaces\IMachine.cs" />
@@ -77,9 +86,9 @@
     <Compile Include="Data\CraftableInformation.cs" />
     <Compile Include="Data\CraftingRecipeInformation.cs" />
     <Compile Include="Interfaces\IInformation.cs" />
-    <Compile Include="Services\CraftingRecipesService.cs" />
+    <Compile Include="Services\RecipesService.cs" />
     <Compile Include="Services\InformationService.cs" />
-    <Compile Include="Data\MaterialInfo.cs" />
+    <Compile Include="Data\IngredientInfo.cs" />
     <Compile Include="Services\ClassMapperService.cs" />
     <Compile Include="Services\TexturesService.cs" />
     <Compile Include="SmartObjectBase.cs" />

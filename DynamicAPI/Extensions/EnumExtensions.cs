@@ -8,5 +8,10 @@ namespace Igorious.StardewValley.DynamicAPI.Extensions
         {
             return (TEnum)Enum.Parse(typeof(TEnum), s, true);
         }
+
+        public static string ToLower(this Enum e)
+        {
+            return e.ToString().ToLower();
+        }
     }
 }

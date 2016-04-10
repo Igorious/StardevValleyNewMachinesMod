@@ -10,17 +10,17 @@
   Materials: {
     334: 1,
     335: 1,
-    382: 5
+    382: 5,
   },
   Output: {
     ID: 245,
     Items: {
       284: {
-        Name: "Beet Sugar"
-      }
+        Name: "Beet Sugar",
+      },
     },
     Price: "p + 25",
     Quality: "0",
-    Count: "(r1 <= 0.1 * q)? 2 : 1"
-  }
+    Count: "(r1 <= 0.1 * q)? 2 : 1",
+  },
 }

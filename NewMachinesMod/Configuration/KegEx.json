@@ -3,12 +3,14 @@
   Output: {
     Items: {
       340: {
-        ID: 900
+        ID: 900,
+        MinutesUntilReady: 4000,
       },
       192: {
-        ID: 901
-      }
-    }
+        ID: 901,
+        MinutesUntilReady: 3000,
+      },
+    },
   },
-  MinutesUntilReady: 1440
+  MinutesUntilReady: 1440,
 }

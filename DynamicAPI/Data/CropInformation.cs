@@ -9,14 +9,14 @@ using Newtonsoft.Json;
 
 namespace Igorious.StardewValley.DynamicAPI.Data
 {
-    public sealed class CropInformation : IDrawable, IInformation
+    public sealed class CropInformation : IDrawable, ICropInformation
     {
         public int SeedID { get; set; }
 
         public List<int> Phases { get; set; } = new List<int>();
 
         public List<Season> Seasons { get; set; } = new List<Season>();
-              
+
         [DefaultValue(-1)]
         public int TextureIndex { get; set; } = -1;
 
@@ -47,12 +47,12 @@ namespace Igorious.StardewValley.DynamicAPI.Data
         [JsonIgnore]
         public bool UseRandomColors => (Colors?.Count > 0);
 
-        public List<int> Colors { get; set; }
+        public List<string> Colors { get; set; }
 
         public int? ResourceIndex { get; set; }
 
         [DefaultValue(1)]
-        int IDrawable.ResourceLength { get; } = 1;
+        public int ResourceLength { get; set; } = 1;
 
         int IInformation.ID => SeedID;
 
@@ -78,22 +78,32 @@ namespace Igorious.StardewValley.DynamicAPI.Data
             var colors = parts[8].Split(' ');
             if (colors.Length > 1)
             {
-                info.Colors = colors.Skip(1).Select(int.Parse).ToList();
+                var intColors = colors.Skip(1).Select(int.Parse).ToList();
+                info.Colors = new List<string>();
+                for (var i = 0; i < intColors.Count; i += 3)
+                {
+                    info.Colors.Add(new Color(intColors[i], intColors[i + 1], intColors[i + 2]).ToHex());
+                }
             }
             return info;
         }
 
         public override string ToString()
         {
-            var buffer = new StringBuilder($"{string.Join(" ", Phases)}/{string.Join(" ", Seasons.Select(s => s.ToFlat()))}"
-                + $"/{TextureIndex}/{CropID}/{RegrowDays}/{HarvestMethod}/{UseAdditionalParameters}");
-            if (UseAdditionalParameters) buffer.Append($" {MinHarvest} {MaxHarvest} {MaxHarvestIncreaseForLevel} {ExtraCropChance}");
-            buffer.Append($"/{IsRaisedSeeds}/{UseRandomColors}");
-            if (UseRandomColors) buffer.Append(" ").Append(string.Join(" ", Colors));
+            var buffer = new StringBuilder($"{string.Join(" ", Phases)}/{string.Join(" ", Seasons.Select(s => s.ToLower()))}"
+                + $"/{TextureIndex}/{CropID}/{RegrowDays}/{HarvestMethod}/{UseAdditionalParameters.ToLower()}");
+            if (UseAdditionalParameters)
+            {
+                buffer.Append($" {MinHarvest} {MaxHarvest} {MaxHarvestIncreaseForLevel} ");
+                buffer.Append(ExtraCropChance == 0 ? "0" : $"{ExtraCropChance:.#####}");
+            }
+            buffer.Append($"/{IsRaisedSeeds.ToLower()}/{UseRandomColors.ToLower()}");
+            if (UseRandomColors)
+            {
+                buffer.Append(" ").Append(string.Join(" ", Colors.Select(Color.FromHex)));
+            }
 
             return buffer.ToString();
         }
-
-       
     }
 }

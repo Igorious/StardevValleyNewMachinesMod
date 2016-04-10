@@ -1,11 +1,9 @@
 ﻿namespace Igorious.StardewValley.DynamicAPI.Constants
 {
-    public enum Season
+    public enum DayTime
     {
         Undefined = 0,
-        Spring,
-        Summer,
-        Fall,
-        Winter,
+        Day,
+        Night,
     }
 }

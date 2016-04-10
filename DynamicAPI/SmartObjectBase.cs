@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
+using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Tools;
 using Object = StardewValley.Object;
@@ -25,12 +26,12 @@ namespace Igorious.StardewValley.DynamicAPI
             if (isProbe)
             {
                 heldObject = ProbeObject;
+                return true;
             }
             else
             {
-                PerformDropIn(item, farmer);
-            }
-            return true;
+                return PerformDropIn(item, farmer);
+            }            
         }
 
         protected void PutItem(int itemID, int count, int itemQuality = 0, string overridedName = null, int? overridedPrice = null)
@@ -47,7 +48,10 @@ namespace Igorious.StardewValley.DynamicAPI
 
         public sealed override bool performToolAction(Tool tool)
         {
+            Log.SyncColour($"ToolAction: {tool?.Name ?? "null"}", ConsoleColor.Yellow);
+
             if (tool is Pickaxe) return OnPickaxeAction((Pickaxe)tool);
+            if (tool is Axe) return OnAxeAction((Axe)tool);
             if (tool is WateringCan)
             {
                 OnWateringCanAction((WateringCan)tool);
@@ -61,6 +65,11 @@ namespace Igorious.StardewValley.DynamicAPI
             return base.performToolAction(pickaxe);
         }
 
+        protected virtual bool OnAxeAction(Axe axe)
+        {
+            return base.performToolAction(axe);
+        }
+
         protected virtual void OnWateringCanAction(WateringCan wateringCan)
         {
             base.performToolAction(wateringCan);
@@ -68,11 +77,11 @@ namespace Igorious.StardewValley.DynamicAPI
 
         protected virtual bool CanPerformDropIn(Object item, Farmer farmer) => CanPerformDropInRaw(item, farmer);
 
-        protected virtual void PerformDropIn(Object item, Farmer farmer) => PerformDropInRaw(item, farmer);
+        protected virtual bool PerformDropIn(Object item, Farmer farmer) => PerformDropInRaw(item, farmer);
 
-        protected void PerformDropInRaw(Object item, Farmer farmer)
+        protected bool PerformDropInRaw(Object item, Farmer farmer)
         {
-            base.performObjectDropInAction(item, false, farmer);
+            return base.performObjectDropInAction(item, false, farmer);
         }
 
         protected bool CanPerformDropInRaw(Object item, Farmer farmer)

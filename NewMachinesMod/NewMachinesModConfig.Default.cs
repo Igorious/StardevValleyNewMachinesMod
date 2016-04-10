@@ -7,6 +7,9 @@ namespace Igorious.StardewValley.NewMachinesMod
 {
     public partial class NewMachinesModConfig : DynamicConfiguration
     {
+        private const int MeadID = 900;
+        private const int VodkaID = 901;
+
         public override void CreateDefaultConfiguration()
         {
             Mill = new MachineInfo
@@ -97,9 +100,33 @@ namespace Igorious.StardewValley.NewMachinesMod
                 }
             };
 
-            ItemOverrides = new List<ObjectInformation>
+            Dryer = new MachineInfo
             {
-                new ObjectInformation
+                ID = 169,
+                ResourceIndex = 5,
+                ResourceLength = 3,
+                MinutesUntilReady = 1440,
+                Name = "Dryer",
+                Description = "It has been created to dry everything.",
+                Skill = Skill.Farming,
+                SkillLevel = 6,
+                Materials = new Dictionary<int, int>
+                {
+                    { (int)ItemID.Wood, 30 },
+                    { (int)ItemID.Hardwood, 2 },
+                },
+                Output = new OutputInfo
+                {
+                    Items = new Dictionary<int, OutputItem>
+                    {
+                        { (int)ItemID.Fiber, new OutputItem {ID = (int)ItemID.Hay} },
+                    },
+                }
+            };
+
+            ItemOverrides = new List<ItemInformation>
+            {
+                new ItemInformation
                 {
                     ID = (int)ItemID.WheatFlour,
                     Name = "Flour",
@@ -107,37 +134,35 @@ namespace Igorious.StardewValley.NewMachinesMod
                 }
             };
 
-            const int MeadID = 900;
-            const int VodkaID = 901;
-
-            Items = new List<ObjectInformation>
+            Items = new List<ItemInformation>
             {
-                new ObjectInformation
+                new ItemInformation
                 {
                     ID = MeadID,
                     Category = ObjectCategory.ArtisanGoods,
                     Description = "Drink from honey.",
-                    Type = "Basic",
+                    Type = ObjectType.Basic,
                     Name = "Mead",
                     Price = 500,
                     Edibility = 20,
-                    Subcategory = "drink",
-                    ResourceIndex = 240,
+                    MealCategory = MealCategory.Drink,
+                    SkillUps = new SkillUpInformation { MaxEnergy = +50 },
+                    ResourceIndex = 0,
                 },
 
-                new ObjectInformation
+                new ItemInformation
                 {
                     ID = VodkaID,
                     Category = ObjectCategory.ArtisanGoods,
                     Description = "Light alcohol drink.",
-                    Type = "Basic",
+                    Type = ObjectType.Basic,
                     Name = "Vodka",
                     Price = 400,
                     Edibility = 15,
-                    Subcategory = "drink",
-                    SkillUps = new SkillUpInformation {Speed = -1, Combat = -1, Luck = +1},
+                    MealCategory = MealCategory.Drink,
+                    SkillUps = new SkillUpInformation { Speed = -1, Defence = +1 },
                     Duration = 60,
-                    ResourceIndex = 241,
+                    ResourceIndex = 1,
                 }
             };
 
@@ -149,10 +174,15 @@ namespace Igorious.StardewValley.NewMachinesMod
                 {
                     Items = new Dictionary<int, OutputItem>
                     {
-                        { (int)ItemID.Honey, new OutputItem {ID = MeadID} },
-                        { (int)ItemID.Potato, new OutputItem {ID = VodkaID} },
+                        { (int)ItemID.Honey, new OutputItem {ID = MeadID, MinutesUntilReady = 4000} },
+                        { (int)ItemID.Potato, new OutputItem {ID = VodkaID, MinutesUntilReady = 3000} },
                     },
                 }
+            };
+
+            LocalizationStrings = new Dictionary<LocalizationString, string>
+            {
+                { LocalizationString.TankRequiresWater, "Fill with water first" },
             };
         }
     }

@@ -2,11 +2,11 @@
 
 namespace Igorious.StardewValley.DynamicAPI.Data
 {
-    public sealed class MaterialInfo
+    public sealed class IngredientInfo
     {
-        public MaterialInfo(ItemID id, int count) : this((int)id, count) { }
+        public IngredientInfo(ItemID id, int count) : this((int)id, count) { }
 
-        public MaterialInfo(int id, int count)
+        public IngredientInfo(int id, int count)
         {
             ID = id;
             Count = count;

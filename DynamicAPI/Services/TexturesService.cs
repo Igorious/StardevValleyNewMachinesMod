@@ -71,7 +71,7 @@ namespace Igorious.StardewValley.DynamicAPI.Services
                 }
                 else if (newValue != oldValue)
                 {
-                    Log.SyncColour($"Texture for ${drawable.GetType().Name} already has mapping {key}->{oldValue}", ConsoleColor.DarkRed);
+                    Log.SyncColour($"Texture for ${drawable.GetType().Name} already has another mapping {key}->{oldValue} (current: {newValue})", ConsoleColor.DarkRed);
                 }
             }
         }
@@ -99,7 +99,6 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         private void OverrideTexture(ref Texture2D originalTexture, string overridingTexturePath, Dictionary<int, int> spriteOverrides, int gridWidth, int gridHeight)
         {
             if (spriteOverrides.Count == 0) return;
-            Log.SyncColour($"Overwrite defalut texture by {overridingTexturePath}", ConsoleColor.DarkMagenta);
 
             var maxHeight = GetSourceRectForObject(spriteOverrides.Keys.Max(), originalTexture, gridWidth, gridHeight).Bottom;
             if (maxHeight > originalTexture.Height)

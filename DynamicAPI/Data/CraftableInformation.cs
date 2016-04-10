@@ -32,6 +32,9 @@ namespace Igorious.StardewValley.DynamicAPI.Data
         [DefaultValue(Object.fragility_Removable)]
         public int Fragility { get; set; } = Object.fragility_Removable;
 
+        [DefaultValue(1)]
+        public int ResourceLength { get; set; } = 1;
+
         public override string ToString()
         {
             return $"{Name}/{Price}/{Edibility}/{Type} {Category}/{Description}/{CanSetOutdoor}/{CanSetIndoor}/{Fragility}";

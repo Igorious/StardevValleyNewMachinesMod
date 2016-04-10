@@ -1,7 +1,13 @@
 ﻿namespace Igorious.StardewValley.DynamicAPI.Constants
 {
-    public static class Skill
+    public enum Skill
     {
-        public const string Farming = "Farming";
+        Undefined = 0,
+        Farming,
+        Mining,
+        Foraging,
+        Fishing,
+        Combat,
+        Luck,
     }
 }

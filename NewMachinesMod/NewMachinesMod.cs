@@ -3,7 +3,6 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Igorious.StardewValley.DynamicAPI.Data;
 using Igorious.StardewValley.DynamicAPI.Delegates;
 using Igorious.StardewValley.DynamicAPI.Interfaces;
 using Igorious.StardewValley.DynamicAPI.Services;
@@ -18,10 +17,19 @@ namespace Igorious.StardewValley.NewMachinesMod
     {
         public static NewMachinesModConfig Config { get; } = new NewMachinesModConfig();
 
+        private List<NewMachinesModConfig.MachineInfo> Machines;
+
         public override void Entry(params object[] objects)
         {
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
             Config.Load(PathOnDisk);
+            Machines = new List<NewMachinesModConfig.MachineInfo>
+            {
+                Config.Mill,
+                Config.Tank,
+                Config.VinegarJug,
+                Config.Dryer,
+            };
 
             InitializeCraftingRecipes();
             InitializeObjectInformation();
@@ -37,26 +45,19 @@ namespace Igorious.StardewValley.NewMachinesMod
             ClassMapperService.Instance.Map<FullTank>(Config.Tank.ID + 1);
             ClassMapperService.Instance.Map<VinegarJug>(Config.VinegarJug.ID);
             ClassMapperService.Instance.Map<KegEx>(Config.KegEx.ID);
+            ClassMapperService.Instance.Map<Dryer>(Config.Dryer.ID);
         }
 
-        private static void InitializeCraftingRecipes()
+        private void InitializeCraftingRecipes()
         {
-            CraftingRecipesService.Instance.Register(Config.Mill);
-            CraftingRecipesService.Instance.Register(Config.Tank);
-            CraftingRecipesService.Instance.Register(Config.VinegarJug);
+            Machines.Select(m => m.GetCraftingRecipe()).ToList()
+                .ForEach(RecipesService.Instance.Register);
         }
 
-        private static void InitializeObjectInformation()
+        private void InitializeObjectInformation()
         {
-            var craftableInformation = new[] {Config.Mill, Config.Tank, Config.VinegarJug}
-            .Select(i => new CraftableInformation
-            {
-                ID = i.ID,
-                Name = i.Name,
-                Description = i.Description,
-            }).ToList();
-
-            craftableInformation.ForEach(InformationService.Instance.Register);
+            Machines.Select(m => m.GetCraftableInformation()).ToList()
+                .ForEach(InformationService.Instance.Register);
             Config.ItemOverrides.ForEach(InformationService.Instance.Override);
             Config.Items.ForEach(InformationService.Instance.Register);
         }
@@ -64,16 +65,15 @@ namespace Igorious.StardewValley.NewMachinesMod
         private void OverrideTextures()
         {
             var textureService = new TexturesService(PathOnDisk);
-            var craftables = new List<IDrawable> { Config.Mill, Config.Tank, Config.VinegarJug };
-            craftables.ForEach(i => textureService.Override(Texture.Craftables, i));
+            Machines.ForEach(i => textureService.Override(Texture.Craftables, i));
             Config.Items.ForEach(i => textureService.Override(Texture.Items, i));
         }
 
-        private static void PrecompileExpressions()
+        private void PrecompileExpressions()
         {
             var compilingTask = Task.Run(() =>
             {
-                var machines = new IMachineOutput[] { Config.Mill, Config.Tank, Config.VinegarJug, Config.KegEx };
+                var machines = Machines.Concat(new IMachineOutput[] {Config.KegEx});
                 foreach (var machine in machines)
                 {
                     var output = machine.Output;

@@ -63,6 +63,7 @@
     <Compile Include="NewMachinesMod.cs" />
     <Compile Include="SmartObjects\Base\OverridedMachineBase.cs" />
     <Compile Include="SmartObjects\Base\MachineBase.cs" />
+    <Compile Include="SmartObjects\Dryer.cs" />
     <Compile Include="SmartObjects\KegEx.cs" />
     <Compile Include="SmartObjects\Base\CustomMachineBase.cs" />
     <Compile Include="SmartObjects\VinegarJug.cs" />
@@ -70,6 +71,9 @@
     <Compile Include="SmartObjects\Mill.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Configuration\Dryer.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Configuration\ItemOverrides.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -77,6 +81,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Configuration\KegEx.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Configuration\LocalizationStrings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Configuration\Mill.json">

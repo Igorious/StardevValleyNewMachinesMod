@@ -112,16 +112,15 @@ namespace Igorious.StardewValley.DynamicAPI.Services
 
         private void ConvertObjects(GameLocation location, Predicate<Object> condition, Func<Object, Object> convert)
         {
-            var objectInfos = location.Objects;
-            var wrongObjectInfos = objectInfos.Where(o => TypeMap.Keys.Contains(o.Value.ParentSheetIndex) && condition(o.Value)).ToList();
+            var locationObjects = location.Objects;
+            var wrongObjectInfos = locationObjects.Where(o => TypeMap.Keys.Contains(o.Value.ParentSheetIndex) && condition(o.Value)).ToList();
             if (wrongObjectInfos.Count == 0) return;
 
             foreach (var wrongObjectInfo in wrongObjectInfos)
             {
-                objectInfos.Remove(wrongObjectInfo.Key);
+                locationObjects.Remove(wrongObjectInfo.Key);
                 var newObject = convert(wrongObjectInfo.Value);
-                objectInfos.Add(wrongObjectInfo.Key, newObject);
-                newObject.minutesElapsed(0, location);
+                locationObjects.Add(wrongObjectInfo.Key, newObject);
             }
         }
 

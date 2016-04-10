@@ -1,0 +1,21 @@
+{
+  ID: 169,
+  Name: "Dryer",
+  ResourceIndex: 5,
+  ResourceLength: 3,
+  Description: "It has been created to dry everything.",
+  Skill: "Farming",
+  SkillLevel: 6,
+  MinutesUntilReady: 1440,
+  Materials: {
+    388: 30,
+    709: 2,
+  },
+  Output: {
+    Items: {
+      771: {
+        ID: 178,
+      },
+    },
+  },
+}

@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
+using Igorious.StardewValley.DynamicAPI.Constants;
 using Igorious.StardewValley.DynamicAPI.Data;
 using Igorious.StardewValley.DynamicAPI.Interfaces;
 
@@ -7,6 +9,11 @@ namespace Igorious.StardewValley.NewMachinesMod
 {
     public partial class NewMachinesModConfig
     {
+        public enum LocalizationString
+        {
+            TankRequiresWater,
+        }
+
         public class MachineInfo : IMachine
         {
             public int ID { get; set; }
@@ -16,11 +23,39 @@ namespace Igorious.StardewValley.NewMachinesMod
             [DefaultValue(1)]
             public int ResourceLength { get; set; } = 1;
             public string Description { get; set; }
-            public string Skill { get; set; }
+            public Skill Skill { get; set; }
             public int? SkillLevel { get; set; }
             public int? MinutesUntilReady { get; set; }
             public Dictionary<int, int> Materials { get; set; } = new Dictionary<int, int>();
             public OutputInfo Output { get; set; }
+
+            public CraftableInformation GetCraftableInformation()
+            {
+                return new CraftableInformation
+                {
+                    ID = ID,
+                    Name = Name,
+                    Description = Description,    
+                    ResourceLength = ResourceLength,
+                };
+            }
+
+            public CraftingRecipeInformation GetCraftingRecipe()
+            {
+                return new CraftingRecipeInformation
+                {
+                    ID = ID,
+                    Name = Name,
+                    IsBig = true,
+                    Materials = Materials.Select(m => new IngredientInfo(m.Key, m.Value)).ToList(),
+                    WayToGet = new WayToGetCraftingRecipe
+                    {
+                        Skill = Skill,
+                        SkillLevel = SkillLevel,
+                        IsDefault = (SkillLevel == null),
+                    }
+                };
+            }
         }
 
         public class OverrideMachineInfo : IMachineOutput
@@ -33,9 +68,10 @@ namespace Igorious.StardewValley.NewMachinesMod
         public MachineInfo Mill { get; set; }
         public MachineInfo Tank { get; set; }
         public MachineInfo VinegarJug { get; set; }
+        public MachineInfo Dryer { get; set; }
         public OverrideMachineInfo KegEx { get; set; }
-        public List<ObjectInformation> ItemOverrides { get; set; } = new List<ObjectInformation>();
-        public List<ObjectInformation> Items { get; set; } = new List<ObjectInformation>();
-
+        public List<ItemInformation> ItemOverrides { get; set; } = new List<ItemInformation>();
+        public List<ItemInformation> Items { get; set; } = new List<ItemInformation>();
+        public Dictionary<LocalizationString, string> LocalizationStrings { get; set; } = new Dictionary<LocalizationString, string>();
     }
 }

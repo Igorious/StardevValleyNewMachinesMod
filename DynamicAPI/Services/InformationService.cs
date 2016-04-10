@@ -27,10 +27,10 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         #region Private Data
 
         private readonly List<CraftableInformation> _craftableInformations = new List<CraftableInformation>();
-        private readonly List<ObjectInformation> _itemsInformations = new List<ObjectInformation>();
-        private readonly List<TreeInformation> _treesInformations = new List<TreeInformation>();
-        private readonly List<CropInformation> _cropInformations = new List<CropInformation>();
-        private readonly List<ObjectInformation> _overridableInformations = new List<ObjectInformation>();
+        private readonly List<IItemInformation> _itemsInformations = new List<IItemInformation>();
+        private readonly List<ITreeInformation> _treesInformations = new List<ITreeInformation>();
+        private readonly List<ICropInformation> _cropInformations = new List<ICropInformation>();
+        private readonly List<ItemInformation> _overridableInformations = new List<ItemInformation>();
 
         #endregion
 
@@ -47,7 +47,7 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         /// <summary>
         /// Register information about item.
         /// </summary>
-        public void Register(ObjectInformation information)
+        public void Register(IItemInformation information)
         {
             _itemsInformations.Add(information);
         }
@@ -55,7 +55,7 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         /// <summary>
         /// Register information about item.
         /// </summary>
-        public void Register(TreeInformation information)
+        public void Register(ITreeInformation information)
         {
             _treesInformations.Add(information);
         }
@@ -63,7 +63,7 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         /// <summary>
         /// Register information about crop.
         /// </summary>
-        public void Register(CropInformation information)
+        public void Register(ICropInformation information)
         {
             _cropInformations.Add(information);
         }
@@ -71,7 +71,7 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         /// <summary>
         /// Override information about item.
         /// </summary>
-        public void Override(ObjectInformation information)
+        public void Override(ItemInformation information)
         {
             _overridableInformations.Add(information);
         }
@@ -103,12 +103,19 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         {
             foreach (var information in customInformation)
             {
-                var length = (information as IDrawable)?.ResourceLength ?? 1;
-                for (var i = 0; i < length; ++i)
+                for (var i = 0; i < information.ResourceLength; ++i)
                 {
-                    if (gameInformation.ContainsKey(information.ID + i)) continue;
-                    Log.SyncColour($"Loaded info #{information.ID + i}: {information}", ConsoleColor.DarkCyan);
-                    gameInformation.Add(information.ID + i, information.ToString());
+                    var key = information.ID + i;
+                    var newValue = information.ToString();
+                    string oldValue;
+                    if (!gameInformation.TryGetValue(key, out oldValue))
+                    {
+                        gameInformation.Add(key, newValue);
+                    }
+                    else if (newValue != oldValue)
+                    {
+                        Log.SyncColour($"Information for ID={key} already has another mapping {key}->{oldValue} (current:{newValue})", ConsoleColor.DarkRed);
+                    }
                 }
             }
         }
@@ -120,7 +127,7 @@ namespace Igorious.StardewValley.DynamicAPI.Services
             return (Dictionary<int, string>)loadedAssets[assetPath];
         }
 
-        private static string OverrideInformation(string actualInfo, ObjectInformation overridableInformation)
+        private static string OverrideInformation(string actualInfo, ItemInformation overridableInformation)
         {
             var parts = actualInfo.Split('/');
             if (overridableInformation.Name != null) parts[0] = overridableInformation.Name;

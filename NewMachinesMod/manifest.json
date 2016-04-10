@@ -1,11 +1,11 @@
 ﻿{
-  Name: "Igorious' New Machines Mod",
+  Name: "New Machines Mod",
   Authour: "Igorious",
   Version: {
-    MajorVersion: 1,
-    MinorVersion: 3,
-    PatchVersion: 1,
-    Build: 263,
+    MajorVersion: 2,
+    MinorVersion: 0,
+    PatchVersion: 0,
+    Build: 485,
   },
   Description: "Adds new machines to create flour, sugar and vinegar.",
   UniqueID: "F70D4FAB-0AB2-4B78-9F1B-AF2CA2236A59",

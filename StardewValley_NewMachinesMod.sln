@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DynamicAPI", "DynamicAPI\Dy
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoreCropsLoader", "MoreCropsLoader\MoreCropsLoader.csproj", "{3D6B12A1-9BF4-4BC7-9DB2-70DB70602178}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DynamicAPI.Tests", "DynamicAPI.Tests\DynamicAPI.Tests.csproj", "{89DFD9EB-4D03-44F8-86BD-A51139099E4A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{3D6B12A1-9BF4-4BC7-9DB2-70DB70602178}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3D6B12A1-9BF4-4BC7-9DB2-70DB70602178}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3D6B12A1-9BF4-4BC7-9DB2-70DB70602178}.Release|Any CPU.Build.0 = Release|Any CPU
+		{89DFD9EB-4D03-44F8-86BD-A51139099E4A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{89DFD9EB-4D03-44F8-86BD-A51139099E4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{89DFD9EB-4D03-44F8-86BD-A51139099E4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{89DFD9EB-4D03-44F8-86BD-A51139099E4A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

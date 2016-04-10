@@ -9,20 +9,20 @@
   Materials: {
     330: 50,
     766: 10,
-    334: 1
+    334: 1,
   },
   Output: {
     ID: 419,
     Items: {
       613: {
-        Name: "Apple Cider Vinegar"
+        Name: "Apple Cider Vinegar",
       },
       348: {
         Name: "Wine Vinegar",
-        Price: 500
-      }
+        Price: 500,
+      },
     },
     Quality: "(p > 1000)? 2 : (p > 500)? 1 : 0",
-    Count: "(r1 <= 0.1 * q)? 2 : 1"
-  }
+    Count: "(r1 <= 0.1 * q)? 2 : 1",
+  },
 }

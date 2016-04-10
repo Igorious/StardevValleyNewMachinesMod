@@ -12,7 +12,7 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects
     {
         private static readonly int ID = ClassMapperService.Instance.GetID<FullTank>();
 
-        public FullTank() : base(ID) { }      
+        public FullTank() : base(ID) { }
     }
 
     public class Tank : CustomMachineBase
@@ -25,7 +25,7 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects
         protected bool IsEmpty
         {
             get { return (ParentSheetIndex == ID); }
-            set { ParentSheetIndex = ID + (value? 0 : 1); }
+            set { ParentSheetIndex = ID + (value ? 0 : 1); }
         }
 
         public override bool minutesElapsed(int minutes, GameLocation environment)
@@ -45,15 +45,24 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects
         protected override bool OnPickaxeAction(Pickaxe pickaxe)
         {
             if (!IsEmpty) PlaySound(Sound.Bubbles);
-            IsEmpty = true;   
+            IsEmpty = true;
             return base.OnPickaxeAction(pickaxe);
+        }
+
+        protected override bool OnAxeAction(Axe axe)
+        {
+            if (!IsEmpty) PlaySound(Sound.Bubbles);
+            IsEmpty = true;
+            return base.OnAxeAction(axe);
         }
 
         protected override IMachine Configuration => NewMachinesMod.Config.Tank;
 
-        protected override bool CanPerformDropIn(Object item, Farmer farmer)
+        protected override bool PerformDropIn(Object item, Farmer farmer)
         {
-            return !IsEmpty && base.CanPerformDropIn(item, farmer);
+            if (!IsEmpty) return base.PerformDropIn(item, farmer);
+            Game1.showRedMessage(NewMachinesMod.Config.LocalizationStrings[NewMachinesModConfig.LocalizationString.TankRequiresWater]);
+            return false;
         }
 
         protected override void PlayDropInSounds()

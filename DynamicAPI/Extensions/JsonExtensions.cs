@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -18,7 +19,9 @@ namespace Igorious.StardewValley.DynamicAPI.Extensions
                 ser.Converters.Add(new StringEnumConverter { AllowIntegerValues = true });
                 ser.Serialize(writer, o);
             }
-            return buffer.ToString();
+            var result = buffer.ToString();
+            result = Regex.Replace(result, @"(\r\n\s*[\]\}])", @",$1");
+            return result;
         }
     }
 }

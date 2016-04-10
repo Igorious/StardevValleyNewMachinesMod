@@ -20,37 +20,17 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
             return (heldObject == null) && Output.Items.ContainsKey(item.ParentSheetIndex);
         }
 
-        protected override void PerformDropIn(Object item, Farmer farmer)
+        protected override bool PerformDropIn(Object item, Farmer farmer)
         {
             PutItem(GetOutputID(item), GetOutputCount(item), GetOutputQuality(item), GetOutputName(item), GetOutputPrice(item));
             PlayDropInSounds();         
             minutesUntilReady = GetMinutesUntilReady(item);
+            return true;
         }
 
         protected virtual void PlayDropInSounds()
         {
             PlaySound(Sound.Ship);
-        }
-
-        public static QualityExpression GetCustomQualityFunc(string body)
-        {
-            int value;
-            if (int.TryParse(body, out value)) return (p, q, r1, r2) => value;
-            return ExpressionCompiler.CompileExpression<QualityExpression>(body);
-        }
-
-        public static CountExpression GetCustomCountFunc(string body)
-        {
-            int value;
-            if (int.TryParse(body, out value)) return (p, q, r1, r2) => value;
-            return ExpressionCompiler.CompileExpression<CountExpression>(body);
-        }
-
-        public static PriceExpression GetCustomPriceFunc(string body)
-        {
-            int value;
-            if (int.TryParse(body, out value)) return (p, q) => value;
-            return ExpressionCompiler.CompileExpression<PriceExpression>(body);
         }
 
         protected virtual string GetOutputName(Object item)
@@ -60,24 +40,31 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
 
         protected virtual int GetOutputQuality(Object item)
         {
-            var customQualityFunc = GetCustomQualityFunc(Output.Items[item.ParentSheetIndex]?.Quality ?? Output.Quality);
-            if (customQualityFunc == null) return 0;
+            var qualityExpression = Output.Items[item.ParentSheetIndex]?.Quality ?? Output.Quality;
+            var calculateQuality = ExpressionCompiler.CompileExpression<QualityExpression>(qualityExpression);
+            if (calculateQuality == null) return 0;
+
             var random = GetRandom();
-            return customQualityFunc(item.Price, item.quality, random.NextDouble(), random.NextDouble());
+            return calculateQuality(item.Price, item.quality, random.NextDouble(), random.NextDouble());
         }
 
         protected virtual int GetOutputCount(Object item)
         {
-            var customCountFunc = GetCustomCountFunc(Output.Items[item.ParentSheetIndex]?.Count ?? Output.Count);
-            if (customCountFunc == null) return 1;
+            var countExpression = Output.Items[item.ParentSheetIndex]?.Count ?? Output.Count;
+            var calculateCount = ExpressionCompiler.CompileExpression<CountExpression>(countExpression);
+            if (calculateCount == null) return 1;
+
             var random = GetRandom();
-            return customCountFunc(item.Price, item.quality, random.NextDouble(), random.NextDouble());
+            return calculateCount(item.Price, item.quality, random.NextDouble(), random.NextDouble());
         }
 
         protected virtual int? GetOutputPrice(Object item)
         {
-            return Output.Items[item.ParentSheetIndex]?.Price 
-                ?? GetCustomPriceFunc(Output.Price)?.Invoke(item.price, item.quality);
+            var itemPrice = Output.Items[item.ParentSheetIndex]?.Price;
+            if (itemPrice != null) return itemPrice;
+
+            var calculatePrice = ExpressionCompiler.CompileExpression<PriceExpression>(Output.Price);
+            return calculatePrice?.Invoke(item.price, item.quality);
         }
 
         protected virtual int GetOutputID(Object item)
