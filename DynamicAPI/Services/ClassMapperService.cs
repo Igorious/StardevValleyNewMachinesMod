@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using StardewModdingAPI.Events;
 using StardewValley;
+using StardewValley.Menus;
 using Object = StardewValley.Object;
 
 namespace Igorious.StardewValley.DynamicAPI.Services
@@ -16,16 +17,11 @@ namespace Igorious.StardewValley.DynamicAPI.Services
             LocationEvents.LocationObjectsChanged += OnLocationObjectsChanged;
             TimeEvents.OnNewDay += (s, e) =>
             {
-                if (!e.IsNewDay)
-                {
-                    LocationEvents.LocationObjectsChanged -= OnLocationObjectsChanged;
-                    CovertToRawObjects(); // Allow use native serializer.
-                }
-                else
-                {
-                    CovertToSmartObjects(); // Activate objects in farmer house.
-                    LocationEvents.LocationObjectsChanged += OnLocationObjectsChanged;
-                }
+                if (e.IsNewDay) return;
+
+                LocationEvents.LocationObjectsChanged -= OnLocationObjectsChanged;
+                CovertToRawObjects(); // Allow use native serializer.
+                MenuEvents.MenuClosed += OnMenuClosed; // Prevent issue with crash after finishing bundle.
             };
         }
 
@@ -68,6 +64,14 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         #endregion
 
         #region	Auxiliary Methods
+
+        private void OnMenuClosed(object sender, EventArgsClickableMenuClosed args)
+        {
+            if (!(args.PriorMenu is SaveGameMenu)) return;
+            MenuEvents.MenuClosed -= OnMenuClosed;
+            CovertToSmartObjects(); // Activate objects in farmer house.
+            LocationEvents.LocationObjectsChanged += OnLocationObjectsChanged;
+        }
 
         private void OnLocationObjectsChanged(object sender, EventArgsLocationObjectsChanged eventArgsLocationObjectsChanged)
         {
