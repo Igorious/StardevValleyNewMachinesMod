@@ -40,7 +40,7 @@ namespace Igorious.StardewValley.NewMachinesMod
                     Price = "p + 25",
                     Quality = "0",
                     Count = "(r1 <= 0.1 * q)? 2 : 1",
-                }
+                },
             };
 
             Tank = new MachineInfo
@@ -69,7 +69,8 @@ namespace Igorious.StardewValley.NewMachinesMod
                     Price = "p + 25",
                     Quality = "0",
                     Count = "(r1 <= 0.1 * q)? 2 : 1",
-                }
+                },
+                Sounds = new List<Sound> { Sound.Ship, Sound.Bubbles },
             };
 
             VinegarJug = new MachineInfo
@@ -97,7 +98,8 @@ namespace Igorious.StardewValley.NewMachinesMod
                     },
                     Quality = "(p > 1000)? 2 : (p > 500)? 1 : 0",
                     Count = "(r1 <= 0.1 * q)? 2 : 1",
-                }
+                },
+                Sounds = new List<Sound> { Sound.Ship, Sound.Bubbles },
             };
 
             Dryer = new MachineInfo
@@ -121,7 +123,7 @@ namespace Igorious.StardewValley.NewMachinesMod
                     {
                         { (int)ItemID.Fiber, new OutputItem {ID = (int)ItemID.Hay} },
                     },
-                }
+                },
             };
 
             ItemOverrides = new List<ItemInformation>
@@ -131,7 +133,7 @@ namespace Igorious.StardewValley.NewMachinesMod
                     ID = (int)ItemID.WheatFlour,
                     Name = "Flour",
                     Description = "A common cooking ingredient made from crushed seeds.",
-                }
+                },
             };
 
             Items = new List<ItemInformation>

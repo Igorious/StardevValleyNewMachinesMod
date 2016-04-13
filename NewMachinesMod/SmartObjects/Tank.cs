@@ -64,11 +64,5 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects
             Game1.showRedMessage(NewMachinesMod.Config.LocalizationStrings[NewMachinesModConfig.LocalizationString.TankRequiresWater]);
             return false;
         }
-
-        protected override void PlayDropInSounds()
-        {
-            PlaySound(Sound.Ship);
-            PlaySound(Sound.Bubbles);
-        }
     }
 }

@@ -12,11 +12,5 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects
         public VinegarJug() : base(ID) {}
 
         protected override IMachine Configuration => NewMachinesMod.Config.VinegarJug;
-
-        protected override void PlayDropInSounds()
-        {
-            PlaySound(Sound.Ship);
-            PlaySound(Sound.Bubbles);
-        }
     }
 }

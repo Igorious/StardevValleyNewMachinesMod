@@ -1,6 +1,4 @@
-﻿using Igorious.StardewValley.DynamicAPI.Data;
-using Igorious.StardewValley.DynamicAPI.Interfaces;
-using StardewValley;
+﻿using StardewValley;
 
 namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
 {
@@ -8,9 +6,6 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
     {
         protected OverridedMachineBase(int id) : base(id) { }
 
-        protected abstract IMachineOutput Configuration { get; }
-        protected override OutputInfo Output => Configuration.Output;
-        protected override int? MinutesUntilReady => Configuration.MinutesUntilReady;
         private bool? UsedOverride { get; set; }
 
         protected sealed override bool CanPerformDropIn(Object item, Farmer farmer)

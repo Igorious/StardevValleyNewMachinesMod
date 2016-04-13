@@ -28,6 +28,7 @@ namespace Igorious.StardewValley.NewMachinesMod
             public int? MinutesUntilReady { get; set; }
             public Dictionary<int, int> Materials { get; set; } = new Dictionary<int, int>();
             public OutputInfo Output { get; set; }
+            public List<Sound> Sounds { get; set; }
 
             public CraftableInformation GetCraftableInformation()
             {
@@ -63,6 +64,7 @@ namespace Igorious.StardewValley.NewMachinesMod
             public int ID { get; set; }
             public OutputInfo Output { get; set; }
             public int? MinutesUntilReady { get; set; }
+            public List<Sound> Sounds { get; set; }
         }
 
         public MachineInfo Mill { get; set; }

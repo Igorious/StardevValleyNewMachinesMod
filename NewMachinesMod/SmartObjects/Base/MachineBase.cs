@@ -1,7 +1,9 @@
-﻿using Igorious.StardewValley.DynamicAPI;
+﻿using System.Collections.Generic;
+using Igorious.StardewValley.DynamicAPI;
 using Igorious.StardewValley.DynamicAPI.Constants;
 using Igorious.StardewValley.DynamicAPI.Data;
 using Igorious.StardewValley.DynamicAPI.Delegates;
+using Igorious.StardewValley.DynamicAPI.Interfaces;
 using Igorious.StardewValley.DynamicAPI.Utils;
 using StardewValley;
 using Object = StardewValley.Object;
@@ -12,8 +14,9 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
     {
         protected MachineBase(int id) : base(id) {}
 
-        protected abstract OutputInfo Output { get; }
-        protected abstract int? MinutesUntilReady { get; }
+        protected abstract IMachineOutput MachineOutput { get; }
+        protected OutputInfo Output => MachineOutput.Output;
+        protected int? MinutesUntilReady => MachineOutput.MinutesUntilReady;
 
         protected override bool CanPerformDropIn(Object item, Farmer farmer)
         {
@@ -30,7 +33,7 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
 
         protected virtual void PlayDropInSounds()
         {
-            PlaySound(Sound.Ship);
+            (MachineOutput.Sounds ?? new List<Sound> {Sound.Ship}).ForEach(PlaySound);
         }
 
         protected virtual string GetOutputName(Object item)

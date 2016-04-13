@@ -51,6 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes\ExpressionAttribute.cs" />
+    <Compile Include="Constants\MachineState.cs" />
     <Compile Include="Constants\ObjectType.cs" />
     <Compile Include="Constants\DayTime.cs" />
     <Compile Include="Constants\ObjectCategory.cs" />
@@ -59,6 +60,7 @@
     <Compile Include="Constants\MealCategory.cs" />
     <Compile Include="Data\Color.cs" />
     <Compile Include="Data\CookingRecipeInformation.cs" />
+    <Compile Include="Data\MachineDraw.cs" />
     <Compile Include="Data\WayToGetCraftingRecipe.cs" />
     <Compile Include="Data\WayToGetCookingRecipe.cs" />
     <Compile Include="Data\SkillUpInformation.cs" />

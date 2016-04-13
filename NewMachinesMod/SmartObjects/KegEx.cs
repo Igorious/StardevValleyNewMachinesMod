@@ -10,6 +10,6 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects
 
         public KegEx() : base(ID) {}
 
-        protected override IMachineOutput Configuration => NewMachinesMod.Config.KegEx;
+        protected override IMachineOutput MachineOutput => NewMachinesMod.Config.KegEx;
     }
 }

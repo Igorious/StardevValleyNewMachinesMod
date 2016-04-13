@@ -1,6 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using Igorious.StardewValley.DynamicAPI.Constants;
 using Microsoft.Xna.Framework;
-using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Tools;
 using Object = StardewValley.Object;
@@ -9,6 +10,12 @@ namespace Igorious.StardewValley.DynamicAPI
 {
     public abstract class SmartObjectBase : Object
     {
+        private static readonly Dictionary<Sound, string> SoundNames = new Dictionary<Sound, string>
+        {
+            {Sound.Bubbles, "bubbles"},
+            {Sound.Ship, "Ship"},
+        };
+
         protected SmartObjectBase(int id) : base(Vector2.Zero, id) { }
 
         private static readonly Object ProbeObject = new Object();
@@ -41,15 +48,13 @@ namespace Igorious.StardewValley.DynamicAPI
             if (overridedPrice != null) heldObject.Price = overridedPrice.Value;
         }
 
-        protected void PlaySound(string sound)
+        protected void PlaySound(Sound sound)
         {
-            Game1.playSound(sound);
+            Game1.playSound(SoundNames[sound]);
         }
 
         public sealed override bool performToolAction(Tool tool)
         {
-            Log.SyncColour($"ToolAction: {tool?.Name ?? "null"}", ConsoleColor.Yellow);
-
             if (tool is Pickaxe) return OnPickaxeAction((Pickaxe)tool);
             if (tool is Axe) return OnAxeAction((Axe)tool);
             if (tool is WateringCan)
