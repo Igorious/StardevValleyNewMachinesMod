@@ -532,7 +532,7 @@ namespace Igorious.StardewValley.DynamicAPI.Constants
         VoidEssence = 769,
         MixedSeeds = 770,
         Fiber = 771,
-        OilofGarlic = 772,
+        OilOfGarlic = 772,
         LifeElixir = 773,
         WildBait = 774,
         Glacierfish = 775,

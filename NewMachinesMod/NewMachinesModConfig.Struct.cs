@@ -29,6 +29,7 @@ namespace Igorious.StardewValley.NewMachinesMod
             public Dictionary<int, int> Materials { get; set; } = new Dictionary<int, int>();
             public OutputInfo Output { get; set; }
             public List<Sound> Sounds { get; set; }
+            public MachineDraw Draw { get; set; }
 
             public CraftableInformation GetCraftableInformation()
             {

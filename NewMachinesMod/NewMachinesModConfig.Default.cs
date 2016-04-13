@@ -41,6 +41,10 @@ namespace Igorious.StardewValley.NewMachinesMod
                     Quality = "0",
                     Count = "(r1 <= 0.1 * q)? 2 : 1",
                 },
+                Draw = new MachineDraw
+                {
+                    Ready = +1,
+                },
             };
 
             Tank = new MachineInfo
@@ -124,6 +128,11 @@ namespace Igorious.StardewValley.NewMachinesMod
                         { (int)ItemID.Fiber, new OutputItem {ID = (int)ItemID.Hay} },
                     },
                 },
+                Draw = new MachineDraw
+                {
+                    Processing = +1,
+                    Ready = +2,
+                },
             };
 
             ItemOverrides = new List<ItemInformation>
@@ -179,7 +188,8 @@ namespace Igorious.StardewValley.NewMachinesMod
                         { (int)ItemID.Honey, new OutputItem {ID = MeadID, MinutesUntilReady = 4000} },
                         { (int)ItemID.Potato, new OutputItem {ID = VodkaID, MinutesUntilReady = 3000} },
                     },
-                }
+                },
+                Sounds = new List<Sound> { Sound.Ship, Sound.Bubbles },
             };
 
             LocalizationStrings = new Dictionary<LocalizationString, string>
