@@ -6,10 +6,7 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects
 {
     public class Dryer : CustomMachineBase
     {
-        private static readonly int ID = ClassMapperService.Instance.GetID<Dryer>();
-
-        public Dryer() : base(ID) { }
-
+        public Dryer() : base(ClassMapperService.Instance.GetID<Dryer>()) { }
         protected override IMachine Configuration => NewMachinesMod.Config.Dryer;
     }
 }

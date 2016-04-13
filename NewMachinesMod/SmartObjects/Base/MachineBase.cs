@@ -9,6 +9,7 @@ using Igorious.StardewValley.DynamicAPI.Utils;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
+using Color = Microsoft.Xna.Framework.Color;
 using Object = StardewValley.Object;
 
 namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
@@ -28,7 +29,7 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
 
         protected override bool PerformDropIn(Object item, Farmer farmer)
         {
-            PutItem(GetOutputID(item), GetOutputCount(item), GetOutputQuality(item), GetOutputName(item), GetOutputPrice(item));
+            PutItem(GetOutputID(item), GetOutputCount(item), GetOutputQuality(item), GetOutputName(item), GetOutputPrice(item), GetOutputColor(item));
             PlayDropInSounds();         
             minutesUntilReady = GetMinutesUntilReady(item);
             return true;
@@ -42,6 +43,12 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
         protected virtual string GetOutputName(Object item)
         {
             return Output.Items[item.ParentSheetIndex]?.Name;
+        }
+
+        private Color? GetOutputColor(Object item)
+        {
+            var colorString = Output.Items[item.ParentSheetIndex]?.Color;
+            return DynamicAPI.Data.Color.FromHex(colorString);
         }
 
         protected virtual int GetOutputQuality(Object item)

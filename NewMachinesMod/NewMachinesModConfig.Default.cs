@@ -9,6 +9,7 @@ namespace Igorious.StardewValley.NewMachinesMod
     {
         private const int MeadID = 900;
         private const int VodkaID = 901;
+        private const int CactusJuiseID = 902;
 
         public override void CreateDefaultConfiguration()
         {
@@ -174,7 +175,23 @@ namespace Igorious.StardewValley.NewMachinesMod
                     SkillUps = new SkillUpInformation { Speed = -1, Defence = +1 },
                     Duration = 60,
                     ResourceIndex = 1,
-                }
+                },
+
+                new ItemInformation
+                {
+                    ID = CactusJuiseID,
+                    Category = ObjectCategory.ArtisanGoods,
+                    Description = "Drink with pleasant taste.",
+                    Type = ObjectType.Basic,
+                    Name = "Castus Juise",
+                    Price = 500,
+                    Edibility = 20,
+                    MealCategory = MealCategory.Drink,
+                    SkillUps = new SkillUpInformation { Farming = +1 },
+                    Duration = 60,
+                    ResourceIndex = 2,
+                    ResourceLength = 2,
+                },
             };
 
             KegEx = new OverrideMachineInfo
@@ -187,6 +204,7 @@ namespace Igorious.StardewValley.NewMachinesMod
                     {
                         { (int)ItemID.Honey, new OutputItem {ID = MeadID, MinutesUntilReady = 4000} },
                         { (int)ItemID.Potato, new OutputItem {ID = VodkaID, MinutesUntilReady = 3000} },
+                        { (int)ItemID.CactusFruit, new OutputItem {ID = CactusJuiseID, MinutesUntilReady = 4500, Color = "30A300"} },
                     },
                 },
                 Sounds = new List<Sound> { Sound.Ship, Sound.Bubbles },

@@ -6,10 +6,7 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects
 {
     public sealed class Mill : CustomMachineBase
     {
-        private static readonly int ID = ClassMapperService.Instance.GetID<Mill>();
-
-        public Mill() : base(ID) {}
-
+        public Mill() : base(ClassMapperService.Instance.GetID<Mill>()) {}
         protected override IMachine Configuration => NewMachinesMod.Config.Mill;
     }
 }

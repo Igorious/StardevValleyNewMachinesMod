@@ -19,6 +19,7 @@ namespace Igorious.StardewValley.DynamicAPI.Data
 
         public static Color FromHex(string hex)
         {
+            if (string.IsNullOrWhiteSpace(hex)) return null;
             return new Color
             {
                 R = int.Parse(hex.Substring(0, 2), NumberStyles.HexNumber),
@@ -35,6 +36,11 @@ namespace Igorious.StardewValley.DynamicAPI.Data
         public string ToHex()
         {
             return $"{R:X2}{G:X2}{B:X2}";
+        }
+
+        public static implicit operator Microsoft.Xna.Framework.Color(Color c)
+        {
+            return new Microsoft.Xna.Framework.Color(c.R, c.G, c.B);
         }
     }
 }

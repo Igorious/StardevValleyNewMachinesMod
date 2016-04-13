@@ -10,9 +10,7 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects
 {
     public sealed class FullTank : Tank
     {
-        private static readonly int ID = ClassMapperService.Instance.GetID<FullTank>();
-
-        public FullTank() : base(ID) { }
+        public FullTank() : base(ClassMapperService.Instance.GetID<FullTank>()) { }
     }
 
     public class Tank : CustomMachineBase

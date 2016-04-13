@@ -18,5 +18,7 @@ namespace Igorious.StardewValley.DynamicAPI.Data
         public string Count { get; set; }
 
         public int? MinutesUntilReady { get; set; }
+
+        public string Color { get; set; }
     }
 }
