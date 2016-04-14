@@ -28,8 +28,8 @@ namespace Igorious.StardewValley.NewMachinesMod
             public int? MinutesUntilReady { get; set; }
             public Dictionary<int, int> Materials { get; set; } = new Dictionary<int, int>();
             public OutputInfo Output { get; set; }
-            public List<Sound> Sounds { get; set; }
             public MachineDraw Draw { get; set; }
+            public List<Sound> Sounds { get; set; }
 
             public CraftableInformation GetCraftableInformation()
             {
@@ -68,13 +68,12 @@ namespace Igorious.StardewValley.NewMachinesMod
             public List<Sound> Sounds { get; set; }
         }
 
-        public MachineInfo Mill { get; set; }
+        public List<MachineInfo> SimpleMachines { get; set; } = new List<MachineInfo>();
+        public List<OverrideMachineInfo> MachineOverrides { get; set; } = new List<OverrideMachineInfo>();
         public MachineInfo Tank { get; set; }
-        public MachineInfo VinegarJug { get; set; }
-        public MachineInfo Dryer { get; set; }
-        public OverrideMachineInfo KegEx { get; set; }
         public List<ItemInformation> ItemOverrides { get; set; } = new List<ItemInformation>();
         public List<ItemInformation> Items { get; set; } = new List<ItemInformation>();
+        public List<CropInformation> Crops { get; set; } = new List<CropInformation>();
         public Dictionary<LocalizationString, string> LocalizationStrings { get; set; } = new Dictionary<LocalizationString, string>();
     }
 }

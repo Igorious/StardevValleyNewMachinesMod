@@ -5,7 +5,8 @@
 /packages
 /MoreCropsLoader/obj
 /MoreCropsLoader/bin
-/.vs/StardewValley_NewMachinesMod/v14/*.suo
+/.vs/
 /DynamicAPI.Tests/bin
 /DynamicAPI.Tests/obj
-/MoreCropsLoader/*.user
+/*/*.user
+/*.user

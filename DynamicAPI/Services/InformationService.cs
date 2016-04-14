@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Igorious.StardewValley.DynamicAPI.Data;
 using Igorious.StardewValley.DynamicAPI.Extensions;
 using Igorious.StardewValley.DynamicAPI.Interfaces;
+using Microsoft.Xna.Framework.Content;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
@@ -15,7 +16,8 @@ namespace Igorious.StardewValley.DynamicAPI.Services
 
         private InformationService()
         {
-            GameEvents.LoadContent += (s, e) => LoadToGame();
+            GameEvents.LoadContent += (s, e) => LoadMainContentToGame();
+            LocationEvents.CurrentLocationChanged += (s, e) => LoadAdditionalContentToGame();
         }
 
         private static InformationService _instance;
@@ -80,12 +82,12 @@ namespace Igorious.StardewValley.DynamicAPI.Services
 
         #region	Auxiliary Methods
 
-        private void LoadToGame()
+        private void LoadMainContentToGame()
         {
             LoadToGame(Game1.bigCraftablesInformation, _craftableInformations);
             LoadToGame(Game1.objectInformation, _itemsInformations);
-            LoadToGame(GetDataCache(@"Data\Crops"), _cropInformations);
-            LoadToGame(GetDataCache(@"Data\fruitTrees"), _treesInformations);
+            LoadToGame(GetDataCache(@"Data\Crops", false), _cropInformations);
+            LoadToGame(GetDataCache(@"Data\fruitTrees", false), _treesInformations);
 
             var objectInformation = Game1.objectInformation;
             foreach (var overridableInformation in _overridableInformations)
@@ -96,7 +98,13 @@ namespace Igorious.StardewValley.DynamicAPI.Services
 
                 objectInformation.Remove(id);
                 objectInformation.Add(id, OverrideInformation(actualInfo, overridableInformation));
-            }  
+            }
+        }
+
+        private void LoadAdditionalContentToGame()
+        {
+            LoadToGame(GetDataCache(@"Data\Crops", true), _cropInformations);
+            LoadToGame(GetDataCache(@"Data\fruitTrees", true), _treesInformations);
         }
 
         private static void LoadToGame(IDictionary<int, string> gameInformation, IReadOnlyList<IInformation> customInformation)
@@ -120,10 +128,23 @@ namespace Igorious.StardewValley.DynamicAPI.Services
             }
         }
 
-        private static Dictionary<int, string> GetDataCache(string assetPath)
+        private static Dictionary<int, string> GetDataCache(string assetPath, bool useTemporary)
         {
-            Game1.content.Load<Dictionary<int, string>>(assetPath);
-            var loadedAssets = Game1.content.GetField<Dictionary<string, object>>("loadedAssets");
+            ContentManager contentManager;
+            if (useTemporary)
+            {
+                if (Game1.temporaryContent == null)
+                {
+                    Game1.temporaryContent = new ContentManager(Game1.content.ServiceProvider, Game1.content.RootDirectory);
+                }
+                contentManager = Game1.temporaryContent;
+            }
+            else
+            {
+                contentManager = Game1.content;
+            }
+            contentManager.Load<Dictionary<int, string>>(assetPath);
+            var loadedAssets = contentManager.GetField<Dictionary<string, object>>("loadedAssets");
             return (Dictionary<int, string>)loadedAssets[assetPath];
         }
 

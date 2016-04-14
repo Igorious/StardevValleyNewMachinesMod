@@ -58,8 +58,9 @@
     <Compile Include="Constants\Season.cs" />
     <Compile Include="Data\ArchChance.cs" />
     <Compile Include="Constants\MealCategory.cs" />
-    <Compile Include="Data\Color.cs" />
+    <Compile Include="Data\RawColor.cs" />
     <Compile Include="Data\CookingRecipeInformation.cs" />
+    <Compile Include="Data\DynamicTypeInfo.cs" />
     <Compile Include="Data\MachineDraw.cs" />
     <Compile Include="Data\WayToGetCraftingRecipe.cs" />
     <Compile Include="Data\WayToGetCookingRecipe.cs" />
@@ -77,6 +78,7 @@
     <Compile Include="Extensions\JsonExtensions.cs" />
     <Compile Include="Extensions\EnumExtensions.cs" />
     <Compile Include="Interfaces\IDrawable.cs" />
+    <Compile Include="Interfaces\IDynamic.cs" />
     <Compile Include="Interfaces\IMachineOutput.cs" />
     <Compile Include="Data\ItemInformation.cs" />
     <Compile Include="Interfaces\ICraftable.cs" />

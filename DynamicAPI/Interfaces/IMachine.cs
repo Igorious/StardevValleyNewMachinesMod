@@ -4,7 +4,7 @@ namespace Igorious.StardewValley.DynamicAPI.Interfaces
 {
     public interface IMachine : ICraftable, IMachineOutput
     {
-        string Description { get; set; }
-        MachineDraw Draw { get; set; }
+        string Description { get; }
+        MachineDraw Draw { get; }
     }
 }

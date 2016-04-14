@@ -21,7 +21,8 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
         protected abstract IMachineOutput MachineOutput { get; }
         protected OutputInfo Output => MachineOutput.Output;
         protected int? MinutesUntilReady => MachineOutput.MinutesUntilReady;
-
+        private static readonly List<Sound> DefaultSound = new List<Sound> {Sound.Ship};
+           
         protected override bool CanPerformDropIn(Object item, Farmer farmer)
         {
             return (heldObject == null) && Output.Items.ContainsKey(item.ParentSheetIndex);
@@ -29,7 +30,7 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
 
         protected override bool PerformDropIn(Object item, Farmer farmer)
         {
-            PutItem(GetOutputID(item), GetOutputCount(item), GetOutputQuality(item), GetOutputName(item), GetOutputPrice(item), GetOutputColor(item));
+            PutItem(GetOutputID(item), GetOutputCount(item), GetOutputQuality(item), GetOutputName(item), GetOutputPrice(item), GetColor(item));
             PlayDropInSounds();         
             minutesUntilReady = GetMinutesUntilReady(item);
             return true;
@@ -37,18 +38,12 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
 
         protected virtual void PlayDropInSounds()
         {
-            (MachineOutput.Sounds ?? new List<Sound> {Sound.Ship}).ForEach(PlaySound);
+            (MachineOutput.Sounds ?? DefaultSound).ForEach(PlaySound);
         }
 
         protected virtual string GetOutputName(Object item)
         {
             return Output.Items[item.ParentSheetIndex]?.Name;
-        }
-
-        private Color? GetOutputColor(Object item)
-        {
-            var colorString = Output.Items[item.ParentSheetIndex]?.Color;
-            return DynamicAPI.Data.Color.FromHex(colorString);
         }
 
         protected virtual int GetOutputQuality(Object item)
@@ -83,6 +78,12 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
         protected virtual int GetOutputID(Object item)
         {
             return Output.Items[item.ParentSheetIndex]?.ID ?? Output.ID ?? 0;
+        }
+
+        private Color? GetColor(Object item)
+        {
+            var colorString = Output.Items[item.ParentSheetIndex]?.Color;
+            return (colorString != null)? RawColor.FromHex(colorString).ToXnaColor() : (Color?)null;
         }
 
         protected virtual int GetMinutesUntilReady(Object item)

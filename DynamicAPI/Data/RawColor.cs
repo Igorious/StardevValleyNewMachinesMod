@@ -2,11 +2,11 @@ using System.Globalization;
 
 namespace Igorious.StardewValley.DynamicAPI.Data
 {
-    public sealed class Color
+    public sealed class RawColor
     {
-        public Color() {}
+        public RawColor() {}
 
-        public Color(int r, int g, int b)
+        public RawColor(int r, int g, int b)
         {
             R = r;
             G = g;
@@ -17,10 +17,10 @@ namespace Igorious.StardewValley.DynamicAPI.Data
         public int G { get; set; }
         public int B { get; set; }
 
-        public static Color FromHex(string hex)
+        public static RawColor FromHex(string hex)
         {
             if (string.IsNullOrWhiteSpace(hex)) return null;
-            return new Color
+            return new RawColor
             {
                 R = int.Parse(hex.Substring(0, 2), NumberStyles.HexNumber),
                 G = int.Parse(hex.Substring(2, 2), NumberStyles.HexNumber),
@@ -38,9 +38,9 @@ namespace Igorious.StardewValley.DynamicAPI.Data
             return $"{R:X2}{G:X2}{B:X2}";
         }
 
-        public static implicit operator Microsoft.Xna.Framework.Color(Color c)
+        public Microsoft.Xna.Framework.Color ToXnaColor()
         {
-            return new Microsoft.Xna.Framework.Color(c.R, c.G, c.B);
+            return new Microsoft.Xna.Framework.Color(R, G, B);
         }
     }
 }

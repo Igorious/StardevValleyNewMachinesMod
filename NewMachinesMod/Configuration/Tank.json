@@ -23,4 +23,8 @@
     Quality: "0",
     Count: "(r1 <= 0.1 * q)? 2 : 1",
   },
+  Sounds: [
+    "Ship",
+    "Bubbles",
+  ],
 }

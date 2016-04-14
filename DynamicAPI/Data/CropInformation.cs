@@ -82,7 +82,7 @@ namespace Igorious.StardewValley.DynamicAPI.Data
                 info.Colors = new List<string>();
                 for (var i = 0; i < intColors.Count; i += 3)
                 {
-                    info.Colors.Add(new Color(intColors[i], intColors[i + 1], intColors[i + 2]).ToHex());
+                    info.Colors.Add(new RawColor(intColors[i], intColors[i + 1], intColors[i + 2]).ToHex());
                 }
             }
             return info;
@@ -100,7 +100,7 @@ namespace Igorious.StardewValley.DynamicAPI.Data
             buffer.Append($"/{IsRaisedSeeds.ToLower()}/{UseRandomColors.ToLower()}");
             if (UseRandomColors)
             {
-                buffer.Append(" ").Append(string.Join(" ", Colors.Select(Color.FromHex)));
+                buffer.Append(" ").Append(string.Join(" ", Colors.Select(RawColor.FromHex)));
             }
 
             return buffer.ToString();

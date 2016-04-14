@@ -10,10 +10,11 @@ namespace Igorious.StardewValley.NewMachinesMod
         private const int MeadID = 900;
         private const int VodkaID = 901;
         private const int CactusJuiseID = 902;
+        private const int CactusSeedID = 904;
 
         public override void CreateDefaultConfiguration()
         {
-            Mill = new MachineInfo
+            SimpleMachines.Add(new MachineInfo
             {
                 ID = 164,
                 ResourceIndex = 0,
@@ -45,8 +46,8 @@ namespace Igorious.StardewValley.NewMachinesMod
                 Draw = new MachineDraw
                 {
                     Ready = +1,
-                },
-            };
+                }
+            });
 
             Tank = new MachineInfo
             {
@@ -78,7 +79,7 @@ namespace Igorious.StardewValley.NewMachinesMod
                 Sounds = new List<Sound> { Sound.Ship, Sound.Bubbles },
             };
 
-            VinegarJug = new MachineInfo
+            SimpleMachines.Add(new MachineInfo
             {
                 ID = 168,
                 ResourceIndex = 4,
@@ -105,9 +106,9 @@ namespace Igorious.StardewValley.NewMachinesMod
                     Count = "(r1 <= 0.1 * q)? 2 : 1",
                 },
                 Sounds = new List<Sound> { Sound.Ship, Sound.Bubbles },
-            };
+            });
 
-            Dryer = new MachineInfo
+            SimpleMachines.Add(new MachineInfo
             {
                 ID = 169,
                 ResourceIndex = 5,
@@ -133,8 +134,8 @@ namespace Igorious.StardewValley.NewMachinesMod
                 {
                     Processing = +1,
                     Ready = +2,
-                },
-            };
+                }
+            });
 
             ItemOverrides = new List<ItemInformation>
             {
@@ -143,7 +144,7 @@ namespace Igorious.StardewValley.NewMachinesMod
                     ID = (int)ItemID.WheatFlour,
                     Name = "Flour",
                     Description = "A common cooking ingredient made from crushed seeds.",
-                },
+                }
             };
 
             Items = new List<ItemInformation>
@@ -192,9 +193,20 @@ namespace Igorious.StardewValley.NewMachinesMod
                     ResourceIndex = 2,
                     ResourceLength = 2,
                 },
+
+                new ItemInformation
+                {
+                    ID = CactusSeedID,
+                    Category = ObjectCategory.Seeds,
+                    Description = "Requres special environment. Takes 15 days to mature.",
+                    Type = ObjectType.Seeds,
+                    Name = "Castus Seed",
+                    Price = 30,
+                    ResourceIndex = 4,
+                },
             };
 
-            KegEx = new OverrideMachineInfo
+            MachineOverrides.Add(new OverrideMachineInfo
             {
                 ID = (int)CraftableID.Keg,
                 MinutesUntilReady = 1440,
@@ -204,16 +216,30 @@ namespace Igorious.StardewValley.NewMachinesMod
                     {
                         { (int)ItemID.Honey, new OutputItem {ID = MeadID, MinutesUntilReady = 4000} },
                         { (int)ItemID.Potato, new OutputItem {ID = VodkaID, MinutesUntilReady = 3000} },
-                        { (int)ItemID.CactusFruit, new OutputItem {ID = CactusJuiseID, MinutesUntilReady = 4500, Color = "30A300"} },
+                        { (int)ItemID.CactusFruit, new OutputItem {ID = CactusJuiseID, MinutesUntilReady = 4500, Color = "31A500" } },
                     },
                 },
                 Sounds = new List<Sound> { Sound.Ship, Sound.Bubbles },
-            };
+            });
 
             LocalizationStrings = new Dictionary<LocalizationString, string>
             {
                 { LocalizationString.TankRequiresWater, "Fill with water first" },
             };
+
+            Crops.Add(new CropInformation
+            {
+                CropID = (int)ItemID.CactusFruit,
+                HarvestMethod = 1,
+                MaxHarvest = 3,
+                MinHarvest = 3,
+                MaxHarvestIncreaseForLevel = 3,
+                SeedID = CactusSeedID,
+                Phases = new List<int> { 2, 3, 4, 3, 3 },
+                TextureIndex = 90,
+                ResourceIndex = 0,
+                IsRaisedSeeds = true,
+            });
         }
     }
 }

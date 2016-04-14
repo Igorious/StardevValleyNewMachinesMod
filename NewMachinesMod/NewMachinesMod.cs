@@ -3,11 +3,13 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Igorious.StardewValley.DynamicAPI.Data;
 using Igorious.StardewValley.DynamicAPI.Delegates;
 using Igorious.StardewValley.DynamicAPI.Interfaces;
 using Igorious.StardewValley.DynamicAPI.Services;
 using Igorious.StardewValley.DynamicAPI.Utils;
 using Igorious.StardewValley.NewMachinesMod.SmartObjects;
+using Igorious.StardewValley.NewMachinesMod.SmartObjects.Dynamic;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 
@@ -17,18 +19,15 @@ namespace Igorious.StardewValley.NewMachinesMod
     {
         public static NewMachinesModConfig Config { get; } = new NewMachinesModConfig();
 
-        private List<NewMachinesModConfig.MachineInfo> Machines;
+        private List<NewMachinesModConfig.MachineInfo> _machines;
 
         public override void Entry(params object[] objects)
         {
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
             Config.Load(PathOnDisk);
-            Machines = new List<NewMachinesModConfig.MachineInfo>
+            _machines = new List<NewMachinesModConfig.MachineInfo>(Config.SimpleMachines)
             {
-                Config.Mill,
                 Config.Tank,
-                Config.VinegarJug,
-                Config.Dryer,
             };
 
             InitializeCraftingRecipes();
@@ -40,40 +39,41 @@ namespace Igorious.StardewValley.NewMachinesMod
 
         private static void InitializeObjectMapping()
         {
-            ClassMapperService.Instance.Map<Mill>(Config.Mill.ID);
             ClassMapperService.Instance.Map<Tank>(Config.Tank.ID);
             ClassMapperService.Instance.Map<FullTank>(Config.Tank.ID + 1);
-            ClassMapperService.Instance.Map<VinegarJug>(Config.VinegarJug.ID);
-            ClassMapperService.Instance.Map<KegEx>(Config.KegEx.ID);
-            ClassMapperService.Instance.Map<Dryer>(Config.Dryer.ID);
+
+            Config.SimpleMachines.ForEach(m => ClassMapperService.Instance.Map(DynamicTypeInfo.Create<DynamicCustomMachine>(m.ID)));
+            Config.MachineOverrides.ForEach(m => ClassMapperService.Instance.Map(DynamicTypeInfo.Create<DynamicOverridedMachine>(m.ID)));
         }
 
         private void InitializeCraftingRecipes()
         {
-            Machines.Select(m => m.GetCraftingRecipe()).ToList()
+            _machines.Select(m => m.GetCraftingRecipe()).ToList()
                 .ForEach(RecipesService.Instance.Register);
         }
 
         private void InitializeObjectInformation()
         {
-            Machines.Select(m => m.GetCraftableInformation()).ToList()
+            _machines.Select(m => m.GetCraftableInformation()).ToList()
                 .ForEach(InformationService.Instance.Register);
             Config.ItemOverrides.ForEach(InformationService.Instance.Override);
             Config.Items.ForEach(InformationService.Instance.Register);
+            Config.Crops.ForEach(InformationService.Instance.Register);
         }
 
         private void OverrideTextures()
         {
             var textureService = new TexturesService(PathOnDisk);
-            Machines.ForEach(i => textureService.Override(Texture.Craftables, i));
+            _machines.ForEach(i => textureService.Override(Texture.Craftables, i));
             Config.Items.ForEach(i => textureService.Override(Texture.Items, i));
+            Config.Crops.ForEach(i => textureService.Override(Texture.Crops, i));
         }
 
         private void PrecompileExpressions()
         {
             var compilingTask = Task.Run(() =>
             {
-                var machines = Machines.Concat(new IMachineOutput[] {Config.KegEx});
+                var machines = _machines.Concat<IMachineOutput>(Config.MachineOverrides);
                 foreach (var machine in machines)
                 {
                     var output = machine.Output;

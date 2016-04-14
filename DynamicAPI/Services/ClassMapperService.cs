@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Igorious.StardewValley.DynamicAPI.Data;
+using Igorious.StardewValley.DynamicAPI.Interfaces;
 using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.Menus;
@@ -34,12 +36,14 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         #region Private Data
 
         private readonly Dictionary<int, Type> _typeMap = new Dictionary<int, Type>();
+        private readonly Dictionary<int, DynamicTypeInfo> _dynamicTypeMap = new Dictionary<int, DynamicTypeInfo>();
 
         #endregion
 
         #region	Public Properties
 
         public IReadOnlyDictionary<int, Type> TypeMap => _typeMap;
+        public IReadOnlyDictionary<int, DynamicTypeInfo> DynamicTypeMap => _dynamicTypeMap;
 
         #endregion
 
@@ -51,6 +55,14 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         public void Map<TObject>(int id) where TObject : SmartObjectBase, new()
         {
             _typeMap.Add(id, typeof(TObject));
+        }
+
+        /// <summary>
+        /// Map game ID to specific class.
+        /// </summary>
+        public void Map(DynamicTypeInfo dynamicTypeInfo)
+        {
+            _dynamicTypeMap.Add(dynamicTypeInfo.ClassID, dynamicTypeInfo);
         }
 
         /// <summary>
@@ -80,8 +92,18 @@ namespace Igorious.StardewValley.DynamicAPI.Services
 
         private Object ToSmartObject(Object rawObject)
         {
-            var type = TypeMap[rawObject.ParentSheetIndex];
-            var smartObject = (Object)Activator.CreateInstance(type);
+            Type type;
+            Object smartObject;
+            if (TypeMap.TryGetValue(rawObject.ParentSheetIndex, out type))
+            {
+                smartObject = (Object)Activator.CreateInstance(type);
+            }
+            else
+            {
+                var dynamicType = DynamicTypeMap[rawObject.ParentSheetIndex];
+                var ctor = dynamicType.BaseType.GetConstructor(new[] { typeof(int) });
+                smartObject = (Object)ctor.Invoke(new object[] { dynamicType.ClassID });
+            }
             CopyProperties(rawObject, smartObject);
             return smartObject;
         }
@@ -103,21 +125,33 @@ namespace Igorious.StardewValley.DynamicAPI.Services
 
         private void CovertToSmartObjects()
         {
-            ConvertObjects(Game1.currentLocation, o => (o.GetType() != TypeMap[o.ParentSheetIndex]), ToSmartObject);
+            ConvertObjects(Game1.currentLocation, IsRawObject, ToSmartObject);
         }
 
         private void CovertToRawObjects()
         {
             foreach (var gameLocation in Game1.locations)
             {
-                ConvertObjects(gameLocation, o => (o.GetType() != typeof(Object)), ToRawObject);
+                ConvertObjects(gameLocation, IsSmartObject, ToRawObject);
             }
+        }
+
+        private bool IsRawObject(Object o)
+        {
+            return TypeMap.ContainsKey(o.ParentSheetIndex) && (o.GetType() != TypeMap[o.ParentSheetIndex])
+                || DynamicTypeMap.ContainsKey(o.ParentSheetIndex) && !(o is IDynamic);
+        }
+
+        private bool IsSmartObject(Object o)
+        {
+            return TypeMap.ContainsKey(o.ParentSheetIndex) && (o.GetType() != typeof(Object))
+                || DynamicTypeMap.ContainsKey(o.ParentSheetIndex) && (o.GetType() != typeof(Object));
         }
 
         private void ConvertObjects(GameLocation location, Predicate<Object> condition, Func<Object, Object> convert)
         {
             var locationObjects = location.Objects;
-            var wrongObjectInfos = locationObjects.Where(o => TypeMap.Keys.Contains(o.Value.ParentSheetIndex) && condition(o.Value)).ToList();
+            var wrongObjectInfos = locationObjects.Where(o => (TypeMap.ContainsKey(o.Value.ParentSheetIndex) || DynamicTypeMap.ContainsKey(o.Value.ParentSheetIndex)) && condition(o.Value)).ToList();
             if (wrongObjectInfos.Count == 0) return;
 
             foreach (var wrongObjectInfo in wrongObjectInfos)

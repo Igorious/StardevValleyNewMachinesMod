@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Igorious.StardewValley.DynamicAPI.Constants;
 using Microsoft.Xna.Framework;
-using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Objects;
 using StardewValley.Tools;
@@ -40,17 +39,12 @@ namespace Igorious.StardewValley.DynamicAPI
             else
             {
                 return PerformDropIn(item, farmer);
-            }            
+            }
         }
 
         protected void PutItem(int itemID, int count, int itemQuality = 0, string overridedName = null, int? overridedPrice = null, Color? color = null)
         {
-            heldObject = (color != null)? new ColoredObject(itemID, count, color.Value) : new Object(itemID, count);
-            if (heldObject is ColoredObject)
-            {
-                Log.SyncColour($"Created Colored object, Color: {color}", ConsoleColor.Yellow);
-            }
-                     
+            heldObject = (color != null)? new ColoredObject(itemID, count, color.Value) : new Object(itemID, count);          
             heldObject.quality = itemQuality;
             if (overridedName != null) heldObject.Name = overridedName;
             if (overridedPrice != null) heldObject.Price = overridedPrice.Value;

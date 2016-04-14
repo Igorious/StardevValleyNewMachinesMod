@@ -27,4 +27,28 @@
     Duration: 60,
     ResourceIndex: 1,
   },
+  {
+    ID: 902,
+    Name: "Castus Juise",
+    Price: 500,
+    Edibility: 20,
+    Category: "ArtisanGoods",
+    Description: "Drink with pleasant taste.",
+    MealCategory: "Drink",
+    SkillUps: {
+      Farming: 1,
+    },
+    Duration: 60,
+    ResourceIndex: 2,
+    ResourceLength: 2,
+  },
+  {
+    ID: 904,
+    Name: "Castus Seed",
+    Price: 30,
+    Type: "Seeds",
+    Category: "Seeds",
+    Description: "Requres special environment. Takes 15 days to mature.",
+    ResourceIndex: 4,
+  },
 ]

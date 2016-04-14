@@ -1,0 +1,27 @@
+[
+  {
+    ID: 12,
+    Output: {
+      Items: {
+        340: {
+          ID: 900,
+          MinutesUntilReady: 4000,
+        },
+        192: {
+          ID: 901,
+          MinutesUntilReady: 3000,
+        },
+        90: {
+          ID: 902,
+          MinutesUntilReady: 4500,
+          Color: "31A500",
+        },
+      },
+    },
+    MinutesUntilReady: 1440,
+    Sounds: [
+      "Ship",
+      "Bubbles",
+    ],
+  },
+]
