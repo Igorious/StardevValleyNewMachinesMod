@@ -9,30 +9,23 @@
     SkillLevel: 7,
     MinutesUntilReady: 360,
     Materials: {
-      388: 50,
-      709: 5,
-      335: 1,
+      Wood: 50,
+      Hardwood: 5,
+      IronBar: 1,
     },
     Output: {
-      ID: 246,
+      ID: "WheatFlour",
       Items: {
-        262: {
-          Name: "Wheat Flour",
-        },
-        300: {
-          Name: "Amaranth Flour",
-        },
-        270: {
-          Name: "Corn Flour",
-        },
+        Wheat: {},
+        Amaranth: {},
+        Corn: {},
       },
       Price: "p + 25",
       Quality: "0",
       Count: "(r1 <= 0.1 * q)? 2 : 1",
+      NameFormat: "{0} Flour",
     },
-    Draw: {
-      Ready: 1,
-    },
+    Draw: { Ready: 1 },
   },
   {
     ID: 168,
@@ -43,17 +36,15 @@
     SkillLevel: 9,
     MinutesUntilReady: 600,
     Materials: {
-      330: 50,
-      766: 10,
-      334: 1,
+      Clay: 50,
+      Slime: 10,
+      CopperBar: 1,
     },
     Output: {
-      ID: 419,
+      ID: "Vinegar",
       Items: {
-        613: {
-          Name: "Apple Cider Vinegar",
-        },
-        348: {
+        Apple: { Name: "Apple Cider Vinegar" },
+        Wine: {
           Name: "Wine Vinegar",
           Price: 500,
         },
@@ -76,14 +67,12 @@
     SkillLevel: 6,
     MinutesUntilReady: 1440,
     Materials: {
-      388: 30,
-      709: 2,
+      Wood: 30,
+      Hardwood: 2,
     },
     Output: {
       Items: {
-        771: {
-          ID: 178,
-        },
+        Fiber: { ID: "Hay" },
       },
     },
     Draw: {

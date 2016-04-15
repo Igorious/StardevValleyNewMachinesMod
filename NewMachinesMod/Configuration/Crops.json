@@ -1,16 +1,10 @@
 [
   {
     SeedID: 904,
-    Phases: [
-      2,
-      3,
-      4,
-      3,
-      3,
-    ],
+    Phases:[2,3,4,3,3],
     Seasons: [],
     TextureIndex: 90,
-    CropID: 90,
+    CropID: "CactusFruit",
     HarvestMethod: 1,
     MinHarvest: 3,
     MaxHarvest: 3,

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using Igorious.StardewValley.DynamicAPI.Constants;
 using Igorious.StardewValley.DynamicAPI.Extensions;
 
 namespace Igorious.StardewValley.DynamicAPI.Data
@@ -14,7 +15,7 @@ namespace Igorious.StardewValley.DynamicAPI.Data
         [DefaultValue("Home")]
         private string Area { get; set; } = "Home";
 
-        public int ID { get; set; }
+        public DynamicID<CraftableID> ID { get; set; }
 
         public bool IsBig { get; set; } = true;
 

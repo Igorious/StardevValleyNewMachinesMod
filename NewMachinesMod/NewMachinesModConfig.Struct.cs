@@ -16,7 +16,7 @@ namespace Igorious.StardewValley.NewMachinesMod
 
         public class MachineInfo : IMachine
         {
-            public int ID { get; set; }
+            public DynamicID<CraftableID> ID { get; set; }
             public string Name { get; set; }
             int IDrawable.TextureIndex => ID;
             public int? ResourceIndex { get; set; }
@@ -26,10 +26,12 @@ namespace Igorious.StardewValley.NewMachinesMod
             public Skill Skill { get; set; }
             public int? SkillLevel { get; set; }
             public int? MinutesUntilReady { get; set; }
-            public Dictionary<int, int> Materials { get; set; } = new Dictionary<int, int>();
+            public Dictionary<DynamicID<ItemID>, int> Materials { get; set; } = new Dictionary<DynamicID<ItemID>, int>();
             public OutputInfo Output { get; set; }
             public MachineDraw Draw { get; set; }
             public List<Sound> Sounds { get; set; }
+
+            int IItem.ID => ID;
 
             public CraftableInformation GetCraftableInformation()
             {
@@ -62,7 +64,7 @@ namespace Igorious.StardewValley.NewMachinesMod
 
         public class OverrideMachineInfo : IMachineOutput
         {
-            public int ID { get; set; }
+            public DynamicID<CraftableID> ID { get; set; }
             public OutputInfo Output { get; set; }
             public int? MinutesUntilReady { get; set; }
             public List<Sound> Sounds { get; set; }

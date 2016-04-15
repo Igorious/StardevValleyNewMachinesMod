@@ -1,17 +1,17 @@
 [
   {
-    ID: 12,
+    ID: "Keg",
     Output: {
       Items: {
-        340: {
+        Honey: {
           ID: 900,
           MinutesUntilReady: 4000,
         },
-        192: {
+        Potato: {
           ID: 901,
           MinutesUntilReady: 3000,
         },
-        90: {
+        CactusFruit: {
           ID: 902,
           MinutesUntilReady: 4500,
           Color: "31A500",

@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using Igorious.StardewValley.DynamicAPI.Constants;
 using Igorious.StardewValley.DynamicAPI.Interfaces;
 using StardewValley;
 
@@ -6,7 +7,7 @@ namespace Igorious.StardewValley.DynamicAPI.Data
 {
     public class CraftableInformation : IInformation
     {
-        public int ID { get; set; }
+        public DynamicID<CraftableID> ID { get; set; }
 
         public string Name { get; set; }
 
@@ -34,6 +35,8 @@ namespace Igorious.StardewValley.DynamicAPI.Data
 
         [DefaultValue(1)]
         public int ResourceLength { get; set; } = 1;
+
+        int IInformation.ID => ID;
 
         public override string ToString()
         {

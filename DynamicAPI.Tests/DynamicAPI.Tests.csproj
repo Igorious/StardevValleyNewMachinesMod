@@ -35,6 +35,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
   </ItemGroup>
   <Choose>
@@ -45,7 +49,9 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
+        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework">
+          <Private>False</Private>
+        </Reference>
       </ItemGroup>
     </Otherwise>
   </Choose>
@@ -56,6 +62,8 @@
     <Compile Include="InformationParsing\TreeInformationTests.cs" />
     <Compile Include="InformationParsing\CropInformationTests.cs" />
     <Compile Include="InformationParsing\ObjectInformationTests.cs" />
+    <Compile Include="Json\JsonIdConverterTests.cs" />
+    <Compile Include="RawColorTests.cs" />
     <Compile Include="TestInitializer.cs" />
   </ItemGroup>
   <ItemGroup>

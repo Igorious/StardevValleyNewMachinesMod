@@ -24,21 +24,22 @@ namespace Igorious.StardewValley.NewMachinesMod
                 Description = "Small machine, that crushes seeds to flour.",
                 Skill = Skill.Farming,
                 SkillLevel = 7,
-                Materials = new Dictionary<int, int>
+                Materials = new Dictionary<DynamicID<ItemID>, int>
                 {
-                    { (int)ItemID.Wood, 50 },
-                    { (int)ItemID.Hardwood, 5 },
-                    { (int)ItemID.IronBar, 1 },
+                    { ItemID.Wood, 50 },
+                    { ItemID.Hardwood, 5 },
+                    { ItemID.IronBar, 1 },
                 },
                 Output = new OutputInfo
                 {
-                    ID = (int)ItemID.WheatFlour,
-                    Items = new Dictionary<int, OutputItem>
+                    ID = ItemID.WheatFlour,
+                    Items = new Dictionary<DynamicID<ItemID>, OutputItem>
                     {
-                        { (int)ItemID.Wheat, new OutputItem {Name = "Wheat Flour"} },
-                        { (int)ItemID.Amaranth, new OutputItem {Name = "Amaranth Flour"} },
-                        { (int)ItemID.Corn, new OutputItem {Name = "Corn Flour"} },
+                        { ItemID.Wheat, new OutputItem() },
+                        { ItemID.Amaranth, new OutputItem() },
+                        { ItemID.Corn, new OutputItem() },
                     },
+                    NameFormat = "{0} Flour",
                     Price = "p + 25",
                     Quality = "0",
                     Count = "(r1 <= 0.1 * q)? 2 : 1",
@@ -59,19 +60,20 @@ namespace Igorious.StardewValley.NewMachinesMod
                 Description = "Fill with water and use for sugar extraction from beet.",
                 Skill = Skill.Farming,
                 SkillLevel = 8,
-                Materials = new Dictionary<int, int>
+                Materials = new Dictionary<DynamicID<ItemID>, int>
                 {
-                    { (int)ItemID.CopperBar, 1 },
-                    { (int)ItemID.IronBar, 1 },
-                    { (int)ItemID.Coal, 5 },
+                    { ItemID.CopperBar, 1 },
+                    { ItemID.IronBar, 1 },
+                    { ItemID.Coal, 5 },
                 },
                 Output = new OutputInfo
                 {
-                    ID = (int)ItemID.Sugar,
-                    Items = new Dictionary<int, OutputItem>
+                    ID = ItemID.Sugar,
+                    Items = new Dictionary<DynamicID<ItemID>, OutputItem>
                     {
-                        { (int)ItemID.Beet, new OutputItem {Name = "Beet Sugar"} },
+                        { ItemID.Beet, new OutputItem() },
                     },
+                    NameFormat = "{0} Sugar",
                     Price = "p + 25",
                     Quality = "0",
                     Count = "(r1 <= 0.1 * q)? 2 : 1",
@@ -88,19 +90,19 @@ namespace Igorious.StardewValley.NewMachinesMod
                 Description = "Ceramic thing, that used to vinegar creation.",
                 Skill = Skill.Farming,
                 SkillLevel = 9,
-                Materials = new Dictionary<int, int>
+                Materials = new Dictionary<DynamicID<ItemID>, int>
                 {
-                    { (int)ItemID.Clay, 50 },
-                    { (int)ItemID.Slime, 10 },
-                    { (int)ItemID.CopperBar, 1 },
+                    { ItemID.Clay, 50 },
+                    { ItemID.Slime, 10 },
+                    { ItemID.CopperBar, 1 },
                 },
                 Output = new OutputInfo
                 {
-                    ID = (int)ItemID.Vinegar,
-                    Items = new Dictionary<int, OutputItem>
+                    ID = ItemID.Vinegar,
+                    Items = new Dictionary<DynamicID<ItemID>, OutputItem>
                     {
-                        { (int)ItemID.Apple, new OutputItem {Name = "Apple Cider Vinegar"} },
-                        { (int)ItemID.Wine, new OutputItem {Name = "Wine Vinegar", Price = 500} },
+                        { ItemID.Apple, new OutputItem {Name = "Apple Cider Vinegar"} },
+                        { ItemID.Wine, new OutputItem {Name = "Wine Vinegar", Price = 500} },
                     },
                     Quality = "(p > 1000)? 2 : (p > 500)? 1 : 0",
                     Count = "(r1 <= 0.1 * q)? 2 : 1",
@@ -118,16 +120,16 @@ namespace Igorious.StardewValley.NewMachinesMod
                 Description = "It has been created to dry everything.",
                 Skill = Skill.Farming,
                 SkillLevel = 6,
-                Materials = new Dictionary<int, int>
+                Materials = new Dictionary<DynamicID<ItemID>, int>
                 {
-                    { (int)ItemID.Wood, 30 },
-                    { (int)ItemID.Hardwood, 2 },
+                    { ItemID.Wood, 30 },
+                    { ItemID.Hardwood, 2 },
                 },
                 Output = new OutputInfo
                 {
-                    Items = new Dictionary<int, OutputItem>
+                    Items = new Dictionary<DynamicID<ItemID>, OutputItem>
                     {
-                        { (int)ItemID.Fiber, new OutputItem {ID = (int)ItemID.Hay} },
+                        { ItemID.Fiber, new OutputItem {ID = ItemID.Hay} },
                     },
                 },
                 Draw = new MachineDraw
@@ -141,7 +143,7 @@ namespace Igorious.StardewValley.NewMachinesMod
             {
                 new ItemInformation
                 {
-                    ID = (int)ItemID.WheatFlour,
+                    ID = ItemID.WheatFlour,
                     Name = "Flour",
                     Description = "A common cooking ingredient made from crushed seeds.",
                 }
@@ -208,15 +210,15 @@ namespace Igorious.StardewValley.NewMachinesMod
 
             MachineOverrides.Add(new OverrideMachineInfo
             {
-                ID = (int)CraftableID.Keg,
+                ID = CraftableID.Keg,
                 MinutesUntilReady = 1440,
                 Output = new OutputInfo
                 {
-                    Items = new Dictionary<int, OutputItem>
+                    Items = new Dictionary<DynamicID<ItemID>, OutputItem>
                     {
-                        { (int)ItemID.Honey, new OutputItem {ID = MeadID, MinutesUntilReady = 4000} },
-                        { (int)ItemID.Potato, new OutputItem {ID = VodkaID, MinutesUntilReady = 3000} },
-                        { (int)ItemID.CactusFruit, new OutputItem {ID = CactusJuiseID, MinutesUntilReady = 4500, Color = "31A500" } },
+                        { ItemID.Honey, new OutputItem {ID = MeadID, MinutesUntilReady = 4000} },
+                        { ItemID.Potato, new OutputItem {ID = VodkaID, MinutesUntilReady = 3000} },
+                        { ItemID.CactusFruit, new OutputItem {ID = CactusJuiseID, MinutesUntilReady = 4500, Color = "31A500" } },
                     },
                 },
                 Sounds = new List<Sound> { Sound.Ship, Sound.Bubbles },
@@ -229,7 +231,7 @@ namespace Igorious.StardewValley.NewMachinesMod
 
             Crops.Add(new CropInformation
             {
-                CropID = (int)ItemID.CactusFruit,
+                CropID = ItemID.CactusFruit,
                 HarvestMethod = 1,
                 MaxHarvest = 3,
                 MinHarvest = 3,

@@ -13,7 +13,9 @@ namespace Igorious.StardewValley.DynamicAPI.Data
     {
         public static readonly int[] NoSkillUps = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-        public int ID { get; set; }
+        public DynamicID<ItemID> ID { get; set; }
+
+        int IItem.ID => ID;
 
         public string Name { get; set; }
 
@@ -92,6 +94,8 @@ namespace Igorious.StardewValley.DynamicAPI.Data
             }
             return info;
         }
+
+        int IInformation.ID => ID;
 
         public override string ToString()
         {

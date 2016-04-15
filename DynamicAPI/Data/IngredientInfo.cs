@@ -12,7 +12,8 @@ namespace Igorious.StardewValley.DynamicAPI.Data
             Count = count;
         }
 
-        public int ID { get; }
+        public DynamicID<ItemID> ID { get; }
+
         public int Count { get; }
 
         public override string ToString() => $"{ID} {Count}";

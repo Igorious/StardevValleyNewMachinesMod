@@ -51,6 +51,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes\ExpressionAttribute.cs" />
+    <Compile Include="Data\DynamicID.cs" />
+    <Compile Include="Json\JsonDictionaryKeyConverter.cs" />
+    <Compile Include="Json\JsonDynamicIdConverter.cs" />
     <Compile Include="Constants\MachineState.cs" />
     <Compile Include="Constants\ObjectType.cs" />
     <Compile Include="Constants\DayTime.cs" />
@@ -90,6 +93,7 @@
     <Compile Include="Data\CraftableInformation.cs" />
     <Compile Include="Data\CraftingRecipeInformation.cs" />
     <Compile Include="Interfaces\IInformation.cs" />
+    <Compile Include="Json\JsonPlainArrayConverter.cs" />
     <Compile Include="Services\RecipesService.cs" />
     <Compile Include="Services\InformationService.cs" />
     <Compile Include="Data\IngredientInfo.cs" />

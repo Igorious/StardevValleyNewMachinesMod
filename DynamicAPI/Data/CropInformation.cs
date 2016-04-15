@@ -11,7 +11,7 @@ namespace Igorious.StardewValley.DynamicAPI.Data
 {
     public sealed class CropInformation : IDrawable, ICropInformation
     {
-        public int SeedID { get; set; }
+        public DynamicID<ItemID> SeedID { get; set; }
 
         public List<int> Phases { get; set; } = new List<int>();
 
@@ -20,7 +20,7 @@ namespace Igorious.StardewValley.DynamicAPI.Data
         [DefaultValue(-1)]
         public int TextureIndex { get; set; } = -1;
 
-        public int CropID { get; set; }
+        public DynamicID<ItemID> CropID { get; set; }
 
         [DefaultValue(-1)]
         public int RegrowDays { get; set; } = -1;

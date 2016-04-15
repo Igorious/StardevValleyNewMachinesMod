@@ -1,6 +1,9 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using Igorious.StardewValley.DynamicAPI.Constants;
+using Igorious.StardewValley.DynamicAPI.Json;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -16,12 +19,23 @@ namespace Igorious.StardewValley.DynamicAPI.Extensions
             {
                 writer.QuoteName = false;
                 var ser = new JsonSerializer { DefaultValueHandling = DefaultValueHandling.Ignore, Formatting = Formatting.Indented };
-                ser.Converters.Add(new StringEnumConverter { AllowIntegerValues = true });
+                ser.Converters.AddDefaults();
                 ser.Serialize(writer, o);
             }
             var result = buffer.ToString();
+            result = Regex.Replace(result, @"\{\r\n\s*(.+)\r\n\s*\}", @"{ $1 }");
             result = Regex.Replace(result, @"(\r\n\s*[\]\}])", @",$1");
             return result;
+        }
+
+        public static void AddDefaults(this IList<JsonConverter> converters)
+        {
+            converters.Add(new StringEnumConverter());
+            converters.Add(new JsonPlainArrayConverter());
+            converters.Add(new JsonDynamicIdConverter<ItemID>());
+            converters.Add(new JsonDynamicIdConverter<CraftableID>());
+            converters.Add(new JsonDictionaryKeyConverter(new JsonDynamicIdConverter<ItemID>()));
+            converters.Add(new JsonDictionaryKeyConverter(new JsonDynamicIdConverter<CraftableID>()));
         }
     }
 }

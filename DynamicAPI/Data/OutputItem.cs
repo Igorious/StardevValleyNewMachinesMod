@@ -1,11 +1,12 @@
 ﻿using Igorious.StardewValley.DynamicAPI.Attributes;
+using Igorious.StardewValley.DynamicAPI.Constants;
 using Igorious.StardewValley.DynamicAPI.Delegates;
 
 namespace Igorious.StardewValley.DynamicAPI.Data
 {
     public sealed class OutputItem
     {
-        public int? ID { get; set; }
+        public DynamicID<ItemID> ID { get; set; }
 
         public string Name { get; set; }
 

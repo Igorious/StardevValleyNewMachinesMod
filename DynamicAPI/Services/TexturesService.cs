@@ -90,6 +90,10 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         {
             OverrideTexture(ref Game1.bigCraftableSpriteSheet, @"Resources\Craftable.png", _craftableSpriteOverrides, 16, 32);
             OverrideTexture(ref Game1.objectSpriteSheet, @"Resources\Items.png", _itemSpriteOverrides, 16, 16);
+            using (var f = File.OpenWrite(@"D:\temp1.png"))
+            {
+                Game1.objectSpriteSheet.SaveAsPng(f, Game1.objectSpriteSheet.Width, Game1.objectSpriteSheet.Height);
+            }
             OverrideTexture(ref Game1.cropSpriteSheet, @"Resources\Crops.png", _cropSpriteOverrides, 128, 32);
 
             new FruitTree().loadSprite();

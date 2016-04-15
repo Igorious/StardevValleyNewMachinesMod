@@ -7,14 +7,14 @@ namespace Igorious.StardewValley.DynamicAPI.Data
 {
     public sealed class TreeInformation : IDrawable, ITreeInformation
     {
-        public int SapleID { get; set; }
+        public DynamicID<ItemID> SapleID { get; set; }
 
         [DefaultValue(-1)]
         public int TextureIndex { get; set; } = -1;
 
         public Season Season { get; set; }
 
-        public int FruitID { get; set; }
+        public DynamicID<ItemID> FruitID { get; set; }
 
         private int UnknownVar { get; set; } = 1234;
 

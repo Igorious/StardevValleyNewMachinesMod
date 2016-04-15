@@ -7,9 +7,7 @@
     Category: "ArtisanGoods",
     Description: "Drink from honey.",
     MealCategory: "Drink",
-    SkillUps: {
-      MaxEnergy: 50,
-    },
+    SkillUps: { MaxEnergy: 50 },
     ResourceIndex: 0,
   },
   {
@@ -35,9 +33,7 @@
     Category: "ArtisanGoods",
     Description: "Drink with pleasant taste.",
     MealCategory: "Drink",
-    SkillUps: {
-      Farming: 1,
-    },
+    SkillUps: { Farming: 1 },
     Duration: 60,
     ResourceIndex: 2,
     ResourceLength: 2,

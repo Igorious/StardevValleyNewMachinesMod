@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Igorious.StardewValley.DynamicAPI.Constants;
 using Microsoft.Xna.Framework;
+using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Objects;
 using StardewValley.Tools;
@@ -44,6 +45,7 @@ namespace Igorious.StardewValley.DynamicAPI
 
         protected void PutItem(int itemID, int count, int itemQuality = 0, string overridedName = null, int? overridedPrice = null, Color? color = null)
         {
+            Log.SyncColour($"Colored! {color}", ConsoleColor.Magenta);
             heldObject = (color != null)? new ColoredObject(itemID, count, color.Value) : new Object(itemID, count);          
             heldObject.quality = itemQuality;
             if (overridedName != null) heldObject.Name = overridedName;

@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using Igorious.StardewValley.DynamicAPI.Extensions;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using StardewModdingAPI;
 
 namespace Igorious.StardewValley.DynamicAPI
@@ -17,7 +16,7 @@ namespace Igorious.StardewValley.DynamicAPI
             CreateDefaultConfiguration();
 
             var jsonSettings = new JsonSerializerSettings {DefaultValueHandling = DefaultValueHandling.Ignore};
-            jsonSettings.Converters.Add(new StringEnumConverter { AllowIntegerValues = true });
+            jsonSettings.Converters.AddDefaults();
 
             var basePath = Path.Combine(rootPath, "Configuration");
             if (!Directory.Exists(basePath)) Directory.CreateDirectory(basePath);
