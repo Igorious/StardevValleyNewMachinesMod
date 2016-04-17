@@ -30,6 +30,7 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         private readonly Dictionary<int, int> _itemSpriteOverrides = new Dictionary<int, int>();
         private readonly Dictionary<int, int> _cropSpriteOverrides = new Dictionary<int, int>();
         private readonly Dictionary<int, int> _treeSpriteOverrides = new Dictionary<int, int>();
+        private bool NeedOverrideIridiumQualityStar { get; set; }
 
         #endregion
 
@@ -76,10 +77,15 @@ namespace Igorious.StardewValley.DynamicAPI.Services
             }
         }
 
+        public void OverrideIridiumQualityStar()
+        {
+            NeedOverrideIridiumQualityStar = true;
+        }
+
         #endregion
 
         #region	Auxiliary Methods
-        
+
         private void OnGameLoaded(object sender, EventArgs eventArgs)
         {
             OverrideSprites();
@@ -90,20 +96,27 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         {
             OverrideTexture(ref Game1.bigCraftableSpriteSheet, @"Resources\Craftable.png", _craftableSpriteOverrides, 16, 32);
             OverrideTexture(ref Game1.objectSpriteSheet, @"Resources\Items.png", _itemSpriteOverrides, 16, 16);
-            using (var f = File.OpenWrite(@"D:\temp1.png"))
-            {
-                Game1.objectSpriteSheet.SaveAsPng(f, Game1.objectSpriteSheet.Width, Game1.objectSpriteSheet.Height);
-            }
             OverrideTexture(ref Game1.cropSpriteSheet, @"Resources\Crops.png", _cropSpriteOverrides, 128, 32);
 
             new FruitTree().loadSprite();
             OverrideTexture(ref FruitTree.texture, @"Resources\Trees.png", _treeSpriteOverrides, 432, 80);
+
+            if (!NeedOverrideIridiumQualityStar) return;
+            Log.SyncColour($"[NMM]: Using overrides from \"Resources\\Other.png\"...", ConsoleColor.DarkGray);
+            using (var imageStream = new FileStream(Path.Combine(RootPath, @"Resources\Other.png"), FileMode.Open))
+            {
+                var overrides = Texture2D.FromStream(Game1.graphics.GraphicsDevice, imageStream);
+                var data = new Color[8 * 8];
+                overrides.GetData(0, new Rectangle(0, 0, 8, 8), data, 0, data.Length);
+                Game1.mouseCursors.SetData(0, new Rectangle(338 + 2 * 8, 400, 8, 8), data, 0, data.Length);
+            }
         }
 
         private void OverrideTexture(ref Texture2D originalTexture, string overridingTexturePath, Dictionary<int, int> spriteOverrides, int gridWidth, int gridHeight)
         {
             if (spriteOverrides.Count == 0) return;
 
+            Log.SyncColour($"[NMM]: Using overrides from \"{overridingTexturePath}\"...", ConsoleColor.DarkGray);
             var maxHeight = GetSourceRectForObject(spriteOverrides.Keys.Max(), originalTexture, gridWidth, gridHeight).Bottom;
             if (maxHeight > originalTexture.Height)
             {
@@ -129,7 +142,7 @@ namespace Igorious.StardewValley.DynamicAPI.Services
             }
         }
 
-        private static Rectangle GetSourceRectForObject(int index, Texture2D texture, int gridWidth, int gridHeight)
+        internal static Rectangle GetSourceRectForObject(int index, Texture2D texture, int gridWidth, int gridHeight)
         {
             return new Rectangle(index % (texture.Width / gridWidth) * gridWidth, index / (texture.Width / gridWidth) * gridHeight, gridWidth, gridHeight);
         }

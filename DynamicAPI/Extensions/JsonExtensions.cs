@@ -34,8 +34,12 @@ namespace Igorious.StardewValley.DynamicAPI.Extensions
             converters.Add(new JsonPlainArrayConverter());
             converters.Add(new JsonDynamicIdConverter<ItemID>());
             converters.Add(new JsonDynamicIdConverter<CraftableID>());
+            converters.Add(new JsonDynamicIdConverter<CategoryID>());
+            converters.Add(new JsonDynamicIdConverter<ItemID, CategoryID>());
             converters.Add(new JsonDictionaryKeyConverter(new JsonDynamicIdConverter<ItemID>()));
             converters.Add(new JsonDictionaryKeyConverter(new JsonDynamicIdConverter<CraftableID>()));
+            converters.Add(new JsonDictionaryKeyConverter(new JsonDynamicIdConverter<CategoryID>()));
+            converters.Add(new JsonDictionaryKeyConverter(new JsonDynamicIdConverter<ItemID, CategoryID>()));
         }
     }
 }

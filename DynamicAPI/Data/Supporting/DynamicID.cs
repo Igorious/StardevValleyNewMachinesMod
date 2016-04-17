@@ -1,15 +1,35 @@
 ﻿using System;
 
-namespace Igorious.StardewValley.DynamicAPI.Data
+namespace Igorious.StardewValley.DynamicAPI.Data.Supporting
 {
-    public sealed class DynamicID<TEnum> : IConvertible where TEnum : struct
+    public class DynamicID<TEnum1, TEnum2> : DynamicID<TEnum1> where TEnum1 : struct where TEnum2 : struct
     {
-        private DynamicID(int value)
+        protected DynamicID(int value) : base(value) {}
+
+        public static implicit operator DynamicID<TEnum1, TEnum2>(TEnum1 e)
+        {
+            return new DynamicID<TEnum1, TEnum2>(Convert.ToInt32(e));
+        }
+
+        public static implicit operator DynamicID<TEnum1, TEnum2>(TEnum2 e)
+        {
+            return new DynamicID<TEnum1, TEnum2>(Convert.ToInt32(e));
+        }
+
+        public static implicit operator DynamicID<TEnum1, TEnum2>(int i)
+        {
+            return new DynamicID<TEnum1, TEnum2>(i);
+        }
+    }
+
+    public class DynamicID<TEnum> : IConvertible where TEnum : struct
+    {
+        protected DynamicID(int value)
         {
             Value = value;
         }
 
-        private int Value { get; }
+        protected int Value { get; }
 
         public static implicit operator DynamicID<TEnum>(TEnum e)
         {

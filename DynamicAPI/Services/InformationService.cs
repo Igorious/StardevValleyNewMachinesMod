@@ -103,11 +103,11 @@ namespace Igorious.StardewValley.DynamicAPI.Services
 
         private void LoadAdditionalContentToGame()
         {
-            LoadToGame(GetDataCache(@"Data\Crops", true), _cropInformations);
-            LoadToGame(GetDataCache(@"Data\fruitTrees", true), _treesInformations);
+            LoadToGame(GetDataCache(@"Data\Crops", true), _cropInformations, false);
+            LoadToGame(GetDataCache(@"Data\fruitTrees", true), _treesInformations, false);
         }
 
-        private static void LoadToGame(IDictionary<int, string> gameInformation, IReadOnlyList<IInformation> customInformation)
+        private static void LoadToGame(IDictionary<int, string> gameInformation, IReadOnlyList<IInformation> customInformation, bool showWarnings = true)
         {
             foreach (var information in customInformation)
             {
@@ -120,7 +120,7 @@ namespace Igorious.StardewValley.DynamicAPI.Services
                     {
                         gameInformation.Add(key, newValue);
                     }
-                    else if (newValue != oldValue)
+                    else if (newValue != oldValue && showWarnings)
                     {
                         Log.SyncColour($"Information for ID={key} already has another mapping {key}->{oldValue} (current:{newValue})", ConsoleColor.DarkRed);
                     }

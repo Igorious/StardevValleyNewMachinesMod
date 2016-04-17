@@ -2,30 +2,44 @@
 using System.ComponentModel;
 using System.Linq;
 using Igorious.StardewValley.DynamicAPI.Constants;
+using Igorious.StardewValley.DynamicAPI.Data.Supporting;
 using Igorious.StardewValley.DynamicAPI.Extensions;
+using Newtonsoft.Json;
 
 namespace Igorious.StardewValley.DynamicAPI.Data
 {
     public class CraftingRecipeInformation
     {
+        #region Properties
+
+        [JsonProperty(Required = Required.Always)]
         public string Name { get; set; }
 
-        public List<IngredientInfo> Materials { get; set; } = new List<IngredientInfo>();
+        [JsonProperty(Required = Required.Always)]
+        public List<IngredientInfo> Materials { get; set; }
 
-        [DefaultValue("Home")]
+        [JsonProperty, DefaultValue("Home")]
         private string Area { get; set; } = "Home";
 
+        [JsonProperty(Required = Required.Always)]
         public DynamicID<CraftableID> ID { get; set; }
 
+        [JsonProperty, DefaultValue(true)]
         public bool IsBig { get; set; } = true;
 
-        public WayToGetCraftingRecipe WayToGet { get; set; } = new WayToGetCraftingRecipe();
+        [JsonProperty(Required = Required.Always)]
+        public WayToGetCraftingRecipe WayToGet { get; set; }
+
+        #endregion
+
+        #region Serialization
 
         public static CraftingRecipeInformation Parse(string craftingRecipeInformation)
         {
             var parts = craftingRecipeInformation.Split('/');
             var info = new CraftingRecipeInformation();
             var materials = parts[0].Split(' ').Select(int.Parse).ToList();
+            info.Materials = new List<IngredientInfo>();
             for (var i = 0; i < materials.Count; i += 2)
             {
                 info.Materials.Add(new IngredientInfo(materials[i], materials[i + 1]));
@@ -39,7 +53,9 @@ namespace Igorious.StardewValley.DynamicAPI.Data
 
         public override string ToString()
         {
-            return $"{string.Join(" ", Materials)}/{Area}/{ID}/{IsBig.ToLower()}/{WayToGet}";
+            return $"{string.Join(" ", Materials)}/{Area}/{ID}/{IsBig.Serialize()}/{WayToGet}";
         }
+
+        #endregion
     }
 }

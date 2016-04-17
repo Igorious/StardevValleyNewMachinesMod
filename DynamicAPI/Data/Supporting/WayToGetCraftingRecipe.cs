@@ -1,16 +1,29 @@
 ﻿using Igorious.StardewValley.DynamicAPI.Constants;
 using Igorious.StardewValley.DynamicAPI.Extensions;
+using Newtonsoft.Json;
 
-namespace Igorious.StardewValley.DynamicAPI.Data
+namespace Igorious.StardewValley.DynamicAPI.Data.Supporting
 {
     public sealed class WayToGetCraftingRecipe
     {
+        #region Properties
+
+        [JsonProperty]
         public Skill Skill { get; set; }
+
+        [JsonProperty]
         public int? SkillLevel { get; set; }
+
+        [JsonProperty]
         public bool IsDefault { get; set; }
 
+        [JsonIgnore]
         private bool UsedSkillFlag { get; set; }
-            
+
+        #endregion
+
+        #region Serialization
+
         public static WayToGetCraftingRecipe Parse(string recipeWayToGet)
         {
             var parts = recipeWayToGet.Split(' ');
@@ -27,7 +40,8 @@ namespace Igorious.StardewValley.DynamicAPI.Data
                     way.IsDefault = true;
                     break;
 
-                case "null": break;
+                case "null":
+                    break;
 
                 default:
                     way.Skill = parts[0].ToEnum<Skill>();
@@ -44,5 +58,7 @@ namespace Igorious.StardewValley.DynamicAPI.Data
             if (SkillLevel != null) return $"{Skill} {SkillLevel}";
             return "null";
         }
+
+        #endregion
     }
 }

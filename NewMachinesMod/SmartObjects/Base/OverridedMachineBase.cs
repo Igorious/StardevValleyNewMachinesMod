@@ -1,4 +1,5 @@
-﻿using StardewValley;
+﻿using Igorious.StardewValley.NewMachinesMod.Data;
+using StardewValley;
 
 namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
 {
@@ -7,6 +8,9 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
         protected OverridedMachineBase(int id) : base(id) { }
 
         private bool? UsedOverride { get; set; }
+
+        protected abstract OverridedMachineInformation MachineInformation { get; }
+        protected override MachineOutputInformation Output => MachineInformation.Output;
 
         protected sealed override bool CanPerformDropIn(Object item, Farmer farmer)
         {

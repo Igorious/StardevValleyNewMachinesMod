@@ -2,15 +2,15 @@
 
 namespace Igorious.StardewValley.DynamicAPI.Constants
 {
-    public enum ObjectCategory
+    public enum CategoryID
     {
         Undefined = 0,
         Greens = Object.GreensCategory,
         Gem = Object.GemCategory,
         Vegetable = Object.VegetableCategory,
         Fish = Object.FishCategory,
-        Egg = Object.EggCategory,
-        Milk = Object.MilkCategory,
+        Eggs = Object.EggCategory,
+        Milks = Object.MilkCategory,
         Cooking = Object.CookingCategory,
         Crafting = Object.CraftingCategory,
         BigCraftable = Object.BigCraftableCategory,
@@ -25,7 +25,7 @@ namespace Igorious.StardewValley.DynamicAPI.Constants
         SellAtPierresAndMarnies = Object.sellAtPierresAndMarnies,
         Fertilizer = Object.fertilizerCategory,
         Junk = Object.junkCategory,
-        Bait = Object.baitCategory,
+        Baits = Object.baitCategory,
         Tackle = Object.tackleCategory,
         SellAtFishShop = Object.sellAtFishShopCategory,
         Furniture = Object.furnitureCategory,

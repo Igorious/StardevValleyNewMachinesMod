@@ -2,5 +2,6 @@
 {
     public interface IDynamic
     {
+        int DynamicClassID { get; }
     }
 }

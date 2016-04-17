@@ -1,46 +1,64 @@
 using System.ComponentModel;
 using Igorious.StardewValley.DynamicAPI.Constants;
+using Igorious.StardewValley.DynamicAPI.Data.Supporting;
 using Igorious.StardewValley.DynamicAPI.Interfaces;
+using Newtonsoft.Json;
 using StardewValley;
 
 namespace Igorious.StardewValley.DynamicAPI.Data
 {
     public class CraftableInformation : IInformation
     {
+        #region Properties
+
+        [JsonProperty(Required = Required.Always)]
         public DynamicID<CraftableID> ID { get; set; }
 
+        [JsonProperty(Required = Required.Always)]
         public string Name { get; set; }
 
+        [JsonProperty]
         public int Price { get; set; }
 
-        [DefaultValue(Object.inedible)]
+        [JsonProperty, DefaultValue(Object.inedible)]
         public int Edibility { get; set; } = Object.inedible;
 
-        [DefaultValue("Crafting")]
+        [JsonProperty, DefaultValue("Crafting")]
         public string Type { get; set; } = "Crafting";
 
-        [DefaultValue(Object.BigCraftableCategory)]
+        [JsonProperty, DefaultValue(Object.BigCraftableCategory)]
         public int Category { get; set; } = Object.BigCraftableCategory;
 
+        [JsonProperty(Required = Required.Always)]
         public string Description { get; set; }
 
-        [DefaultValue(true)]
+        [JsonProperty, DefaultValue(true)]
         public bool CanSetOutdoor { get; set; } = true;
 
-        [DefaultValue(true)]
+        [JsonProperty, DefaultValue(true)]
         public bool CanSetIndoor { get; set; } = true;
 
-        [DefaultValue(Object.fragility_Removable)]
+        [JsonProperty, DefaultValue(Object.fragility_Removable)]
         public int Fragility { get; set; } = Object.fragility_Removable;
 
-        [DefaultValue(1)]
+        [JsonProperty, DefaultValue(1)]
         public int ResourceLength { get; set; } = 1;
 
-        int IInformation.ID => ID;
+        #endregion
+
+        #region Serialization
 
         public override string ToString()
         {
             return $"{Name}/{Price}/{Edibility}/{Type} {Category}/{Description}/{CanSetOutdoor}/{CanSetIndoor}/{Fragility}";
         }
+
+        #endregion
+
+        #region Explicit Interface Implemetation
+
+        int IInformation.ID => ID;
+
+        #endregion
     }
 }

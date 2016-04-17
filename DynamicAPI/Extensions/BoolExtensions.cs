@@ -2,7 +2,7 @@
 {
     public static class BoolExtensions
     {
-        public static string ToLower(this bool e)
+        public static string Serialize(this bool e)
         {
             return e.ToString().ToLower();
         }

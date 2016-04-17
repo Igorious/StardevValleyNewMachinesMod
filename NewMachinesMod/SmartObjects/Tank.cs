@@ -1,6 +1,6 @@
 using Igorious.StardewValley.DynamicAPI.Constants;
-using Igorious.StardewValley.DynamicAPI.Interfaces;
 using Igorious.StardewValley.DynamicAPI.Services;
+using Igorious.StardewValley.NewMachinesMod.Data;
 using Igorious.StardewValley.NewMachinesMod.SmartObjects.Base;
 using StardewValley;
 using StardewValley.Tools;
@@ -56,7 +56,7 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects
             return base.OnAxeAction(axe);
         }
 
-        protected override IMachine Configuration => NewMachinesMod.Config.Tank;
+        protected override MachineInformation MachineInformation => NewMachinesMod.Config.Tank;
 
         protected override bool PerformDropIn(Object item, Farmer farmer)
         {

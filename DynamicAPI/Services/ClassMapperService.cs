@@ -1,11 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
-using Igorious.StardewValley.DynamicAPI.Data;
+using Igorious.StardewValley.DynamicAPI.Data.Supporting;
 using Igorious.StardewValley.DynamicAPI.Interfaces;
+using Igorious.StardewValley.DynamicAPI.Objects;
+using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
+using StardewValley.Locations;
 using StardewValley.Menus;
+using StardewValley.Objects;
 using Object = StardewValley.Object;
 
 namespace Igorious.StardewValley.DynamicAPI.Services
@@ -22,6 +27,7 @@ namespace Igorious.StardewValley.DynamicAPI.Services
                 if (e.IsNewDay) return;
 
                 LocationEvents.LocationObjectsChanged -= OnLocationObjectsChanged;
+                Log.SyncColour("Deactivating objects (before saving)...", ConsoleColor.DarkGray);
                 CovertToRawObjects(); // Allow use native serializer.
                 MenuEvents.MenuClosed += OnMenuClosed; // Prevent issue with crash after finishing bundle.
             };
@@ -80,13 +86,16 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         private void OnMenuClosed(object sender, EventArgsClickableMenuClosed args)
         {
             if (!(args.PriorMenu is SaveGameMenu)) return;
+
             MenuEvents.MenuClosed -= OnMenuClosed;
+            Log.SyncColour("Activating objects (after saving)...", ConsoleColor.DarkGray);
             CovertToSmartObjects(); // Activate objects in farmer house.
             LocationEvents.LocationObjectsChanged += OnLocationObjectsChanged;
         }
 
         private void OnLocationObjectsChanged(object sender, EventArgsLocationObjectsChanged eventArgsLocationObjectsChanged)
         {
+            Log.SyncColour($"Activating objects (changes in {Game1.currentLocation?.Name})...", ConsoleColor.DarkGray);
             CovertToSmartObjects();
         }
 
@@ -125,15 +134,19 @@ namespace Igorious.StardewValley.DynamicAPI.Services
 
         private void CovertToSmartObjects()
         {
+            var sw = Stopwatch.StartNew();
             ConvertObjects(Game1.currentLocation, IsRawObject, ToSmartObject);
+            Log.SyncColour($"Convertion ('smart') finished: {sw.ElapsedMilliseconds} ms", ConsoleColor.DarkGray);
         }
 
         private void CovertToRawObjects()
         {
+            var sw = Stopwatch.StartNew();
             foreach (var gameLocation in Game1.locations)
             {
                 ConvertObjects(gameLocation, IsSmartObject, ToRawObject);
             }
+            Log.SyncColour($"Convertion ('raw') finished: {sw.ElapsedMilliseconds} ms", ConsoleColor.DarkGray);
         }
 
         private bool IsRawObject(Object o)
@@ -144,21 +157,39 @@ namespace Igorious.StardewValley.DynamicAPI.Services
 
         private bool IsSmartObject(Object o)
         {
-            return TypeMap.ContainsKey(o.ParentSheetIndex) && (o.GetType() != typeof(Object))
-                || DynamicTypeMap.ContainsKey(o.ParentSheetIndex) && (o.GetType() != typeof(Object));
+            return (TypeMap.ContainsKey(o.ParentSheetIndex) || DynamicTypeMap.ContainsKey(o.ParentSheetIndex))
+                && !IsSerializable(o);
+        }
+
+        private static bool IsSerializable(Item o)
+        {
+            return new[] { typeof(Item), typeof(Object), typeof(ColoredObject) }.Contains(o.GetType());
         }
 
         private void ConvertObjects(GameLocation location, Predicate<Object> condition, Func<Object, Object> convert)
         {
             var locationObjects = location.Objects;
-            var wrongObjectInfos = locationObjects.Where(o => (TypeMap.ContainsKey(o.Value.ParentSheetIndex) || DynamicTypeMap.ContainsKey(o.Value.ParentSheetIndex)) && condition(o.Value)).ToList();
-            if (wrongObjectInfos.Count == 0) return;
-
-            foreach (var wrongObjectInfo in wrongObjectInfos)
+            var wrongObjectInfos = locationObjects.Where(o => condition(o.Value)).ToList();
+            if (wrongObjectInfos.Count != 0)
             {
-                locationObjects.Remove(wrongObjectInfo.Key);
-                var newObject = convert(wrongObjectInfo.Value);
-                locationObjects.Add(wrongObjectInfo.Key, newObject);
+                Log.SyncColour($"Found {wrongObjectInfos.Count} objects in {location.Name}.", ConsoleColor.DarkGray);
+                foreach (var wrongObjectInfo in wrongObjectInfos)
+                {
+                    locationObjects.Remove(wrongObjectInfo.Key);
+                    var newObject = convert(wrongObjectInfo.Value);
+                    locationObjects.Add(wrongObjectInfo.Key, newObject);
+                }
+            }
+
+            var buildableLocation = location as BuildableGameLocation;
+            if (buildableLocation == null) return;
+
+            foreach (var building in buildableLocation.buildings)
+            {
+                if (building.indoors != null)
+                {
+                    ConvertObjects(building.indoors, IsSmartObject, ToRawObject);
+                }
             }
         }
 

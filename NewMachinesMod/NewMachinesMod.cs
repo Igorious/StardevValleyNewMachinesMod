@@ -4,10 +4,10 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Igorious.StardewValley.DynamicAPI.Data;
-using Igorious.StardewValley.DynamicAPI.Delegates;
-using Igorious.StardewValley.DynamicAPI.Interfaces;
+using Igorious.StardewValley.DynamicAPI.Data.Supporting;
 using Igorious.StardewValley.DynamicAPI.Services;
 using Igorious.StardewValley.DynamicAPI.Utils;
+using Igorious.StardewValley.NewMachinesMod.Data;
 using Igorious.StardewValley.NewMachinesMod.SmartObjects;
 using Igorious.StardewValley.NewMachinesMod.SmartObjects.Dynamic;
 using StardewModdingAPI;
@@ -19,22 +19,25 @@ namespace Igorious.StardewValley.NewMachinesMod
     {
         public static NewMachinesModConfig Config { get; } = new NewMachinesModConfig();
 
-        private List<NewMachinesModConfig.MachineInfo> _machines;
+        private List<MachineInformation> _machines;
 
         public override void Entry(params object[] objects)
         {
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
             Config.Load(PathOnDisk);
-            _machines = new List<NewMachinesModConfig.MachineInfo>(Config.SimpleMachines)
-            {
-                Config.Tank,
-            };
+            _machines = new List<MachineInformation>(Config.SimpleMachines) { Config.Tank };
 
             InitializeCraftingRecipes();
             InitializeObjectInformation();
             InitializeObjectMapping();
+            InitializeGiftPreferences();
             OverrideTextures();
             PrecompileExpressions();
+        }
+
+        private static void InitializeGiftPreferences()
+        {
+            Config.GiftPreferences.ForEach(GiftPreferencesService.Instance.AddGiftPreferences);
         }
 
         private static void InitializeObjectMapping()
@@ -48,14 +51,12 @@ namespace Igorious.StardewValley.NewMachinesMod
 
         private void InitializeCraftingRecipes()
         {
-            _machines.Select(m => m.GetCraftingRecipe()).ToList()
-                .ForEach(RecipesService.Instance.Register);
+            _machines.ForEach(m => RecipesService.Instance.Register((CraftingRecipeInformation)m));
         }
 
         private void InitializeObjectInformation()
         {
-            _machines.Select(m => m.GetCraftableInformation()).ToList()
-                .ForEach(InformationService.Instance.Register);
+            _machines.ForEach(m => InformationService.Instance.Register((CraftableInformation)m));
             Config.ItemOverrides.ForEach(InformationService.Instance.Override);
             Config.Items.ForEach(InformationService.Instance.Register);
             Config.Crops.ForEach(InformationService.Instance.Register);
@@ -67,24 +68,25 @@ namespace Igorious.StardewValley.NewMachinesMod
             _machines.ForEach(i => textureService.Override(Texture.Craftables, i));
             Config.Items.ForEach(i => textureService.Override(Texture.Items, i));
             Config.Crops.ForEach(i => textureService.Override(Texture.Crops, i));
+            textureService.OverrideIridiumQualityStar();
         }
 
         private void PrecompileExpressions()
         {
             var compilingTask = Task.Run(() =>
             {
-                var machines = _machines.Concat<IMachineOutput>(Config.MachineOverrides);
-                foreach (var machine in machines)
+                var machineOutputs = _machines.Select(m => m.Output).Concat(Config.MachineOverrides.Select(m => m.Output));
+                foreach (var machineOutput in machineOutputs)
                 {
-                    var output = machine.Output;
-                    ExpressionCompiler.CompileExpression<CountExpression>(output.Count);
-                    ExpressionCompiler.CompileExpression<QualityExpression>(output.Quality);
-                    ExpressionCompiler.CompileExpression<PriceExpression>(output.Price);
+                    ExpressionCompiler.CompileExpression<CountExpression>(machineOutput.Count);
+                    ExpressionCompiler.CompileExpression<QualityExpression>(machineOutput.Quality);
+                    ExpressionCompiler.CompileExpression<PriceExpression>(machineOutput.Price);
 
-                    foreach (var outputItem in output.Items.Values)
+                    foreach (var outputItem in machineOutput.Items.Values)
                     {
                         ExpressionCompiler.CompileExpression<CountExpression>(outputItem.Count);
                         ExpressionCompiler.CompileExpression<QualityExpression>(outputItem.Quality);
+                        ExpressionCompiler.CompileExpression<QualityExpression>(outputItem.Price);
                     }
                 }
             });

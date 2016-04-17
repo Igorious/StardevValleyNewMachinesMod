@@ -40,6 +40,7 @@
       <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Drawing" />
   </ItemGroup>
   <Choose>
     <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
@@ -59,6 +60,7 @@
     <Compile Include="ExpressionCompilerTests.cs" />
     <Compile Include="InformationParsing\CookingRecipeInformationTests.cs" />
     <Compile Include="InformationParsing\CraftingRecipeInformationTests.cs" />
+    <Compile Include="InformationParsing\GiftPreferencesTests.cs" />
     <Compile Include="InformationParsing\TreeInformationTests.cs" />
     <Compile Include="InformationParsing\CropInformationTests.cs" />
     <Compile Include="InformationParsing\ObjectInformationTests.cs" />
@@ -70,6 +72,10 @@
     <ProjectReference Include="..\DynamicAPI\DynamicAPI.csproj">
       <Project>{0ee5bdb6-b291-44db-b869-ae048c4e5883}</Project>
       <Name>DynamicAPI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NewMachinesMod\NewMachinesMod.csproj">
+      <Project>{9387EF8B-4539-435D-AE5A-1AC595ED3C2B}</Project>
+      <Name>NewMachinesMod</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

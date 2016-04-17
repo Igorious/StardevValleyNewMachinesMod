@@ -1,5 +1,5 @@
-﻿using Igorious.StardewValley.DynamicAPI.Delegates;
-using Igorious.StardewValley.DynamicAPI.Utils;
+﻿using Igorious.StardewValley.DynamicAPI.Utils;
+using Igorious.StardewValley.NewMachinesMod.Data;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Igorious.StardewValley.DynamicAPI.Tests

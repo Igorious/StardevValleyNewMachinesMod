@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using Igorious.StardewValley.DynamicAPI;
+using System.Threading.Tasks;
 using Igorious.StardewValley.DynamicAPI.Constants;
-using Igorious.StardewValley.DynamicAPI.Data;
-using Igorious.StardewValley.DynamicAPI.Delegates;
-using Igorious.StardewValley.DynamicAPI.Interfaces;
+using Igorious.StardewValley.DynamicAPI.Data.Supporting;
+using Igorious.StardewValley.DynamicAPI.Objects;
 using Igorious.StardewValley.DynamicAPI.Utils;
+using Igorious.StardewValley.NewMachinesMod.Data;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Objects;
 using Object = StardewValley.Object;
@@ -20,19 +18,19 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
     {
         protected MachineBase(int id) : base(id) { }
 
-        protected abstract IMachineOutput MachineOutput { get; }
-        protected OutputInfo Output => MachineOutput.Output;
-        protected int? MinutesUntilReady => MachineOutput.MinutesUntilReady;
+        protected abstract MachineOutputInformation Output { get; }
         private static readonly List<Sound> DefaultSound = new List<Sound> { Sound.Ship };
 
         protected override bool CanPerformDropIn(Object item, Farmer farmer)
         {
-            return (heldObject == null) && Output.Items.ContainsKey(item.ParentSheetIndex);
+            return (heldObject == null) && (Output.Items.ContainsKey(item.ParentSheetIndex) || Output.Items.ContainsKey(item.Category));
         }
 
         protected override bool PerformDropIn(Object item, Farmer farmer)
         {
-            PutItem(GetOutputID(item), GetOutputCount(item), GetOutputQuality(item), GetOutputName(item), GetOutputPrice(item), GetColor(item));
+            var color = GetColor(item);
+            PutItem(GetOutputID(item), GetOutputCount(item), GetOutputQuality(item), GetOutputName(item), GetOutputPrice(item), color != null);
+            SetColor(item, color);
             PlayDropInSounds();
             minutesUntilReady = GetMinutesUntilReady(item);
             return true;
@@ -40,20 +38,26 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
 
         protected virtual void PlayDropInSounds()
         {
-            (MachineOutput.Sounds ?? DefaultSound).ForEach(PlaySound);
+            (Output.Sounds ?? DefaultSound).ForEach(PlaySound);
+        }
+
+        private OutputItem GetOutputItem(Object item)
+        {
+            OutputItem outputInfo;
+            return Output.Items.TryGetValue(item.ParentSheetIndex, out outputInfo)? outputInfo : Output.Items[item.Category];
         }
 
         protected virtual string GetOutputName(Object item)
         {
-            var itemName = Output.Items[item.ParentSheetIndex]?.Name;
-            if (!string.IsNullOrWhiteSpace(itemName)) return itemName;
-            if (itemName != null && string.IsNullOrWhiteSpace(itemName) || Output.NameFormat == null) return null;
-            return string.Format(Output.NameFormat, item.Name);
+            var itemNameFormat = GetOutputItem(item)?.Name;
+            if (!string.IsNullOrWhiteSpace(itemNameFormat)) return string.Format(itemNameFormat, "{0}", item.Name);
+            if (itemNameFormat != null && string.IsNullOrWhiteSpace(itemNameFormat)) return null;
+            return (Output.Name != null)? string.Format(Output.Name, "{0}", item.Name) : null;
         }
 
         protected virtual int GetOutputQuality(Object item)
         {
-            var qualityExpression = Output.Items[item.ParentSheetIndex]?.Quality ?? Output.Quality;
+            var qualityExpression = GetOutputItem(item)?.Quality ?? Output.Quality;
             var calculateQuality = ExpressionCompiler.CompileExpression<QualityExpression>(qualityExpression);
             if (calculateQuality == null) return 0;
 
@@ -63,7 +67,7 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
 
         protected virtual int GetOutputCount(Object item)
         {
-            var countExpression = Output.Items[item.ParentSheetIndex]?.Count ?? Output.Count;
+            var countExpression = GetOutputItem(item)?.Count ?? Output.Count;
             var calculateCount = ExpressionCompiler.CompileExpression<CountExpression>(countExpression);
             if (calculateCount == null) return 1;
 
@@ -73,28 +77,24 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
 
         protected virtual int? GetOutputPrice(Object item)
         {
-            var itemPrice = Output.Items[item.ParentSheetIndex]?.Price;
-            if (itemPrice != null) return itemPrice;
-
-            var calculatePrice = ExpressionCompiler.CompileExpression<PriceExpression>(Output.Price);
+            var priceExpression = GetOutputItem(item)?.Price ?? Output.Price;
+            var calculatePrice = ExpressionCompiler.CompileExpression<PriceExpression>(priceExpression);
             return calculatePrice?.Invoke(item.price, item.quality);
         }
 
         protected virtual int GetOutputID(Object item)
         {
-            return Output.Items[item.ParentSheetIndex]?.ID ?? Output.ID ?? 0;
+            return GetOutputItem(item)?.ID ?? Output.ID ?? 0;
         }
 
-        private Color? GetColor(Object item)
+        private string GetColor(Object item)
         {
-            Log.SyncColour($"Dominant color: {GetDominantColor(item.parentSheetIndex)}", ConsoleColor.Cyan);
-            var colorString = Output.Items[item.ParentSheetIndex]?.Color;
-            return (colorString != null) ? RawColor.FromHex(colorString).ToXnaColor() : (Color?)null;
+            return GetOutputItem(item)?.Color;
         }
 
         protected virtual int GetMinutesUntilReady(Object item)
         {
-            return Output.Items[item.ParentSheetIndex]?.MinutesUntilReady ?? MinutesUntilReady ?? 0;
+            return GetOutputItem(item)?.MinutesUntilReady ?? Output.MinutesUntilReady ?? 0;
         }
 
         public MachineState State
@@ -110,7 +110,7 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
         public override void draw(SpriteBatch spriteBatch, int x, int y, float alpha = 1)
         {
             base.draw(spriteBatch, x, y, alpha);
-            if (heldObject is ColoredObject)
+            if (readyForHarvest && heldObject is ColoredObject)
             {
                 var num = (float)(4.0 * Math.Round(Math.Sin(DateTime.Now.TimeOfDay.TotalMilliseconds / 250), 2));
                 var depth = (float)((y + 1) * Game1.tileSize / 10000.0 + tileLocation.X / 10000.0);
@@ -138,49 +138,20 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
             {
                 spriteBatch.Draw(Game1.objectSpriteSheet, Game1.GlobalToLocal(Game1.viewport, new Vector2(x * Game1.tileSize + Game1.tileSize / 2, y * Game1.tileSize - Game1.tileSize - Game1.tileSize / 8 + num)), Game1.getSourceRectForStandardTileSheet(Game1.objectSpriteSheet, heldObject.parentSheetIndex + 1, 16, 16), ((ColoredObject)heldObject).color, 0, new Vector2(8, 8), Game1.pixelZoom, SpriteEffects.None, depth);
             }
-        }
-
-        private string GetDominantColor(int spriteIndex)
+        }      
+        
+        private void SetColor(Object dropInItem, string color)
         {
-            const int width = 16;
-            const int height = 16;
-            const int minDiversion = 15;
+            if (string.IsNullOrWhiteSpace(color) || !(heldObject is ColoredObject)) return;
 
-            var rect = Game1.getSourceRectForStandardTileSheet(Game1.objectSpriteSheet, spriteIndex, width, height);
-            var data = new Color[width * height];
-            Game1.objectSpriteSheet.GetData(0, rect, data, 0, data.Length);
+            var coloredItem = (ColoredObject)heldObject;
+            if (color != "@")
+            {
+                coloredItem.color = RawColor.FromHex(color).ToXnaColor();
+                return;
+            }
 
-            var dicColors = new Dictionary<string, long>();
-
-            for (var y = 0; y < height; y++)
-                for (var x = 0; x < width; x++)
-                {
-                    var color = data[y * width + x];
-                    if (color.A == 0) continue;
-                    var red = RoundColorToGroup(color.R);
-                    var green = RoundColorToGroup(color.G);
-                    var blue = RoundColorToGroup(color.B);
-
-                    if (Math.Abs(red - green) > minDiversion || Math.Abs(red - blue) > minDiversion || Math.Abs(green - blue) > minDiversion)
-                    {
-                        var colorGroup = new RawColor(red, green, blue).ToHex();
-                        if (dicColors.ContainsKey(colorGroup))
-                        {
-                            dicColors[colorGroup]++;
-                        }
-                        else
-                        {
-                            dicColors.Add(colorGroup, 1);
-                        }
-                    }
-                }
-
-            return dicColors.OrderByDescending(x => x.Value).First().Key;
-        }
-
-        public static int RoundColorToGroup(int i)
-        {
-            return (i + 4) / 10 * 10;
+            Task.Run(() => coloredItem.color = DominantColorFinder.GetDominantColor(dropInItem.ParentSheetIndex, Game1.objectSpriteSheet, 16, 16));
         }
     }
 }

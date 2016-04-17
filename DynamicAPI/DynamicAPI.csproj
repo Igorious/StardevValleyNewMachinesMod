@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Igorious.StardewValley.DynamicAPI</RootNamespace>
-    <AssemblyName>Igorious.StardewValley.DynamicAPI</AssemblyName>
+    <AssemblyName>Igorious.StardewValley.DynamicAPI.3.1.3</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
@@ -47,27 +47,30 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes\ExpressionAttribute.cs" />
-    <Compile Include="Data\DynamicID.cs" />
+    <Compile Include="Constants\CharacterName.cs" />
+    <Compile Include="Data\Supporting\DynamicID.cs" />
+    <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="Json\JsonDictionaryKeyConverter.cs" />
+    <Compile Include="Json\JsonDynamicIdConverter2.cs" />
     <Compile Include="Json\JsonDynamicIdConverter.cs" />
     <Compile Include="Constants\MachineState.cs" />
     <Compile Include="Constants\ObjectType.cs" />
     <Compile Include="Constants\DayTime.cs" />
-    <Compile Include="Constants\ObjectCategory.cs" />
+    <Compile Include="Constants\CategoryID.cs" />
     <Compile Include="Constants\Season.cs" />
-    <Compile Include="Data\ArchChance.cs" />
+    <Compile Include="Data\Supporting\ArchChance.cs" />
     <Compile Include="Constants\MealCategory.cs" />
-    <Compile Include="Data\RawColor.cs" />
+    <Compile Include="Data\Supporting\RawColor.cs" />
     <Compile Include="Data\CookingRecipeInformation.cs" />
-    <Compile Include="Data\DynamicTypeInfo.cs" />
-    <Compile Include="Data\MachineDraw.cs" />
-    <Compile Include="Data\WayToGetCraftingRecipe.cs" />
-    <Compile Include="Data\WayToGetCookingRecipe.cs" />
-    <Compile Include="Data\SkillUpInformation.cs" />
+    <Compile Include="Data\Supporting\DynamicTypeInfo.cs" />
+    <Compile Include="Data\Supporting\WayToGetCraftingRecipe.cs" />
+    <Compile Include="Data\Supporting\WayToGetCookingRecipe.cs" />
+    <Compile Include="Data\Supporting\SkillUpInformation.cs" />
     <Compile Include="DynamicConfiguration.cs" />
     <Compile Include="Constants\CraftableID.cs" />
     <Compile Include="Constants\ItemID.cs" />
@@ -76,30 +79,28 @@
     <Compile Include="Constants\Sound.cs" />
     <Compile Include="Data\CropInformation.cs" />
     <Compile Include="Data\TreeInformation.cs" />
-    <Compile Include="Delegates\OutputDelegates.cs" />
     <Compile Include="Extensions\BoolExtensions.cs" />
     <Compile Include="Extensions\JsonExtensions.cs" />
     <Compile Include="Extensions\EnumExtensions.cs" />
     <Compile Include="Interfaces\IDrawable.cs" />
     <Compile Include="Interfaces\IDynamic.cs" />
-    <Compile Include="Interfaces\IMachineOutput.cs" />
     <Compile Include="Data\ItemInformation.cs" />
-    <Compile Include="Interfaces\ICraftable.cs" />
     <Compile Include="Interfaces\IItem.cs" />
-    <Compile Include="Interfaces\IMachine.cs" />
-    <Compile Include="Data\OutputInfo.cs" />
-    <Compile Include="Data\OutputItem.cs" />
     <Compile Include="Extensions\ReflectionExtensions.cs" />
     <Compile Include="Data\CraftableInformation.cs" />
     <Compile Include="Data\CraftingRecipeInformation.cs" />
     <Compile Include="Interfaces\IInformation.cs" />
     <Compile Include="Json\JsonPlainArrayConverter.cs" />
+    <Compile Include="Data\Supporting\CharacterGiftPreferences.cs" />
+    <Compile Include="Data\Supporting\GiftPreferences.cs" />
+    <Compile Include="Services\GiftPreferencesService.cs" />
     <Compile Include="Services\RecipesService.cs" />
     <Compile Include="Services\InformationService.cs" />
-    <Compile Include="Data\IngredientInfo.cs" />
+    <Compile Include="Data\Supporting\IngredientInfo.cs" />
     <Compile Include="Services\ClassMapperService.cs" />
     <Compile Include="Services\TexturesService.cs" />
-    <Compile Include="SmartObjectBase.cs" />
+    <Compile Include="Objects\SmartObjectBase.cs" />
+    <Compile Include="Utils\DominantColorFinder.cs" />
     <Compile Include="Utils\ExpressionCompiler.cs" />
   </ItemGroup>
   <ItemGroup>

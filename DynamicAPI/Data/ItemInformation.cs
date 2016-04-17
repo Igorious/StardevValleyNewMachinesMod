@@ -3,69 +3,84 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using Igorious.StardewValley.DynamicAPI.Constants;
+using Igorious.StardewValley.DynamicAPI.Data.Supporting;
 using Igorious.StardewValley.DynamicAPI.Extensions;
 using Igorious.StardewValley.DynamicAPI.Interfaces;
+using Newtonsoft.Json;
 using Object = StardewValley.Object;
 
 namespace Igorious.StardewValley.DynamicAPI.Data
 {
     public sealed class ItemInformation : IItem, IItemInformation
     {
-        public static readonly int[] NoSkillUps = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+        #region	Properties
 
+        [JsonProperty(Required = Required.Always)]
         public DynamicID<ItemID> ID { get; set; }
 
-        int IItem.ID => ID;
-
+        [JsonProperty(Required = Required.Always)]
         public string Name { get; set; }
 
-        int IDrawable.TextureIndex => ID;
-
+        [JsonProperty]
         public int Price { get; set; }
 
-        [DefaultValue(Object.inedible)]
+        [JsonProperty, DefaultValue(Object.inedible)]
         public int Edibility { get; set; } = Object.inedible;
 
-        [DefaultValue(ObjectType.Basic)]
+        [JsonProperty, DefaultValue(ObjectType.Basic)]
         public ObjectType Type { get; set; } = ObjectType.Basic;
 
-        public ObjectCategory Category { get; set; }
+        [JsonProperty]
+        public CategoryID Category { get; set; }
 
+        [JsonProperty(Required = Required.Always)]
         public string Description { get; set; }
 
+        [JsonProperty]
         public MealCategory MealCategory { get; set; }
 
+        [JsonProperty]
         public SkillUpInformation SkillUps { get; set; }
 
+        [JsonProperty]
         public int? Duration { get; set; }
 
+        [JsonProperty]
         public List<DayTime> FishDayTime { get; set; }
 
+        [JsonProperty]
         public List<Season> FishSeason { get; set; }
 
+        [JsonProperty]
         public List<ArchChance> ArchChances { get; set; }
 
+        [JsonProperty]
         public string ArchAdditionalInfo { get; set; }
 
+        [JsonProperty]
         public int? ResourceIndex { get; set; }
 
         [DefaultValue(1)]
         public int ResourceLength { get; set; } = 1;
 
-        public static ItemInformation Parse(string objectInformation)
+        #endregion
+
+        #region Serialization
+
+        public static ItemInformation Parse(string objectInformation, int itemID = 0)
         {
-            var info = new ItemInformation();
+            var info = new ItemInformation {ID = itemID};
             var parts = objectInformation.Split('/');
             info.Name = parts[0];
             info.Price = int.Parse(parts[1]);
             info.Edibility = int.Parse(parts[2]);
             var typeAndCategory = parts[3].Split(' ');
             info.Type = typeAndCategory[0].ToEnum<ObjectType>();
-            if (typeAndCategory.Length > 1) info.Category = typeAndCategory[1].ToEnum<ObjectCategory>();
+            if (typeAndCategory.Length > 1) info.Category = typeAndCategory[1].ToEnum<CategoryID>();
             info.Description = parts[4];
             if (parts.Length > 5)
             {
-                if (info.Category == ObjectCategory.Fish)
+                if (info.Category == CategoryID.Fish)
                 {
                     var dayTimeAndSeasons = parts[5].Split('^');
                     info.FishDayTime = dayTimeAndSeasons[0].Split(' ').Select(d => d.ToEnum<DayTime>()).ToList();
@@ -95,14 +110,12 @@ namespace Igorious.StardewValley.DynamicAPI.Data
             return info;
         }
 
-        int IInformation.ID => ID;
-
         public override string ToString()
         {
             var buffer = new StringBuilder($"{Name}/{Price}/{Edibility}/{Type}");
-            if (Category != ObjectCategory.Undefined) buffer.Append(' ').Append((int)Category);
+            if (Category != CategoryID.Undefined) buffer.Append(' ').Append((int)Category);
             buffer.Append('/').Append(Description);
-            if (Category == ObjectCategory.Fish)
+            if (Category == CategoryID.Fish)
             {
                 buffer.Append('/').Append(string.Join(" ", FishDayTime))
                     .Append('^').Append(string.Join(" ", FishSeason));
@@ -120,5 +133,17 @@ namespace Igorious.StardewValley.DynamicAPI.Data
             }
             return buffer.ToString();
         }
+
+        #endregion
+
+        #region Explicit Interface Implemetation
+
+        int IDrawable.TextureIndex => ID;
+
+        int IInformation.ID => ID;
+
+        int IItem.ID => ID;
+
+        #endregion
     }
 }

@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using Igorious.StardewValley.DynamicAPI.Constants;
 using Microsoft.Xna.Framework;
-using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Objects;
 using StardewValley.Tools;
 using Object = StardewValley.Object;
 
-namespace Igorious.StardewValley.DynamicAPI
+namespace Igorious.StardewValley.DynamicAPI.Objects
 {
     public abstract class SmartObjectBase : Object
     {
@@ -43,12 +42,11 @@ namespace Igorious.StardewValley.DynamicAPI
             }
         }
 
-        protected void PutItem(int itemID, int count, int itemQuality = 0, string overridedName = null, int? overridedPrice = null, Color? color = null)
+        protected void PutItem(int itemID, int count, int itemQuality = 0, string overridedName = null, int? overridedPrice = null, bool isColored = false)
         {
-            Log.SyncColour($"Colored! {color}", ConsoleColor.Magenta);
-            heldObject = (color != null)? new ColoredObject(itemID, count, color.Value) : new Object(itemID, count);          
+            heldObject = isColored? new ColoredObject(itemID, count, Color.White) : new Object(itemID, count);          
             heldObject.quality = itemQuality;
-            if (overridedName != null) heldObject.Name = overridedName;
+            if (overridedName != null) heldObject.Name = string.Format(overridedName, heldObject.Name);
             if (overridedPrice != null) heldObject.Price = overridedPrice.Value;
         }
 

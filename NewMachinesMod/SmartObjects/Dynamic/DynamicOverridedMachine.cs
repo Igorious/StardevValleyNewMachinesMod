@@ -1,18 +1,19 @@
 ﻿using System.Linq;
 using Igorious.StardewValley.DynamicAPI.Interfaces;
+using Igorious.StardewValley.NewMachinesMod.Data;
 using Igorious.StardewValley.NewMachinesMod.SmartObjects.Base;
 
 namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Dynamic
 {
     public sealed class DynamicOverridedMachine : OverridedMachineBase, IDynamic
     {
-        private int ClassID { get; }
+        public int DynamicClassID { get; }
 
-        public DynamicOverridedMachine(int classID) : base(classID)
+        public DynamicOverridedMachine(int dynamicClassID) : base(dynamicClassID)
         {
-            ClassID = classID;
+            DynamicClassID = dynamicClassID;
         }
 
-        protected override IMachineOutput MachineOutput => NewMachinesMod.Config.MachineOverrides.First(m => m.ID == ClassID);
+        protected override OverridedMachineInformation MachineInformation => NewMachinesMod.Config.MachineOverrides.First(m => m.ID == DynamicClassID);
     }
 }

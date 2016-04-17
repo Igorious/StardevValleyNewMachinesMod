@@ -1,20 +1,48 @@
 using System.Linq;
+using Newtonsoft.Json;
 
-namespace Igorious.StardewValley.DynamicAPI.Data
+namespace Igorious.StardewValley.DynamicAPI.Data.Supporting
 {
     public sealed class SkillUpInformation
     {
+        #region	Properties
+
+        [JsonProperty]
         public int Farming { get; set; }
+
+        [JsonProperty]
         public int Fishing { get; set; }
+
+        [JsonProperty]
         public int Mining { get; set; }
+
+        [JsonIgnore]
         private int Combat { get; set; }
+
+        [JsonProperty]
         public int Luck { get; set; }
+
+        [JsonProperty]
         public int Foraging { get; set; }
+
+        [JsonIgnore]
         private int Crafting { get; set; }
+
+        [JsonProperty]
         public int MaxEnergy { get; set; }
+
+        [JsonProperty]
         public int Magnetism { get; set; }
+
+        [JsonProperty]
         public int Speed { get; set; }
+
+        [JsonProperty]
         public int Defence { get; set; }
+
+        #endregion
+
+        #region Serialization
 
         public static SkillUpInformation Parse(string skillUpInformation)
         {
@@ -37,7 +65,7 @@ namespace Igorious.StardewValley.DynamicAPI.Data
 
         public override string ToString()
         {
-            return string.Join(" ", new []
+            return string.Join(" ", new[]
             {
                 Farming,
                 Fishing,
@@ -52,5 +80,7 @@ namespace Igorious.StardewValley.DynamicAPI.Data
                 Defence,
             });
         }
+
+        #endregion
     }
 }

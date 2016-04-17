@@ -6,19 +6,28 @@ using Newtonsoft.Json;
 
 namespace Igorious.StardewValley.DynamicAPI.Json
 {
-    public sealed class JsonDynamicIdConverter<TEnum> : JsonConverter
+    public sealed class JsonDynamicIdConverter<TEnum1, TEnum2> : JsonConverter
     {
         private static Dictionary<string, int> NameToInt { get; } = new Dictionary<string, int>();
         private static Dictionary<int, string> IntToName { get; } = new Dictionary<int, string>();
 
         static JsonDynamicIdConverter()
         {
-            var names = Enum.GetNames(typeof(TEnum));
-            var values = (TEnum[])Enum.GetValues(typeof(TEnum));
-            for (var i = 0; i < values.Length; ++i)
+            var names1 = Enum.GetNames(typeof(TEnum1));
+            var values1 = (TEnum1[])Enum.GetValues(typeof(TEnum1));
+            for (var i = 0; i < values1.Length; ++i)
             {
-                IntToName.Add(Convert.ToInt32(values[i]), names[i]);
-                NameToInt.Add(names[i].ToLower(), Convert.ToInt32(values[i]));
+                IntToName.Add(Convert.ToInt32(values1[i]), names1[i]);
+                NameToInt.Add(names1[i].ToLower(), Convert.ToInt32(values1[i]));
+            }
+
+            var names2 = Enum.GetNames(typeof(TEnum2));
+            var values2 = (TEnum2[])Enum.GetValues(typeof(TEnum2));
+            for (var i = 0; i < values2.Length; ++i)
+            {
+                if (string.Equals(names2[i], "Undefined")) continue;
+                IntToName.Add(Convert.ToInt32(values2[i]), names2[i]);
+                NameToInt.Add(names2[i].ToLower(), Convert.ToInt32(values2[i]));
             }
         }
 
@@ -84,8 +93,9 @@ namespace Igorious.StardewValley.DynamicAPI.Json
         public override bool CanConvert(Type objectType)
         {
             return objectType.IsGenericType 
-                && objectType.GetGenericTypeDefinition() == typeof(DynamicID<>)
-                && objectType.GenericTypeArguments.Single() == typeof(TEnum);
+                && objectType.GetGenericTypeDefinition() == typeof(DynamicID<,>)
+                && objectType.GenericTypeArguments.First() == typeof(TEnum1)
+                && objectType.GenericTypeArguments.Last() == typeof(TEnum2);
         }
     }
 }

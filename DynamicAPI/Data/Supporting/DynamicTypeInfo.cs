@@ -1,7 +1,7 @@
 using System;
 using Igorious.StardewValley.DynamicAPI.Interfaces;
 
-namespace Igorious.StardewValley.DynamicAPI.Data
+namespace Igorious.StardewValley.DynamicAPI.Data.Supporting
 {
     public sealed class DynamicTypeInfo
     {

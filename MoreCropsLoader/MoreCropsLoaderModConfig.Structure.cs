@@ -4,7 +4,7 @@ using Igorious.StardewValley.DynamicAPI.Data;
 
 namespace Igorious.StardewValley.MoreCropsLoader
 {
-    public sealed class MoreCropsLoaderModConfig : DynamicConfiguration
+    public sealed partial class MoreCropsLoaderModConfig : DynamicConfiguration
     {
         public List<ItemInformation> Items { get; set; } = new List<ItemInformation>();
         public List<TreeInformation> Trees { get; set; } = new List<TreeInformation>();

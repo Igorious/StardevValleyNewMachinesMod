@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Igorious.StardewValley.DynamicAPI.Constants;
-using Igorious.StardewValley.DynamicAPI.Data;
+using Igorious.StardewValley.DynamicAPI.Data.Supporting;
 using Igorious.StardewValley.DynamicAPI.Extensions;
+using Igorious.StardewValley.DynamicAPI.Json;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 
@@ -94,6 +95,12 @@ namespace Igorious.StardewValley.DynamicAPI.Tests.Json
             Assert.AreEqual(item1.Keys.Last(), item2.Keys.Last());
             Assert.AreEqual(item1.Values.First(), item2.Values.First());
             Assert.AreEqual(item1.Values.Last(), item2.Values.Last());
+        }
+
+        [TestMethod]
+        public void DoubleConverterSmokeTest()
+        {
+            var c = new JsonDynamicIdConverter<ItemID, CategoryID>();
         }
     }
 }

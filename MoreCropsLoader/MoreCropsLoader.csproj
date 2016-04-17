@@ -38,6 +38,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MoreCropsLoaderMod.cs" />
+    <Compile Include="MoreCropsLoaderModConfig.Default.cs" />
     <Compile Include="MoreCropsLoaderModConfig.Structure.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -68,6 +69,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Configuration\Trees.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="manifest.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
