@@ -25,7 +25,7 @@ namespace Igorious.StardewValley.NewMachinesMod
         {
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
             Config.Load(PathOnDisk);
-            _machines = new List<MachineInformation>(Config.SimpleMachines) { Config.Tank };
+            _machines = new List<MachineInformation>(Config.SimpleMachines) { Config.Tank, Config.Mixer };
 
             InitializeCraftingRecipes();
             InitializeObjectInformation();
@@ -44,6 +44,7 @@ namespace Igorious.StardewValley.NewMachinesMod
         {
             ClassMapperService.Instance.Map<Tank>(Config.Tank.ID);
             ClassMapperService.Instance.Map<FullTank>(Config.Tank.ID + 1);
+            ClassMapperService.Instance.Map<Mixer>(Config.Mixer.ID);
 
             Config.SimpleMachines.ForEach(m => ClassMapperService.Instance.Map(DynamicTypeInfo.Create<DynamicCustomMachine>(m.ID)));
             Config.MachineOverrides.ForEach(m => ClassMapperService.Instance.Map(DynamicTypeInfo.Create<DynamicOverridedMachine>(m.ID)));
@@ -84,6 +85,7 @@ namespace Igorious.StardewValley.NewMachinesMod
 
                     foreach (var outputItem in machineOutput.Items.Values)
                     {
+                        if (outputItem == null) continue;
                         ExpressionCompiler.CompileExpression<CountExpression>(outputItem.Count);
                         ExpressionCompiler.CompileExpression<QualityExpression>(outputItem.Quality);
                         ExpressionCompiler.CompileExpression<QualityExpression>(outputItem.Price);

@@ -132,11 +132,11 @@ namespace Igorious.StardewValley.DynamicAPI.Services
 
             using (var imageStream = new FileStream(Path.Combine(RootPath, overridingTexturePath), FileMode.Open))
             {
-                var overrides = Texture2D.FromStream(Game1.graphics.GraphicsDevice, imageStream);
+                var overrideTexture = Texture2D.FromStream(Game1.graphics.GraphicsDevice, imageStream);
                 foreach (var spriteOverride in spriteOverrides)
                 {
                     var data = new Color[gridWidth * gridHeight];
-                    overrides.GetData(0, GetSourceRectForObject(spriteOverride.Value, originalTexture, gridWidth, gridHeight), data, 0, data.Length);
+                    overrideTexture.GetData(0, GetSourceRectForObject(spriteOverride.Value, overrideTexture, gridWidth, gridHeight), data, 0, data.Length);
                     originalTexture.SetData(0, GetSourceRectForObject(spriteOverride.Key, originalTexture, gridWidth, gridHeight), data, 0, data.Length);
                 }
             }

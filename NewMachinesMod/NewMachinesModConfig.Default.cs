@@ -12,13 +12,20 @@ namespace Igorious.StardewValley.NewMachinesMod
     {
         #region Constants
 
-        public const int MeadID = 900;
-        public const int VodkaID = 901;
-        public const int ColorWineID = 902;
-        public const int CactusSeedID = 904;
-        public const int ColorJellyID = 905;
-        public const int ColorPicklesID = 907;
-        public const int ColorJuiceID = 909;
+        private const int MillID = 164;
+        private const int TankID = 166;
+        private const int VinegarJugID = 168;
+        private const int DryerID = 169;
+        private const int MixerID = 172;
+
+        private const int MeadID = 900;
+        private const int VodkaID = 901;
+        private const int ColorWineID = 902;
+        private const int CactusSeedID = 904;
+        private const int ColorJellyID = 905;
+        private const int ColorPicklesID = 907;
+        private const int ColorJuiceID = 909;
+        private const int ExperementalLiquidID = 911;
 
         #endregion
 
@@ -34,6 +41,7 @@ namespace Igorious.StardewValley.NewMachinesMod
             };
 
             Tank = GetTank();
+            Mixer = GetMixer();
 
             ItemOverrides = new List<ItemInformation>
             {
@@ -54,6 +62,7 @@ namespace Igorious.StardewValley.NewMachinesMod
                 GetCactusSeed(),
                 GetColorJelly(),
                 GetColorPickles(),
+                GetExperementalLiquid(),
             };
 
             MachineOverrides = new List<OverridedMachineInformation>
@@ -206,6 +215,20 @@ namespace Igorious.StardewValley.NewMachinesMod
             };
         }
 
+        private static ItemInformation GetExperementalLiquid()
+        {
+            return new ItemInformation
+            {
+                ID = ExperementalLiquidID,
+                Category = CategoryID.ArtisanGoods,
+                Description = "A strange liquid.",
+                Type = ObjectType.Basic,
+                Name = "Experemental Liquid",
+                ResourceIndex = 11,
+                ResourceLength = 2,
+            };
+        }
+
         private static ItemInformation GetVodka()
         {
             return new ItemInformation
@@ -245,7 +268,7 @@ namespace Igorious.StardewValley.NewMachinesMod
         {
             return new MachineInformation
             {
-                ID = 169,
+                ID = DryerID,
                 ResourceIndex = 5,
                 ResourceLength = 3,
                 Name = "Dryer",
@@ -273,11 +296,43 @@ namespace Igorious.StardewValley.NewMachinesMod
             };
         }
 
+        private static MachineInformation GetMixer()
+        {
+            return new MachineInformation
+            {
+                ID = MixerID,
+                ResourceIndex = 8,
+                ResourceLength = 3,
+                Name = "Mixer",
+                Description = "Science machine that allows to mix various items.",
+                Skill = Skill.Farming,
+                SkillLevel = 10,
+                Materials = new Dictionary<DynamicID<ItemID>, int>
+                {
+                    { ItemID.CopperBar, 1 },
+                    { ItemID.IronBar, 1 },
+                    { ItemID.GoldOre, 1 },
+                    { ItemID.IridiumOre, 1 },
+                    { ItemID.RefinedQuartz, 1 },
+                },
+                Output = new MachineOutputInformation
+                {
+                    ID = ExperementalLiquidID,
+                    Items = new Dictionary<DynamicID<ItemID, CategoryID>, OutputItem>
+                    {
+                        { ColorWineID, null },
+                        { ColorJuiceID, null },
+                    },
+                    MinutesUntilReady = 2880,
+                },
+            };
+        }
+
         private static MachineInformation GetVinegarJug()
         {
             return new MachineInformation
             {
-                ID = 168,
+                ID = VinegarJugID,
                 ResourceIndex = 4,
                 Name = "Vinegar Jug",
                 Description = "Ceramic thing, that used to vinegar creation.",
@@ -310,7 +365,7 @@ namespace Igorious.StardewValley.NewMachinesMod
         {
             return new MachineInformation
             {
-                ID = 166,
+                ID = TankID,
                 ResourceIndex = 2,
                 ResourceLength = 2,
                 Name = "Tank",
@@ -344,7 +399,7 @@ namespace Igorious.StardewValley.NewMachinesMod
         {
             return new MachineInformation
             {
-                ID = 164,
+                ID = MillID,
                 ResourceIndex = 0,
                 ResourceLength = 2,
                 Name = "Mill",
