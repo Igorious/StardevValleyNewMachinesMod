@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Igorious.StardewValley.DynamicAPI.Constants;
 using Igorious.StardewValley.DynamicAPI.Data.Supporting;
 using Igorious.StardewValley.DynamicAPI.Objects;
@@ -145,13 +144,9 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
             if (string.IsNullOrWhiteSpace(color) || !(heldObject is ColoredObject)) return;
 
             var coloredItem = (ColoredObject)heldObject;
-            if (color != "@")
-            {
-                coloredItem.color = RawColor.FromHex(color).ToXnaColor();
-                return;
-            }
-
-            Task.Run(() => coloredItem.color = DominantColorFinder.GetDominantColor(dropInItem.ParentSheetIndex, Game1.objectSpriteSheet, 16, 16));
+            coloredItem.color = (color != "@")
+                ? RawColor.FromHex(color).ToXnaColor() 
+                : DominantColorFinder.GetDominantColor(dropInItem.ParentSheetIndex, Game1.objectSpriteSheet, 16, 16);
         }
     }
 }

@@ -58,6 +58,9 @@ namespace Igorious.StardewValley.DynamicAPI.Data
         public string ArchAdditionalInfo { get; set; }
 
         [JsonProperty]
+        public bool IsColored { get; set; }
+
+        [JsonProperty]
         public int? ResourceIndex { get; set; }
 
         [DefaultValue(1)]

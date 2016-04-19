@@ -51,6 +51,8 @@ namespace Igorious.StardewValley.DynamicAPI.Data.Supporting
             return Value.ToString();
         }
 
+        #region Equality Members
+
         private bool Equals(DynamicID<TEnum> other)
         {
             return Value == other.Value;
@@ -63,15 +65,29 @@ namespace Igorious.StardewValley.DynamicAPI.Data.Supporting
             return obj is DynamicID<TEnum> && Equals((DynamicID<TEnum>)obj);
         }
 
+        public static bool operator ==(DynamicID<TEnum> left, DynamicID<TEnum> right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(DynamicID<TEnum> left, DynamicID<TEnum> right)
+        {
+            return !Equals(left, right);
+        }
+
         public override int GetHashCode()
         {
             return Value;
         }
 
+        #endregion
+
+        #region IConvertible Implementation
+
         TypeCode IConvertible.GetTypeCode() => TypeCode.Object;
         bool IConvertible.ToBoolean(IFormatProvider provider) => Convert.ToBoolean(Value);
         char IConvertible.ToChar(IFormatProvider provider) => Convert.ToChar(Value);
-        sbyte IConvertible.ToSByte(IFormatProvider provider) =>  Convert.ToSByte(Value);
+        sbyte IConvertible.ToSByte(IFormatProvider provider) => Convert.ToSByte(Value);
         byte IConvertible.ToByte(IFormatProvider provider) => Convert.ToByte(Value);
         short IConvertible.ToInt16(IFormatProvider provider) => Convert.ToInt16(Value);
         ushort IConvertible.ToUInt16(IFormatProvider provider) => Convert.ToUInt16(Value);
@@ -85,5 +101,7 @@ namespace Igorious.StardewValley.DynamicAPI.Data.Supporting
         DateTime IConvertible.ToDateTime(IFormatProvider provider) => Convert.ToDateTime(Value);
         string IConvertible.ToString(IFormatProvider provider) => Convert.ToString(Value);
         object IConvertible.ToType(Type conversionType, IFormatProvider provider) => ((IConvertible)Value).ToType(conversionType, provider);
+
+        #endregion
     }
 }

@@ -38,7 +38,7 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
 
         protected virtual bool CanPerformDropInOverrided(Object item, Farmer farmer)
         {
-            return base.CanPerformDropIn(item, farmer);
+            return (MachineInformation.IgnoredItems?.Contains(item.ParentSheetIndex) != true) && base.CanPerformDropIn(item, farmer);
         }
 
         protected virtual bool PerformDropInOverrided(Object item, Farmer farmer)

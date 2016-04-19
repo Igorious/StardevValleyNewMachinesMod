@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Igorious.StardewValley.DynamicAPI</RootNamespace>
-    <AssemblyName>Igorious.StardewValley.DynamicAPI.3.1.3</AssemblyName>
+    <AssemblyName>Igorious.StardewValley.DynamicAPI.3.1.6</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
@@ -30,6 +30,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553" />
@@ -53,8 +54,10 @@
   <ItemGroup>
     <Compile Include="Attributes\ExpressionAttribute.cs" />
     <Compile Include="Constants\CharacterName.cs" />
+    <Compile Include="Data\OverridedBundleInformation.cs" />
     <Compile Include="Data\Supporting\DynamicID.cs" />
     <Compile Include="Extensions\EnumerableExtensions.cs" />
+    <Compile Include="Interfaces\ISmartObject.cs" />
     <Compile Include="Json\JsonDictionaryKeyConverter.cs" />
     <Compile Include="Json\JsonDynamicIdConverter2.cs" />
     <Compile Include="Json\JsonDynamicIdConverter.cs" />
@@ -93,6 +96,10 @@
     <Compile Include="Json\JsonPlainArrayConverter.cs" />
     <Compile Include="Data\Supporting\CharacterGiftPreferences.cs" />
     <Compile Include="Data\Supporting\GiftPreferences.cs" />
+    <Compile Include="Objects\SmartColoredObject.cs" />
+    <Compile Include="Data\BundleInformation.cs" />
+    <Compile Include="Data\Supporting\BundleItemInformation.cs" />
+    <Compile Include="Services\BundlesService.cs" />
     <Compile Include="Services\GiftPreferencesService.cs" />
     <Compile Include="Services\RecipesService.cs" />
     <Compile Include="Services\InformationService.cs" />

@@ -58,6 +58,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="ExpressionCompilerTests.cs" />
+    <Compile Include="InformationParsing\BundlesInformationTests.cs" />
     <Compile Include="InformationParsing\CookingRecipeInformationTests.cs" />
     <Compile Include="InformationParsing\CraftingRecipeInformationTests.cs" />
     <Compile Include="InformationParsing\GiftPreferencesTests.cs" />

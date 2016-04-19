@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Igorious.StardewValley.DynamicAPI.Data;
 using Igorious.StardewValley.DynamicAPI.Data.Supporting;
+using Igorious.StardewValley.DynamicAPI.Objects;
 using Igorious.StardewValley.DynamicAPI.Services;
 using Igorious.StardewValley.DynamicAPI.Utils;
 using Igorious.StardewValley.NewMachinesMod.Data;
@@ -31,6 +32,7 @@ namespace Igorious.StardewValley.NewMachinesMod
             InitializeObjectInformation();
             InitializeObjectMapping();
             InitializeGiftPreferences();
+            InitializeBundles();
             OverrideTextures();
             PrecompileExpressions();
         }
@@ -42,12 +44,13 @@ namespace Igorious.StardewValley.NewMachinesMod
 
         private static void InitializeObjectMapping()
         {
-            ClassMapperService.Instance.Map<Tank>(Config.Tank.ID);
-            ClassMapperService.Instance.Map<FullTank>(Config.Tank.ID + 1);
-            ClassMapperService.Instance.Map<Mixer>(Config.Mixer.ID);
+            ClassMapperService.Instance.MapCraftable<Tank>(Config.Tank.ID);
+            ClassMapperService.Instance.MapCraftable<FullTank>(Config.Tank.ID + 1);
+            ClassMapperService.Instance.MapCraftable<Mixer>(Config.Mixer.ID);
 
-            Config.SimpleMachines.ForEach(m => ClassMapperService.Instance.Map(DynamicTypeInfo.Create<DynamicCustomMachine>(m.ID)));
-            Config.MachineOverrides.ForEach(m => ClassMapperService.Instance.Map(DynamicTypeInfo.Create<DynamicOverridedMachine>(m.ID)));
+            Config.Items.ForEach(i => ClassMapperService.Instance.MapItem<SmartColoredObject>(i.ID));
+            Config.SimpleMachines.ForEach(m => ClassMapperService.Instance.MapCraftable(DynamicTypeInfo.Create<DynamicCustomMachine>(m.ID)));
+            Config.MachineOverrides.ForEach(m => ClassMapperService.Instance.MapCraftable(DynamicTypeInfo.Create<DynamicOverridedMachine>(m.ID)));
         }
 
         private void InitializeCraftingRecipes()
@@ -61,6 +64,12 @@ namespace Igorious.StardewValley.NewMachinesMod
             Config.ItemOverrides.ForEach(InformationService.Instance.Override);
             Config.Items.ForEach(InformationService.Instance.Register);
             Config.Crops.ForEach(InformationService.Instance.Register);
+        }
+
+        private void InitializeBundles()
+        {
+            Config.Bundles.Added.ForEach(BundlesService.Instance.AddBundleItems);
+            Config.Bundles.Removed.ForEach(BundlesService.Instance.RemoveBundleItems);
         }
 
         private void OverrideTextures()

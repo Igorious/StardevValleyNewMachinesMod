@@ -4,6 +4,8 @@ using System.Linq;
 using Igorious.StardewValley.DynamicAPI.Data.Supporting;
 using Igorious.StardewValley.DynamicAPI.Services;
 using Microsoft.Xna.Framework.Graphics;
+using StardewModdingAPI;
+using WColor = System.Drawing.Color;
 using XColor = Microsoft.Xna.Framework.Color;
 
 namespace Igorious.StardewValley.DynamicAPI.Utils
@@ -12,63 +14,113 @@ namespace Igorious.StardewValley.DynamicAPI.Utils
     {
         private static readonly Dictionary<int, XColor> ColorCache = new Dictionary<int, XColor>();
 
-        public static XColor GetDominantColor(int spriteIndex, Texture2D texture, int width, int height)
+        public static unsafe XColor GetDominantColor(int spriteIndex, Texture2D texture, int width, int height)
         {
             XColor cachedColor;
             if (ColorCache.TryGetValue(spriteIndex, out cachedColor)) return cachedColor;
 
             var rect = TexturesService.GetSourceRectForObject(spriteIndex, texture, width, height);
-            var data = new XColor[width * height];
+            var size = width * height;
+            var data = new XColor[size];
             texture.GetData(0, rect, data, 0, data.Length);
 
-            var colors = new Dictionary<int, int>();
+            const byte empty = 0;
+            const byte inner = 1;
+            const byte edge = 2;
 
-            for (var y = 0; y < height; y++)
+            var alpha = new byte[size];
+            var colors = new Dictionary<int, int>();              
+            fixed (byte* pAlpha0 = alpha)
+            fixed (XColor* pData0 = data)
             {
-                for (var x = 0; x < width; x++)
+                var pAlpha = pAlpha0;
+                var pData = pData0;
+
+                for (var i = 0; i < size; ++i)
                 {
-                    var xColor = data[y * width + x];
-                    if (xColor.A == 0) continue;
+                    var c = *pData;
+                    *pAlpha = (c.A >= 128)? inner : empty;
 
-                    double h, s, l;
-                    var c = new RawColor(xColor.R, xColor.G, xColor.B);
-                    c.ToHSL(out h, out s, out l);
-                    if (l <= 0.15 || 0.85 <= l || s <= 0.2) continue;
+                    ++pData;
+                    ++pAlpha;
+                }
 
-                    var kh = (int)((h + 5) / 10); // 0..36
+                pAlpha = pAlpha0 + width;
 
-                    var ks = (int)(s * 3); // 0..3
-                    var kl = (int)(l * 3); // 0..3
-                    var key = kh * 100 + ks * 10 + kl;
-                    if (colors.ContainsKey(key))
+                var hi = height - 1;
+                var wi = width - 1;
+                for (var y = 1; y < hi; ++y)
+                {
+                    ++pAlpha;
+                    for (var x = 1; x < wi; ++x, ++pAlpha)
                     {
-                        colors[key]++;
+                        if (*(pAlpha - width) == empty || *(pAlpha + width) == empty || *(pAlpha - 1) == empty || *(pAlpha + width) == empty)
+                        {
+                            *pAlpha = edge;                            
+                        }
                     }
-                    else
+                    ++pAlpha;
+                }
+
+                pAlpha = pAlpha0 + width;
+                pData = pData0 + width;
+
+                for (var y = 1; y < hi; ++y)
+                {
+                    ++pAlpha;
+                    ++pData;
+
+                    for (var x = 1; x < wi; ++x, ++pAlpha, ++pData)
                     {
-                        colors.Add(key, 1);
+                        if (*pAlpha != 1) continue;
+
+                        var xColor = *pData;
+                        var c = WColor.FromArgb(xColor.R, xColor.G, xColor.B);
+                        var l = c.GetBrightness();
+                        if (l <= 0.15f || 0.85f <= l) continue;
+
+                        var s = c.GetSaturation();
+                        if (s <= 0.25f) continue;
+
+                        var h = c.GetHue();
+                        var kh = (int)((h + 5) / 10); // 0..36
+                        var ks = (int)((s + 0.17f) * 3); // 0..3
+                        var kl = (int)((l + 0.17f) * 3); // 0..3
+                        var key = (kh << 4) | (ks << 2) | kl;
+
+                        int value;                        
+                        if (colors.TryGetValue(key, out value))
+                        {
+                            colors[key] = value + 1;
+                        }
+                        else
+                        {
+                            colors.Add(key, 1);
+                        }
                     }
                 }
             }
 
             if (!colors.Any())
             {
+                Log.SyncColour("[NMM] No dominant color found!", ConsoleColor.DarkGray);
                 cachedColor = XColor.Gray;
             }
             else
             {
-                var dominantColors = colors.OrderByDescending(x => x.Value).Take(2).ToList();
-                var dominantColor1 = dominantColors.First();
-                var dominantColor2 = dominantColors.Last();
+                var dominantColors = colors.OrderByDescending(x => x.Value).Take(3).ToArray();
+                var color1 = dominantColors[0];
+                var color2 = dominantColors[1];
+                var color3 = dominantColors[2];
 
-                var dominantColorKey = dominantColor1.Key;
-                if (900 <= dominantColorKey && dominantColorKey <= 1500 && dominantColor2.Value * 4 / 3 >= dominantColor1.Value)
-                {
-                    dominantColorKey = dominantColor2.Key;
-                }
+                var h1 = color1.Key >> 4;
+                var dominantColorKey = (9 <= h1 && h1 <= 15 && (color2.Value + color3.Value) * 4 >= color1.Value * 3)
+                    ? color2.Key
+                    : color1.Key;
 
-                var realH = Math.Max(dominantColorKey / 100 * 10 - 5, 0);
-                cachedColor = RawColor.FromHSL(realH, 0.8, 0.5).ToXnaColor();
+                var finalH = Math.Min(Math.Max(0, (dominantColorKey >> 4) * 10 - 5), 359);
+                var finalL = Math.Min(Math.Max(0, 0.40 + (dominantColorKey & 3) * 0.1), 1);
+                cachedColor = RawColor.FromHSL(finalH, 0.80, finalL).ToXnaColor();
             }
 
             ColorCache.Add(spriteIndex, cachedColor);

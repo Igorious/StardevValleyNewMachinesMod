@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using Igorious.StardewValley.DynamicAPI.Constants;
+using Igorious.StardewValley.DynamicAPI.Interfaces;
 using Microsoft.Xna.Framework;
 using StardewValley;
-using StardewValley.Objects;
 using StardewValley.Tools;
 using Object = StardewValley.Object;
 
 namespace Igorious.StardewValley.DynamicAPI.Objects
 {
-    public abstract class SmartObjectBase : Object
+    public abstract class SmartObjectBase : Object, ISmartObject
     {
         private static readonly Dictionary<Sound, string> SoundNames = new Dictionary<Sound, string>
         {
@@ -44,7 +44,7 @@ namespace Igorious.StardewValley.DynamicAPI.Objects
 
         protected void PutItem(int itemID, int count, int itemQuality = 0, string overridedName = null, int? overridedPrice = null, bool isColored = false)
         {
-            heldObject = isColored? new ColoredObject(itemID, count, Color.White) : new Object(itemID, count);          
+            heldObject = isColored? new SmartColoredObject(itemID, count, Color.White) : new Object(itemID, count);          
             heldObject.quality = itemQuality;
             if (overridedName != null) heldObject.Name = string.Format(overridedName, heldObject.Name);
             if (overridedPrice != null) heldObject.Price = overridedPrice.Value;

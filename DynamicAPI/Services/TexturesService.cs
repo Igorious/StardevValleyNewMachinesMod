@@ -39,7 +39,7 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         public TexturesService(string rootPath)
         {
             RootPath = rootPath;
-            GameEvents.GameLoaded += OnGameLoaded;
+            GameEvents.LoadContent += OnLoadContent;
         }
 
         #endregion
@@ -86,10 +86,10 @@ namespace Igorious.StardewValley.DynamicAPI.Services
 
         #region	Auxiliary Methods
 
-        private void OnGameLoaded(object sender, EventArgs eventArgs)
+        private void OnLoadContent(object sender, EventArgs eventArgs)
         {
             OverrideSprites();
-            GameEvents.GameLoaded -= OnGameLoaded;
+            GameEvents.LoadContent -= OnLoadContent;
         }
 
         private void OverrideSprites()

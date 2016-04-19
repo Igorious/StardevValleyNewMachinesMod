@@ -111,19 +111,16 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         {
             foreach (var information in customInformation)
             {
-                for (var i = 0; i < information.ResourceLength; ++i)
+                var key = information.ID;
+                var newValue = information.ToString();
+                string oldValue;
+                if (!gameInformation.TryGetValue(key, out oldValue))
                 {
-                    var key = information.ID + i;
-                    var newValue = information.ToString();
-                    string oldValue;
-                    if (!gameInformation.TryGetValue(key, out oldValue))
-                    {
-                        gameInformation.Add(key, newValue);
-                    }
-                    else if (newValue != oldValue && showWarnings)
-                    {
-                        Log.SyncColour($"Information for ID={key} already has another mapping {key}->{oldValue} (current:{newValue})", ConsoleColor.DarkRed);
-                    }
+                    gameInformation.Add(key, newValue);
+                }
+                else if (newValue != oldValue && showWarnings)
+                {
+                    Log.SyncColour($"Information for ID={key} already has another mapping {key}->{oldValue} (current:{newValue})", ConsoleColor.DarkRed);
                 }
             }
         }

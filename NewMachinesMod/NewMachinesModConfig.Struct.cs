@@ -1,12 +1,40 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Igorious.StardewValley.DynamicAPI.Data;
 using Igorious.StardewValley.DynamicAPI.Data.Supporting;
 using Igorious.StardewValley.NewMachinesMod.Data;
+using Newtonsoft.Json;
 
 namespace Igorious.StardewValley.NewMachinesMod
 {
     public partial class NewMachinesModConfig
     {
+        public class BundlesInformation
+        {
+            #region	Constructors
+
+            [JsonConstructor]
+            public BundlesInformation() { }
+
+            public BundlesInformation(IEnumerable<OverridedBundleInformation> added, IEnumerable<OverridedBundleInformation> removed)
+            {
+                Added = added.ToList();
+                Removed = removed.ToList();
+            }
+
+            #endregion
+
+            #region	Properties
+
+            [JsonProperty]
+            public List<OverridedBundleInformation> Added { get; set; } = new List<OverridedBundleInformation>();
+
+            [JsonProperty]
+            public List<OverridedBundleInformation> Removed { get; set; } = new List<OverridedBundleInformation>();
+
+            #endregion
+        }
+
         public enum LocalizationString
         {
             TankRequiresWater,
@@ -21,5 +49,6 @@ namespace Igorious.StardewValley.NewMachinesMod
         public List<CropInformation> Crops { get; set; } = new List<CropInformation>();
         public Dictionary<LocalizationString, string> LocalizationStrings { get; set; } = new Dictionary<LocalizationString, string>();
         public List<GiftPreferences> GiftPreferences { get; set; } = new List<GiftPreferences>();
+        public BundlesInformation Bundles { get; set; } = new BundlesInformation();
     }
 }

@@ -8,6 +8,18 @@ namespace Igorious.StardewValley.NewMachinesMod.Data
 {
     public class MachineOutputInformation
     {
+        #region	Constructors
+
+        [JsonConstructor]
+        public MachineOutputInformation() { }
+
+        public MachineOutputInformation(Dictionary<DynamicID<ItemID, CategoryID>, OutputItem> items)
+        {
+            Items = items;
+        }
+
+        #endregion
+
         /// <summary>
         /// Default output ID. 
         /// </summary>

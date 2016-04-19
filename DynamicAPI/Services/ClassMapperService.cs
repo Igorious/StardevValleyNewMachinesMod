@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using Igorious.StardewValley.DynamicAPI.Data.Supporting;
 using Igorious.StardewValley.DynamicAPI.Interfaces;
-using Igorious.StardewValley.DynamicAPI.Objects;
+using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
@@ -41,42 +42,52 @@ namespace Igorious.StardewValley.DynamicAPI.Services
 
         #region Private Data
 
-        private readonly Dictionary<int, Type> _typeMap = new Dictionary<int, Type>();
-        private readonly Dictionary<int, DynamicTypeInfo> _dynamicTypeMap = new Dictionary<int, DynamicTypeInfo>();
-
-        #endregion
-
-        #region	Public Properties
-
-        public IReadOnlyDictionary<int, Type> TypeMap => _typeMap;
-        public IReadOnlyDictionary<int, DynamicTypeInfo> DynamicTypeMap => _dynamicTypeMap;
+        private readonly Dictionary<int, Type> _itemTypeMap = new Dictionary<int, Type>();
+        private readonly Dictionary<int, Type> _craftableTypeMap = new Dictionary<int, Type>();
+        private readonly Dictionary<int, DynamicTypeInfo> _dynamicCraftableTypeMap = new Dictionary<int, DynamicTypeInfo>();
 
         #endregion
 
         #region	Public Methods
 
         /// <summary>
-        /// Map game ID to specific class.
+        /// Map game Item ID to specific class.
         /// </summary>
-        public void Map<TObject>(int id) where TObject : SmartObjectBase, new()
+        public void MapItem<TObject>(int id) where TObject : ISmartObject, new()
         {
-            _typeMap.Add(id, typeof(TObject));
+            _itemTypeMap.Add(id, typeof(TObject));
         }
 
         /// <summary>
-        /// Map game ID to specific class.
+        /// Map game Craftable ID to specific class.
         /// </summary>
-        public void Map(DynamicTypeInfo dynamicTypeInfo)
+        public void MapCraftable<TObject>(int id) where TObject : ISmartObject, new()
         {
-            _dynamicTypeMap.Add(dynamicTypeInfo.ClassID, dynamicTypeInfo);
+            _craftableTypeMap.Add(id, typeof(TObject));
+        }
+
+        /// <summary>
+        /// Map game Craftable ID to specific class.
+        /// </summary>
+        public void MapCraftable(DynamicTypeInfo dynamicTypeInfo)
+        {
+            _dynamicCraftableTypeMap.Add(dynamicTypeInfo.ClassID, dynamicTypeInfo);
+        }
+
+        /// <summary>
+        /// Get mapped Craftable ID for specific class.
+        /// </summary>
+        public int GetCraftableID<TObject>() where TObject : ISmartObject
+        {
+            return _craftableTypeMap.First(kv => kv.Value == typeof(TObject)).Key;
         }
 
         /// <summary>
         /// Get mapped ID for specific class.
         /// </summary>
-        public int GetID<TObject>() where TObject : Object
+        public int GetItemID<TObject>() where TObject : ISmartObject
         {
-            return TypeMap.First(kv => kv.Value == typeof(TObject)).Key;
+            return _itemTypeMap.First(kv => kv.Value == typeof(TObject)).Key;
         }
 
         #endregion
@@ -103,39 +114,73 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         {
             Type type;
             Object smartObject;
-            if (TypeMap.TryGetValue(rawObject.ParentSheetIndex, out type))
+            if (rawObject.bigCraftable)
             {
-                smartObject = (Object)Activator.CreateInstance(type);
+                if (_craftableTypeMap.TryGetValue(rawObject.ParentSheetIndex, out type))
+                {
+                    smartObject = (Object)Activator.CreateInstance(type);
+                    Log.SyncColour($"Wrapped obj {rawObject.Name} into {smartObject.GetType().Name}", ConsoleColor.DarkGray);
+                }
+                else
+                {
+                    var dynamicType = _dynamicCraftableTypeMap[rawObject.ParentSheetIndex];
+                    var ctor = dynamicType.BaseType.GetConstructor(new[] { typeof(int) });
+                    smartObject = (Object)ctor.Invoke(new object[] { dynamicType.ClassID });
+                }
             }
             else
             {
-                var dynamicType = DynamicTypeMap[rawObject.ParentSheetIndex];
-                var ctor = dynamicType.BaseType.GetConstructor(new[] { typeof(int) });
-                smartObject = (Object)ctor.Invoke(new object[] { dynamicType.ClassID });
+                type = _itemTypeMap[rawObject.ParentSheetIndex];
+                smartObject = (Object)Activator.CreateInstance(type);
+                Log.SyncColour($"Wrapped obj {rawObject.Name} into {smartObject.GetType().Name}", ConsoleColor.DarkGray);
             }
+
             CopyProperties(rawObject, smartObject);
             return smartObject;
         }
 
         private Object ToRawObject(Object smartObject)
         {
-            var rawObject = new Object(smartObject.TileLocation, smartObject.ParentSheetIndex);
-            CopyProperties(smartObject, rawObject);
-            return rawObject;
+            if (smartObject is ColoredObject)
+            {
+                var rawObject = new ColoredObject(smartObject.ParentSheetIndex, smartObject.stack, Color.White);
+                CopyProperties(smartObject, rawObject);
+                return rawObject;
+            }
+            else
+            {
+                var type = smartObject.bigCraftable? ObjectFactory.bigCraftable : ObjectFactory.regularObject;                
+                var rawObject = (Object)ObjectFactory.getItemFromDescription(type, smartObject.ParentSheetIndex, 1);
+                CopyProperties(smartObject, rawObject);
+                return rawObject;
+            }
         }
 
-        private void CopyProperties(Object from, Object to)
+        private static void CopyProperties(Object from, Object to)
         {
-            to.heldObject = from.heldObject;
-            to.minutesUntilReady = from.minutesUntilReady;
-            to.readyForHarvest = from.readyForHarvest;
-            to.TileLocation = from.TileLocation;
+            var properties = typeof(Object).GetProperties(BindingFlags.Instance | BindingFlags.Public).Where(p => p.CanRead && p.CanWrite);
+            foreach (var property in properties)
+            {
+                property.SetValue(to, property.GetValue(from));
+            }
+
+            var fields = typeof(Object).GetFields(BindingFlags.Instance | BindingFlags.Public).Where(f => !f.IsInitOnly);
+            foreach (var field in fields)
+            {
+                field.SetValue(to, field.GetValue(from));
+            }
+
+            if (from is ColoredObject && to is ColoredObject)
+            {
+                ((ColoredObject)to).color = ((ColoredObject)from).color;
+            }
         }
 
         private void CovertToSmartObjects()
         {
             var sw = Stopwatch.StartNew();
-            ConvertObjects(Game1.currentLocation, IsRawObject, ToSmartObject);
+            ConvertObjectsInLocation(Game1.currentLocation, IsRawObject, ToSmartObject);
+            Game1.getAllFarmers().ForEach(f => ConvertObjectsInInventory(f, IsRawObject, ToSmartObject));
             Log.SyncColour($"Convertion ('smart') finished: {sw.ElapsedMilliseconds} ms", ConsoleColor.DarkGray);
         }
 
@@ -144,20 +189,22 @@ namespace Igorious.StardewValley.DynamicAPI.Services
             var sw = Stopwatch.StartNew();
             foreach (var gameLocation in Game1.locations)
             {
-                ConvertObjects(gameLocation, IsSmartObject, ToRawObject);
+                ConvertObjectsInLocation(gameLocation, IsSmartObject, ToRawObject);
             }
+            Game1.getAllFarmers().ForEach(f => ConvertObjectsInInventory(f, IsSmartObject, ToRawObject));
             Log.SyncColour($"Convertion ('raw') finished: {sw.ElapsedMilliseconds} ms", ConsoleColor.DarkGray);
         }
 
         private bool IsRawObject(Object o)
         {
-            return TypeMap.ContainsKey(o.ParentSheetIndex) && (o.GetType() != TypeMap[o.ParentSheetIndex])
-                || DynamicTypeMap.ContainsKey(o.ParentSheetIndex) && !(o is IDynamic);
+            return _craftableTypeMap.ContainsKey(o.ParentSheetIndex) && (o.GetType() != _craftableTypeMap[o.ParentSheetIndex])
+                || _itemTypeMap.ContainsKey(o.ParentSheetIndex) && (o.GetType() != _itemTypeMap[o.ParentSheetIndex])
+                || _dynamicCraftableTypeMap.ContainsKey(o.ParentSheetIndex) && !(o is IDynamic);
         }
 
         private bool IsSmartObject(Object o)
         {
-            return (TypeMap.ContainsKey(o.ParentSheetIndex) || DynamicTypeMap.ContainsKey(o.ParentSheetIndex))
+            return (_craftableTypeMap.ContainsKey(o.ParentSheetIndex) || _itemTypeMap.ContainsKey(o.ParentSheetIndex) || _dynamicCraftableTypeMap.ContainsKey(o.ParentSheetIndex))
                 && !IsSerializable(o);
         }
 
@@ -166,7 +213,21 @@ namespace Igorious.StardewValley.DynamicAPI.Services
             return new[] { typeof(Item), typeof(Object), typeof(ColoredObject) }.Contains(o.GetType());
         }
 
-        private void ConvertObjects(GameLocation location, Predicate<Object> condition, Func<Object, Object> convert)
+        private static void ConvertObjectsInInventory(Farmer farmer, Predicate<Object> condition, Func<Object, Object> convert)
+        {
+            var count = 0;
+            for (var i = 0; i < farmer.Items.Count; ++i)
+            {
+                var chestObject = farmer.Items[i] as Object;
+                if (chestObject == null || !condition(chestObject)) continue;
+                farmer.Items[i] = convert(chestObject);
+                ++count;
+            }
+
+            if (count != 0) Log.SyncColour($"Found {count} objects in inventory.", ConsoleColor.DarkGray);
+        }
+
+        private static void ConvertObjectsInLocation(GameLocation location, Predicate<Object> condition, Func<Object, Object> convert)
         {
             var locationObjects = location.Objects;
             var wrongObjectInfos = locationObjects.Where(o => condition(o.Value)).ToList();
@@ -181,6 +242,45 @@ namespace Igorious.StardewValley.DynamicAPI.Services
                 }
             }
 
+            ConvertObjectsInChests(location, condition, convert);
+            ConvertObjectsInMachines(location, condition, convert);
+            ConvertObjectsInBuildings(location, condition, convert);
+        }
+
+        private static void ConvertObjectsInChests(GameLocation location, Predicate<Object> condition, Func<Object, Object> convert)
+        {
+            var chests = location.Objects.Values.OfType<Chest>().ToList();
+            if (location is FarmHouse) chests.Add(((FarmHouse)location).fridge);
+            foreach (var chest in chests)
+            {
+                var count = 0;
+                for (var i = 0; i < chest.items.Count; ++i)
+                {
+                    var chestObject = chest.items[i] as Object;
+                    if (chestObject == null || !condition(chestObject)) continue;
+                    chest.items[i] = convert(chestObject);
+                    ++count;
+                }
+                if (count != 0) Log.SyncColour($"Found {count} objects in {chest.Name}.", ConsoleColor.DarkGray);
+            }
+        }
+
+        private static void ConvertObjectsInMachines(GameLocation location, Predicate<Object> condition, Func<Object, Object> convert)
+        {
+            var count = 0;
+            var machines = location.Objects.Values.Where(o => o.bigCraftable).ToList();
+            foreach (var machine in machines)
+            {
+                var heldObject = machine.heldObject;
+                if (heldObject == null || !condition(heldObject)) continue;
+                machine.heldObject = convert(heldObject);
+                ++count;
+            }
+            if (count != 0) Log.SyncColour($"Found {count} objects in machines.", ConsoleColor.DarkGray);
+        }
+
+        private static void ConvertObjectsInBuildings(GameLocation location, Predicate<Object> condition, Func<Object, Object> convert)
+        {
             var buildableLocation = location as BuildableGameLocation;
             if (buildableLocation == null) return;
 
@@ -188,7 +288,7 @@ namespace Igorious.StardewValley.DynamicAPI.Services
             {
                 if (building.indoors != null)
                 {
-                    ConvertObjects(building.indoors, IsSmartObject, ToRawObject);
+                    ConvertObjectsInLocation(building.indoors, condition, convert);
                 }
             }
         }

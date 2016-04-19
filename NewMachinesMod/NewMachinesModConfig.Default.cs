@@ -77,13 +77,32 @@ namespace Igorious.StardewValley.NewMachinesMod
             };
 
             Crops.Add(GetCactusCrop());
-
             GiftPreferences.AddRange(GetGiftPreferences());
+            Bundles = GetBundleInformation();
         }
 
         #endregion
 
         #region	Auxiliary Methods
+
+        private static BundlesInformation GetBundleInformation()
+        {
+            return new BundlesInformation(
+                new List<OverridedBundleInformation>
+                {
+                    new OverridedBundleInformation("Bulletin Board/33",
+                        new BundleItemInformation(ColorWineID, quality: 2)),
+                    new OverridedBundleInformation("Pantry/5",
+                        new BundleItemInformation(ColorJellyID, quality: 2)),
+                },
+                new List<OverridedBundleInformation>
+                {
+                    new OverridedBundleInformation("Bulletin Board/33",
+                        new BundleItemInformation(ItemID.Wine, quality: 2)),
+                    new OverridedBundleInformation("Pantry/5",
+                        new BundleItemInformation(ItemID.Jelly, quality: 2)),
+                });
+        }
 
         private static CropInformation GetCactusCrop()
         {
@@ -104,43 +123,37 @@ namespace Igorious.StardewValley.NewMachinesMod
 
         private static OverridedMachineInformation GetPreserveJarOverride()
         {
-            return new OverridedMachineInformation
-            {
-                ID = CraftableID.PreservesJar,
-                Output = new MachineOutputInformation
+            return new OverridedMachineInformation(CraftableID.PreservesJar,
+                new MachineOutputInformation(new Dictionary<DynamicID<ItemID, CategoryID>, OutputItem>
                 {
-                    Items = new Dictionary<DynamicID<ItemID, CategoryID>, OutputItem>
-                    {
-                        { CategoryID.Vegetable, new OutputItem {ID = ColorPicklesID, Color = "@", Name = "{1} {0}" } },
-                        { CategoryID.Fruits, new OutputItem {ID = ColorJellyID, Color = "@", Name = "{1} {0}" } },
-                    },
+                    {CategoryID.Vegetable, new OutputItem {ID = ColorPicklesID, Color = "@", Name = "{1} {0}"}},
+                    {CategoryID.Fruits, new OutputItem {ID = ColorJellyID, Color = "@", Name = "{1} {0}"}},
+                })
+                {
                     Quality = "q",
                     Price = "40 + 8 * p / 5",
                     MinutesUntilReady = 4000,
                     Sounds = new List<Sound> { Sound.Ship, Sound.Bubbles },
-                },
-            };
+                });
         }
 
         private static OverridedMachineInformation GetKegOverride()
         {
-            return new OverridedMachineInformation
-            {
-                ID = CraftableID.Keg,
-                Output = new MachineOutputInformation
+            return new OverridedMachineInformation(CraftableID.Keg,
+                new MachineOutputInformation(new Dictionary<DynamicID<ItemID, CategoryID>, OutputItem>
                 {
-                    Items = new Dictionary<DynamicID<ItemID, CategoryID>, OutputItem>
-                    {
-                        { ItemID.Honey, new OutputItem {ID = MeadID, MinutesUntilReady = 4000, Quality = "p / 300" } },
-                        { ItemID.Potato, new OutputItem {ID = VodkaID, MinutesUntilReady = 3000} },
-                        { CategoryID.Vegetable, new OutputItem {ID = ColorJuiceID, MinutesUntilReady = 6000, Color = "@", Price = "9 * p / 5", Name = "{1} {0}" } },
-                        { CategoryID.Fruits, new OutputItem {ID = ColorWineID, MinutesUntilReady = 10000, Color = "@", Price = "12 * p / 5", Name = "{1} {0}" } },
-                    },
+                    {ItemID.Hops, new OutputItem {ID = ItemID.PaleAle, MinutesUntilReady = 2360}},
+                    {ItemID.Wheat, new OutputItem {ID = ItemID.Beer, MinutesUntilReady = 2250}},
+                    {ItemID.Honey, new OutputItem {ID = MeadID, MinutesUntilReady = 4000, Quality = "p / 300"}},
+                    {ItemID.Potato, new OutputItem {ID = VodkaID, MinutesUntilReady = 3000}},
+                    {CategoryID.Vegetable, new OutputItem {ID = ColorJuiceID, MinutesUntilReady = 6000, Color = "@", Price = "9 * p / 5", Name = "{1} {0}"}},
+                    {CategoryID.Fruits, new OutputItem {ID = ColorWineID, MinutesUntilReady = 10000, Color = "@", Price = "12 * p / 5", Name = "{1} {0}"}},
+                })
+                {
                     Quality = "q",
                     MinutesUntilReady = 1440,
                     Sounds = new List<Sound> { Sound.Ship, Sound.Bubbles },
-                },
-            };
+                });
         }
 
         private static ItemInformation GetColorPickles()
@@ -155,6 +168,7 @@ namespace Igorious.StardewValley.NewMachinesMod
                 Price = 500,
                 ResourceIndex = 7,
                 ResourceLength = 2,
+                IsColored = true,
             };
         }
 
@@ -170,6 +184,7 @@ namespace Igorious.StardewValley.NewMachinesMod
                 Price = 500,
                 ResourceIndex = 5,
                 ResourceLength = 2,
+                IsColored = true,
             };
         }
 
@@ -181,7 +196,7 @@ namespace Igorious.StardewValley.NewMachinesMod
                 Category = CategoryID.Seeds,
                 Description = "Requres special environment. Takes 15 days to mature.",
                 Type = ObjectType.Seeds,
-                Name = "Castus Seed",
+                Name = "Cactus Seed",
                 Price = 30,
                 ResourceIndex = 4,
             };
@@ -198,6 +213,7 @@ namespace Igorious.StardewValley.NewMachinesMod
                 Name = "Wine",
                 ResourceIndex = 2,
                 ResourceLength = 2,
+                IsColored = true,
             };
         }
 
@@ -212,6 +228,7 @@ namespace Igorious.StardewValley.NewMachinesMod
                 Name = "Juice",
                 ResourceIndex = 9,
                 ResourceLength = 2,
+                IsColored = true,
             };
         }
 
@@ -226,6 +243,7 @@ namespace Igorious.StardewValley.NewMachinesMod
                 Name = "Experemental Liquid",
                 ResourceIndex = 11,
                 ResourceLength = 2,
+                IsColored = true,
             };
         }
 
@@ -385,7 +403,7 @@ namespace Igorious.StardewValley.NewMachinesMod
                     {
                         { ItemID.Beet, new OutputItem() },
                     },
-                    Name = "{0} Sugar",
+                    Name = "{1} {0}",
                     Price = "p + 25",
                     Quality = "q",
                     Count = "(r1 <= 0.1 * q)? 2 : 1",
@@ -421,7 +439,7 @@ namespace Igorious.StardewValley.NewMachinesMod
                         {ItemID.Amaranth, new OutputItem()},
                         {ItemID.Corn, new OutputItem()},
                     },
-                    Name = "{0} Flour",
+                    Name = "{1} {0}",
                     Price = "p + 25",
                     Quality = "q",
                     Count = "(r1 <= 0.1 * q)? 2 : 1",

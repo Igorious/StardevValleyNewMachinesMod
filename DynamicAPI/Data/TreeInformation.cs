@@ -52,8 +52,6 @@ namespace Igorious.StardewValley.DynamicAPI.Data
 
         #region Explicit Interface Implemetation
 
-        int IInformation.ResourceLength { get; } = 1;
-
         int IDrawable.ResourceLength { get; } = 1;
 
         int IInformation.ID => SapleID;
