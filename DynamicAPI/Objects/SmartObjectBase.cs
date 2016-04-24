@@ -42,9 +42,9 @@ namespace Igorious.StardewValley.DynamicAPI.Objects
             }
         }
 
-        protected void PutItem(int itemID, int count, int itemQuality = 0, string overridedName = null, int? overridedPrice = null, bool isColored = false)
+        protected void PutItem(int itemID, int count, int itemQuality = 0, string overridedName = null, int? overridedPrice = null, Color? color = null)
         {
-            heldObject = isColored? new SmartColoredObject(itemID, count, Color.White) : new Object(itemID, count);          
+            heldObject = color.HasValue? new SmartColoredObject(itemID, count, color.Value) : new Object(itemID, count);          
             heldObject.quality = itemQuality;
             if (overridedName != null) heldObject.Name = string.Format(overridedName, heldObject.Name);
             if (overridedPrice != null) heldObject.Price = overridedPrice.Value;

@@ -4,8 +4,8 @@
   Version: {
     MajorVersion: 3,
     MinorVersion: 1,
-    PatchVersion: 6,
-    Build: 802,
+    PatchVersion: 7,
+    Build: 819,
   },
   Description: "Adds new machines to create flour, sugar and vinegar.",
   UniqueID: "F70D4FAB-0AB2-4B78-9F1B-AF2CA2236A59",

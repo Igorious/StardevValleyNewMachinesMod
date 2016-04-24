@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Igorious.StardewValley.DynamicAPI</RootNamespace>
-    <AssemblyName>Igorious.StardewValley.DynamicAPI.3.1.6</AssemblyName>
+    <AssemblyName>Igorious.StardewValley.DynamicAPI.3.1.7</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
@@ -22,6 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -100,6 +101,7 @@
     <Compile Include="Data\BundleInformation.cs" />
     <Compile Include="Data\Supporting\BundleItemInformation.cs" />
     <Compile Include="Services\BundlesService.cs" />
+    <Compile Include="Services\Internal\Cloner.cs" />
     <Compile Include="Services\GiftPreferencesService.cs" />
     <Compile Include="Services\RecipesService.cs" />
     <Compile Include="Services\InformationService.cs" />
@@ -107,8 +109,10 @@
     <Compile Include="Services\ClassMapperService.cs" />
     <Compile Include="Services\TexturesService.cs" />
     <Compile Include="Objects\SmartObjectBase.cs" />
+    <Compile Include="Services\Internal\Traverser.cs" />
     <Compile Include="Utils\DominantColorFinder.cs" />
     <Compile Include="Utils\ExpressionCompiler.cs" />
+    <Compile Include="Utils\Log.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

@@ -75,10 +75,11 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects
 
                 var random = GetRandom();
                 var postfix = $"{FirstDroppedItem.Name.First()}{SecondDroppedItem.Name.First()}-{(char)random.Next('A', 'Z')}{random.Next(1, 9)}{random.Next(0, 9)}";
-                PutItem(911, 1, itemQuality, "{0} " + postfix, itemPrice, true);
-
                 var hue = random.Next(0, 359); // TODO: Not random color.
-                ((ColoredObject)heldObject).color = RawColor.FromHSL(hue, 0.75, 0.55).ToXnaColor();
+                var color = RawColor.FromHSL(hue, 0.75, 0.55).ToXnaColor();
+                
+                PutItem(911, 1, itemQuality, "{0} " + postfix, itemPrice, color);
+
                 minutesUntilReady = GetMinutesUntilReady(SecondDroppedItem); // TODO: From first?
             }
             

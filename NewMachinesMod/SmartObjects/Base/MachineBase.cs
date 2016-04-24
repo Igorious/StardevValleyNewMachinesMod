@@ -27,9 +27,7 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
 
         protected override bool PerformDropIn(Object item, Farmer farmer)
         {
-            var color = GetColor(item);
-            PutItem(GetOutputID(item), GetOutputCount(item), GetOutputQuality(item), GetOutputName(item), GetOutputPrice(item), color != null);
-            SetColor(item, color);
+            PutItem(GetOutputID(item), GetOutputCount(item), GetOutputQuality(item), GetOutputName(item), GetOutputPrice(item), GetColor(item));
             PlayDropInSounds();
             minutesUntilReady = GetMinutesUntilReady(item);
             return true;
@@ -86,11 +84,6 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
             return GetOutputItem(item)?.ID ?? Output.ID ?? 0;
         }
 
-        private string GetColor(Object item)
-        {
-            return GetOutputItem(item)?.Color;
-        }
-
         protected virtual int GetMinutesUntilReady(Object item)
         {
             return GetOutputItem(item)?.MinutesUntilReady ?? Output.MinutesUntilReady ?? 0;
@@ -139,12 +132,12 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
             }
         }      
         
-        private void SetColor(Object dropInItem, string color)
+        private Color? GetColor(Object dropInItem)
         {
-            if (string.IsNullOrWhiteSpace(color) || !(heldObject is ColoredObject)) return;
+            var color = GetOutputItem(dropInItem)?.Color;
+            if (string.IsNullOrWhiteSpace(color)) return null;
 
-            var coloredItem = (ColoredObject)heldObject;
-            coloredItem.color = (color != "@")
+            return (color != "@")
                 ? RawColor.FromHex(color).ToXnaColor() 
                 : DominantColorFinder.GetDominantColor(dropInItem.ParentSheetIndex, Game1.objectSpriteSheet, 16, 16);
         }

@@ -4,7 +4,6 @@ using System.Linq;
 using Igorious.StardewValley.DynamicAPI.Data.Supporting;
 using Igorious.StardewValley.DynamicAPI.Services;
 using Microsoft.Xna.Framework.Graphics;
-using StardewModdingAPI;
 using WColor = System.Drawing.Color;
 using XColor = Microsoft.Xna.Framework.Color;
 
@@ -29,7 +28,7 @@ namespace Igorious.StardewValley.DynamicAPI.Utils
             const byte edge = 2;
 
             var alpha = new byte[size];
-            var colors = new Dictionary<int, int>();              
+            var colors = new Dictionary<int, int>();
             fixed (byte* pAlpha0 = alpha)
             fixed (XColor* pData0 = data)
             {
@@ -56,7 +55,7 @@ namespace Igorious.StardewValley.DynamicAPI.Utils
                     {
                         if (*(pAlpha - width) == empty || *(pAlpha + width) == empty || *(pAlpha - 1) == empty || *(pAlpha + width) == empty)
                         {
-                            *pAlpha = edge;                            
+                            *pAlpha = edge;
                         }
                     }
                     ++pAlpha;
@@ -88,7 +87,7 @@ namespace Igorious.StardewValley.DynamicAPI.Utils
                         var kl = (int)((l + 0.17f) * 3); // 0..3
                         var key = (kh << 4) | (ks << 2) | kl;
 
-                        int value;                        
+                        int value;
                         if (colors.TryGetValue(key, out value))
                         {
                             colors[key] = value + 1;
@@ -103,21 +102,30 @@ namespace Igorious.StardewValley.DynamicAPI.Utils
 
             if (!colors.Any())
             {
-                Log.SyncColour("[NMM] No dominant color found!", ConsoleColor.DarkGray);
+                Log.Error("No dominant color found!");
                 cachedColor = XColor.Gray;
             }
             else
             {
                 var dominantColors = colors.OrderByDescending(x => x.Value).Take(3).ToArray();
-                var color1 = dominantColors[0];
-                var color2 = dominantColors[1];
-                var color3 = dominantColors[2];
+                var dominantColor = dominantColors[0];
 
-                var h1 = color1.Key >> 4;
-                var dominantColorKey = (9 <= h1 && h1 <= 15 && (color2.Value + color3.Value) * 4 >= color1.Value * 3)
-                    ? color2.Key
-                    : color1.Key;
+                if (IsGreenColor(dominantColor))
+                {
+                    var notGreenColors = dominantColors.Where(c => !IsGreenColor(c)).Take(2).ToArray();
+                    if (notGreenColors.Any())
+                    {
+                        var altColor1 = notGreenColors[0];
+                        var altColor2 = (notGreenColors.Length > 2)? notGreenColors[1] : altColor1;
 
+                        if ((altColor1.Value + altColor2.Value) * 4 >= dominantColor.Value * 3)
+                        {
+                            dominantColor = altColor1;
+                        }
+                    }
+                }
+
+                var dominantColorKey = dominantColor.Key;
                 var finalH = Math.Min(Math.Max(0, (dominantColorKey >> 4) * 10 - 5), 359);
                 var finalL = Math.Min(Math.Max(0, 0.40 + (dominantColorKey & 3) * 0.1), 1);
                 cachedColor = RawColor.FromHSL(finalH, 0.80, finalL).ToXnaColor();
@@ -125,6 +133,12 @@ namespace Igorious.StardewValley.DynamicAPI.Utils
 
             ColorCache.Add(spriteIndex, cachedColor);
             return cachedColor;
+        }
+
+        private static bool IsGreenColor(KeyValuePair<int, int> colorInfo)
+        {
+            var h = colorInfo.Key >> 4;
+            return (9 <= h && h <= 15);
         }
     }
 }
