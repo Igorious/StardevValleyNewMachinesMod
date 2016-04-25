@@ -12,6 +12,20 @@ namespace Igorious.StardewValley.DynamicAPI.Data
 {
     public sealed class CropInformation : IDrawable, ICropInformation
     {
+        #region	Constructors
+
+        [JsonConstructor]
+        public CropInformation() { }
+
+        public CropInformation(DynamicID<ItemID> seedID, DynamicID<ItemID> cropID, params int[] phases)
+        {
+            SeedID = seedID;
+            CropID = cropID;
+            Phases = phases.ToList();
+        }
+
+        #endregion
+
         #region Properties
 
         [JsonProperty(Required = Required.Always)]

@@ -26,16 +26,15 @@ namespace Igorious.StardewValley.DynamicAPI.Services
             {
                 if (Game1.timeOfDay != 610) return;
                 if (!ActivateMapping()) return;
-                Log.Info("Activating objects (FORCED)...");
-                CovertToSmartObjects();
+                Log.ImportantInfo("FORCED ACTIVATION!");
+                CovertToSmartObjectsInWorld();
             };
 
             TimeEvents.OnNewDay += (s, e) =>
             {
                 if (e.IsNewDay) return;
                 if (!DeactivateMapping()) return;
-                Log.Info("Deactivating objects (before saving)...");
-                CovertToRawObjects(); // Allow use native serializer.
+                CovertToRawObjectsInWorld(); // Allow use native serializer.
             };
         }
 
@@ -107,14 +106,12 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         {
             if (!(args.PriorMenu is SaveGameMenu)) return;
             if (!ActivateMapping()) return;
-            Log.Info("Activating objects (after saving)...");
-            CovertToSmartObjects(); // Activate objects in farmer house.
+            CovertToSmartObjectsInWorld();
         }
 
         private void OnLocationObjectsChanged(object sender, EventArgsLocationObjectsChanged eventArgsLocationObjectsChanged)
         {
-            Log.Info($"Activating objects (changes in {Game1.currentLocation?.Name})...");
-            CovertToSmartObjects();
+            CovertToSmartObjectsInLocation();
         }
 
         #endregion
@@ -167,23 +164,37 @@ namespace Igorious.StardewValley.DynamicAPI.Services
             return smartObject;
         }
 
-        private void CovertToSmartObjects()
+        private void CovertToSmartObjectsInLocation()
         {
             var sw = Stopwatch.StartNew();
+            Log.Info($"Activating objects (changes in {Game1.currentLocation?.Name})...");
             Traverser.ConvertObjectsInLocation(Game1.currentLocation, IsRawObject, ToSmartObject);
             Game1.getAllFarmers().ForEach(f => Traverser.ConvertObjectsInInventory(f, IsRawObject, ToSmartObject));
             Log.Info($"Convertion ('smart') finished: {sw.ElapsedMilliseconds} ms");
         }
 
-        private void CovertToRawObjects()
-        {
+        private void CovertToRawObjectsInWorld()
+        {                           
             var sw = Stopwatch.StartNew();
+            Log.Info("Deactivating objects in world...");
             foreach (var gameLocation in Game1.locations)
             {
                 Traverser.ConvertObjectsInLocation(gameLocation, IsSmartObject, Cloner.Instance.ToRawObject);
             }
             Game1.getAllFarmers().ForEach(f => Traverser.ConvertObjectsInInventory(f, IsSmartObject, Cloner.Instance.ToRawObject));
             Log.Info($"Convertion ('raw') finished: {sw.ElapsedMilliseconds} ms");
+        }
+
+        private void CovertToSmartObjectsInWorld()
+        {                           
+            var sw = Stopwatch.StartNew();
+            Log.Info("Activating objects in world...");
+            foreach (var gameLocation in Game1.locations)
+            {
+                Traverser.ConvertObjectsInLocation(gameLocation, IsRawObject, ToSmartObject);
+            }
+            Game1.getAllFarmers().ForEach(f => Traverser.ConvertObjectsInInventory(f, IsRawObject, ToSmartObject));
+            Log.Info($"Convertion ('smart') finished: {sw.ElapsedMilliseconds} ms");
         }
 
         #endregion

@@ -13,6 +13,20 @@ namespace Igorious.StardewValley.DynamicAPI.Data
 {
     public sealed class ItemInformation : IItem, IItemInformation
     {
+        #region	Constructors
+
+        [JsonConstructor]
+        public ItemInformation() { }
+
+        public ItemInformation(DynamicID<ItemID> id, string name, string description)
+        {
+            ID = id;
+            Name = name;
+            Description = description;
+        }
+
+        #endregion
+
         #region	Properties
 
         [JsonProperty(Required = Required.Always)]

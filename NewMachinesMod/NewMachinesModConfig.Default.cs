@@ -12,6 +12,8 @@ namespace Igorious.StardewValley.NewMachinesMod
     {
         #region Constants
 
+        private const string AutoColor = "@";
+
         private const int MillID = 164;
         private const int TankID = 166;
         private const int VinegarJugID = 168;
@@ -26,6 +28,7 @@ namespace Igorious.StardewValley.NewMachinesMod
         private const int ColorPicklesID = 907;
         private const int ColorJuiceID = 909;
         private const int ExperementalLiquidID = 911;
+        private const int PreservedMushroomID = 913;
 
         #endregion
 
@@ -63,6 +66,7 @@ namespace Igorious.StardewValley.NewMachinesMod
                 GetColorJelly(),
                 GetColorPickles(),
                 GetExperementalLiquid(),
+                GetPreservedMushrooms(),
             };
 
             MachineOverrides = new List<OverridedMachineInformation>
@@ -106,15 +110,12 @@ namespace Igorious.StardewValley.NewMachinesMod
 
         private static CropInformation GetCactusCrop()
         {
-            return new CropInformation
+            return new CropInformation(CactusSeedID, ItemID.CactusFruit, 2, 3, 4, 3, 3)
             {
-                CropID = ItemID.CactusFruit,
                 HarvestMethod = 1,
                 MaxHarvest = 3,
                 MinHarvest = 3,
                 MaxHarvestIncreaseForLevel = 3,
-                SeedID = CactusSeedID,
-                Phases = new List<int> { 2, 3, 4, 3, 3 },
                 TextureIndex = 90,
                 ResourceIndex = 0,
                 IsRaisedSeeds = true,
@@ -126,8 +127,22 @@ namespace Igorious.StardewValley.NewMachinesMod
             return new OverridedMachineInformation(CraftableID.PreservesJar,
                 new MachineOutputInformation(new Dictionary<DynamicID<ItemID, CategoryID>, OutputItem>
                 {
-                    {CategoryID.Vegetable, new OutputItem {ID = ColorPicklesID, Color = "@", Name = "{1} {0}"}},
-                    {CategoryID.Fruits, new OutputItem {ID = ColorJellyID, Color = "@", Name = "{1} {0}"}},
+                    {CategoryID.Vegetable, new OutputItem(ColorPicklesID, "Pickled {1}") { Color = AutoColor}},
+                    {ItemID.WildHorseradish, new OutputItem(ColorPicklesID, "Pickled {1}") { Color = "897121"}},
+                    {ItemID.SnowYam, new OutputItem(ColorPicklesID, "Pickled {1}") { Color = "009EFF"}},
+                    {ItemID.CaveCarrot, new OutputItem(ColorPicklesID, "Pickled {1}") { Color = "68380C"}},
+                    {ItemID.Leek, new OutputItem(ColorPicklesID, "Pickled {1}") { Color = "C4B0BA"}},
+                    {ItemID.SpringOnion, new OutputItem(ColorPicklesID, "Pickled {1}") { Color = "E2AAB5"}},
+
+                    {CategoryID.Fruits, new OutputItem(ColorJellyID, "{1} {0}") { Color = AutoColor }},
+                    {ItemID.WildPlum, new OutputItem(ColorJellyID, "{1} {0}") { Color = AutoColor }},
+
+                    {ItemID.RedMushroom, new OutputItem(PreservedMushroomID, "Preserved {1}") { Color = AutoColor }},
+                    {ItemID.PurpleMushroom, new OutputItem(PreservedMushroomID, "Preserved {1}") { Color = AutoColor }},
+                    {ItemID.CommonMushroom, new OutputItem(PreservedMushroomID, "Preserved {1}") { Color = "924903" }},
+                    {ItemID.Morel, new OutputItem(PreservedMushroomID, "Preserved {1}") { Color = "C68243" }},
+                    {ItemID.Chanterelle, new OutputItem(PreservedMushroomID, "Preserved {1}") { Color = AutoColor }},
+                    {ItemID.Truffle, new OutputItem(PreservedMushroomID, "Preserved {1}") { Color = "541A15" }},
                 })
                 {
                     Quality = "q",
@@ -142,12 +157,12 @@ namespace Igorious.StardewValley.NewMachinesMod
             return new OverridedMachineInformation(CraftableID.Keg,
                 new MachineOutputInformation(new Dictionary<DynamicID<ItemID, CategoryID>, OutputItem>
                 {
-                    {ItemID.Hops, new OutputItem {ID = ItemID.PaleAle, MinutesUntilReady = 2360}},
-                    {ItemID.Wheat, new OutputItem {ID = ItemID.Beer, MinutesUntilReady = 2250}},
-                    {ItemID.Honey, new OutputItem {ID = MeadID, MinutesUntilReady = 4000, Quality = "p / 300"}},
-                    {ItemID.Potato, new OutputItem {ID = VodkaID, MinutesUntilReady = 3000}},
-                    {CategoryID.Vegetable, new OutputItem {ID = ColorJuiceID, MinutesUntilReady = 6000, Color = "@", Price = "9 * p / 5", Name = "{1} {0}"}},
-                    {CategoryID.Fruits, new OutputItem {ID = ColorWineID, MinutesUntilReady = 10000, Color = "@", Price = "12 * p / 5", Name = "{1} {0}"}},
+                    {ItemID.Hops, new OutputItem(ItemID.PaleAle) {MinutesUntilReady = 2360}},
+                    {ItemID.Wheat, new OutputItem(ItemID.Beer) {MinutesUntilReady = 2250}},
+                    {ItemID.Honey, new OutputItem(MeadID) {MinutesUntilReady = 4000, Quality = "p / 300"}},
+                    {ItemID.Potato, new OutputItem(VodkaID) {MinutesUntilReady = 3000}},
+                    {CategoryID.Vegetable, new OutputItem(ColorJuiceID) {MinutesUntilReady = 6000, Color = AutoColor, Price = "9 * p / 5", Name = "{1} {0}"}},
+                    {CategoryID.Fruits, new OutputItem(ColorWineID) {MinutesUntilReady = 10000, Color = AutoColor, Price = "12 * p / 5", Name = "{1} {0}"}},
                 })
                 {
                     Quality = "q",
@@ -158,13 +173,9 @@ namespace Igorious.StardewValley.NewMachinesMod
 
         private static ItemInformation GetColorPickles()
         {
-            return new ItemInformation
+            return new ItemInformation(ColorPicklesID, "Pickles", "A jar of your home-made pickles.")
             {
-                ID = ColorPicklesID,
                 Category = CategoryID.ArtisanGoods,
-                Description = "A jar of your home-made pickles.",
-                Type = ObjectType.Basic,
-                Name = "Pickles",
                 Price = 500,
                 ResourceIndex = 7,
                 ResourceLength = 2,
@@ -172,15 +183,23 @@ namespace Igorious.StardewValley.NewMachinesMod
             };
         }
 
+        private static ItemInformation GetPreservedMushrooms()
+        {
+            return new ItemInformation(PreservedMushroomID, "Preserved Mushroom", "A jar with processed mushrooms.")
+            {
+                Category = CategoryID.ArtisanGoods,
+                Price = 500,
+                ResourceIndex = 13,
+                ResourceLength = 2,
+                IsColored = true,
+            };
+        }
+
         private static ItemInformation GetColorJelly()
         {
-            return new ItemInformation
+            return new ItemInformation(ColorJellyID, "Jelly", "Gooey.")
             {
-                ID = ColorJellyID,
                 Category = CategoryID.ArtisanGoods,
-                Description = "Gooey.",
-                Type = ObjectType.Basic,
-                Name = "Jelly",
                 Price = 500,
                 ResourceIndex = 5,
                 ResourceLength = 2,
@@ -190,13 +209,10 @@ namespace Igorious.StardewValley.NewMachinesMod
 
         private static ItemInformation GetCactusSeed()
         {
-            return new ItemInformation
+            return new ItemInformation(CactusSeedID, "Cactus Seed", "Requres special environment. Takes 15 days to mature.")
             {
-                ID = CactusSeedID,
                 Category = CategoryID.Seeds,
-                Description = "Requres special environment. Takes 15 days to mature.",
                 Type = ObjectType.Seeds,
-                Name = "Cactus Seed",
                 Price = 30,
                 ResourceIndex = 4,
             };
@@ -204,13 +220,9 @@ namespace Igorious.StardewValley.NewMachinesMod
 
         private static ItemInformation GetColorWine()
         {
-            return new ItemInformation
+            return new ItemInformation(ColorWineID, "Wine", "Drink in moderation.")
             {
-                ID = ColorWineID,
                 Category = CategoryID.ArtisanGoods,
-                Description = "Drink in moderation.",
-                Type = ObjectType.Basic,
-                Name = "Wine",
                 ResourceIndex = 2,
                 ResourceLength = 2,
                 IsColored = true,
@@ -219,13 +231,9 @@ namespace Igorious.StardewValley.NewMachinesMod
 
         private static ItemInformation GetColorJuice()
         {
-            return new ItemInformation
+            return new ItemInformation(ColorJuiceID, "Juice", "A sweet, nutritious beverage.")
             {
-                ID = ColorJuiceID,
                 Category = CategoryID.ArtisanGoods,
-                Description = "A sweet, nutritious beverage.",
-                Type = ObjectType.Basic,
-                Name = "Juice",
                 ResourceIndex = 9,
                 ResourceLength = 2,
                 IsColored = true,
@@ -234,13 +242,10 @@ namespace Igorious.StardewValley.NewMachinesMod
 
         private static ItemInformation GetExperementalLiquid()
         {
-            return new ItemInformation
+            return new ItemInformation(ExperementalLiquidID, "Experemental Liquid", "A strange liquid.")
             {
-                ID = ExperementalLiquidID,
                 Category = CategoryID.ArtisanGoods,
-                Description = "A strange liquid.",
                 Type = ObjectType.Basic,
-                Name = "Experemental Liquid",
                 ResourceIndex = 11,
                 ResourceLength = 2,
                 IsColored = true,
@@ -249,13 +254,9 @@ namespace Igorious.StardewValley.NewMachinesMod
 
         private static ItemInformation GetVodka()
         {
-            return new ItemInformation
+            return new ItemInformation(VodkaID, "Vodka", "Light alcohol drink.")
             {
-                ID = VodkaID,
                 Category = CategoryID.ArtisanGoods,
-                Description = "Light alcohol drink.",
-                Type = ObjectType.Basic,
-                Name = "Vodka",
                 Price = 400,
                 Edibility = 15,
                 MealCategory = MealCategory.Drink,
@@ -267,13 +268,9 @@ namespace Igorious.StardewValley.NewMachinesMod
 
         private static ItemInformation GetMead()
         {
-            return new ItemInformation
+            return new ItemInformation(MeadID, "Mead", "Drink from honey.")
             {
-                ID = MeadID,
                 Category = CategoryID.ArtisanGoods,
-                Description = "Drink from honey.",
-                Type = ObjectType.Basic,
-                Name = "Mead",
                 Price = 500,
                 Edibility = 20,
                 MealCategory = MealCategory.Drink,

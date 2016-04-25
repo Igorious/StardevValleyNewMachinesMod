@@ -7,6 +7,21 @@ namespace Igorious.StardewValley.NewMachinesMod.Data
 {
     public sealed class OutputItem
     {
+        #region	Constructors
+
+        [JsonConstructor]
+        public OutputItem() { }
+
+        public OutputItem(DynamicID<ItemID> id, string name = null)
+        {
+            ID = id;
+            Name = name;
+        }
+
+        #endregion
+
+        #region	Properties
+
         /// <summary>
         /// ID of output item.
         /// </summary>
@@ -49,5 +64,7 @@ namespace Igorious.StardewValley.NewMachinesMod.Data
         /// </summary>
         [JsonProperty]
         public string Color { get; set; }
+
+        #endregion
     }
 }
