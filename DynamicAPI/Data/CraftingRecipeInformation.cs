@@ -4,11 +4,12 @@ using System.Linq;
 using Igorious.StardewValley.DynamicAPI.Constants;
 using Igorious.StardewValley.DynamicAPI.Data.Supporting;
 using Igorious.StardewValley.DynamicAPI.Extensions;
+using Igorious.StardewValley.DynamicAPI.Interfaces;
 using Newtonsoft.Json;
 
 namespace Igorious.StardewValley.DynamicAPI.Data
 {
-    public class CraftingRecipeInformation
+    public class CraftingRecipeInformation : IRecipeInformation
     {
         #region Properties
 

@@ -98,5 +98,11 @@ namespace Igorious.StardewValley.DynamicAPI.Objects
             heldObject = null;
             return result;
         }
+
+        protected void ShowRedMessage(Farmer farmer, string message)
+        {
+            if (!farmer.IsMainPlayer) return;
+            Game1.showRedMessage(message);
+        }
     }
 }

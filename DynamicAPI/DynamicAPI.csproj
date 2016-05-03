@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Igorious.StardewValley.DynamicAPI</RootNamespace>
-    <AssemblyName>Igorious.StardewValley.DynamicAPI.3.1.8</AssemblyName>
+    <AssemblyName>Igorious.StardewValley.DynamicAPI.3.1.9</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
@@ -57,6 +57,7 @@
   <ItemGroup>
     <Compile Include="Attributes\ExpressionAttribute.cs" />
     <Compile Include="Constants\CharacterName.cs" />
+    <Compile Include="Interfaces\IRecipeInformation.cs" />
     <Compile Include="Data\OverridedBundleInformation.cs" />
     <Compile Include="Data\Supporting\DynamicID.cs" />
     <Compile Include="Extensions\EnumerableExtensions.cs" />
@@ -109,6 +110,9 @@
     <Compile Include="Services\InformationService.cs" />
     <Compile Include="Data\Supporting\IngredientInfo.cs" />
     <Compile Include="Services\ClassMapperService.cs" />
+    <Compile Include="Constants\Texture.cs" />
+    <Compile Include="Data\ShopInfo.cs" />
+    <Compile Include="Services\ShopService.cs" />
     <Compile Include="Services\TexturesService.cs" />
     <Compile Include="Objects\SmartObjectBase.cs" />
     <Compile Include="Services\Internal\Traverser.cs" />

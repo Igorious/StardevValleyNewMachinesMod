@@ -16,10 +16,16 @@ namespace Igorious.StardewValley.NewMachinesMod.Data
         [JsonProperty]
         public int Working { get; set; }
 
+        [JsonProperty]
+        public string WorkingColor { get; set; }
+
         /// <summary>
         /// Sprite delta to drawing ready machine.
         /// </summary>
         [JsonProperty]
         public int Ready { get; set; }
+
+        [JsonProperty]
+        public string ReadyColor { get; set; }
     }
 }

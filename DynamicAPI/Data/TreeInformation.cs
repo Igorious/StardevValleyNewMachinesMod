@@ -1,4 +1,5 @@
-﻿using Igorious.StardewValley.DynamicAPI.Constants;
+﻿using System.ComponentModel;
+using Igorious.StardewValley.DynamicAPI.Constants;
 using Igorious.StardewValley.DynamicAPI.Data.Supporting;
 using Igorious.StardewValley.DynamicAPI.Extensions;
 using Igorious.StardewValley.DynamicAPI.Interfaces;
@@ -13,8 +14,8 @@ namespace Igorious.StardewValley.DynamicAPI.Data
         [JsonProperty(Required = Required.Always)]
         public DynamicID<ItemID> SapleID { get; set; }
 
-        [JsonProperty(Required = Required.Always)]
-        public int TextureIndex { get; set; }
+        [JsonProperty(Required = Required.Always), DefaultValue(-1)]
+        public int TextureIndex { get; set; } = -1;
 
         [JsonProperty(Required = Required.Always)]
         public Season Season { get; set; }

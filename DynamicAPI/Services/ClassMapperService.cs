@@ -54,6 +54,14 @@ namespace Igorious.StardewValley.DynamicAPI.Services
 
         #endregion
 
+        #region	Properties
+
+        public IReadOnlyDictionary<int, Type> ItemTypeMap => _itemTypeMap;
+        public IReadOnlyDictionary<int, Type> CraftableTypeMap => _craftableTypeMap;
+        public IReadOnlyDictionary<int, DynamicTypeInfo> DynamicCraftableTypeMap => _dynamicCraftableTypeMap;
+
+        #endregion
+
         #region	Public Methods
 
         /// <summary>
@@ -94,6 +102,15 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         public int GetItemID<TObject>() where TObject : ISmartObject
         {
             return _itemTypeMap.First(kv => kv.Value == typeof(TObject)).Key;
+        }
+        
+        public Object ToSmartObject(Object rawObject)
+        {
+            var smartObject = rawObject.bigCraftable
+                ? CraftableToSmartObject(rawObject)
+                : ItemToSmartObject(rawObject);
+            Cloner.Instance.CopyProperties(rawObject, smartObject);
+            return smartObject;
         }
 
         #endregion
@@ -153,15 +170,6 @@ namespace Igorious.StardewValley.DynamicAPI.Services
 
             Log.Error($"Can't find .ctor (static) for ItemID={itemID}.");
             return rawObject;
-        }
-
-        private Object ToSmartObject(Object rawObject)
-        {
-            var smartObject = rawObject.bigCraftable
-                ? CraftableToSmartObject(rawObject)
-                : ItemToSmartObject(rawObject);
-            Cloner.Instance.CopyProperties(rawObject, smartObject);
-            return smartObject;
         }
 
         private void CovertToSmartObjectsInLocation()

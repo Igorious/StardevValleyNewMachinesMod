@@ -29,6 +29,9 @@ namespace Igorious.StardewValley.NewMachinesMod
         private const int ColorJuiceID = 909;
         private const int ExperementalLiquidID = 911;
         private const int PreservedMushroomID = 913;
+        private const int BlackRaisinsID = 915;
+        private const int DriedFruitID = 917;
+        private const int BlackRaisinsMuffinID = 919;
 
         #endregion
 
@@ -40,7 +43,7 @@ namespace Igorious.StardewValley.NewMachinesMod
             {
                 GetMill(),
                 GetVinegarJug(),
-                GetDryer(),
+                GetDryingRack(),
             };
 
             Tank = GetTank();
@@ -67,6 +70,9 @@ namespace Igorious.StardewValley.NewMachinesMod
                 GetColorPickles(),
                 GetExperementalLiquid(),
                 GetPreservedMushrooms(),
+                GetBlackRaisins(),
+                GetDriedFruits(),
+                GetBlackRisinsMaffin(),
             };
 
             MachineOverrides = new List<OverridedMachineInformation>
@@ -83,6 +89,11 @@ namespace Igorious.StardewValley.NewMachinesMod
             Crops.Add(GetCactusCrop());
             GiftPreferences.AddRange(GetGiftPreferences());
             Bundles = GetBundleInformation();
+
+            CookingRecipes.Add(new CookingRecipeInformation(GetBlackRisinsMaffin(),
+                new IngredientInfo(BlackRaisinsID, 1),
+                new IngredientInfo(ItemID.Sugar, 1),
+                new IngredientInfo(ItemID.WheatFlour, 1)));
         }
 
         #endregion
@@ -195,6 +206,44 @@ namespace Igorious.StardewValley.NewMachinesMod
             };
         }
 
+        private static ItemInformation GetBlackRaisins()
+        {
+            return new ItemInformation(BlackRaisinsID, "Black Raisins", "Dried berries of black grape.")
+            {
+                Category = CategoryID.ArtisanGoods,
+                Price = 140,
+                ResourceIndex = 15,
+                MealCategory = MealCategory.Food,
+                Edibility = 40,
+            };
+        }
+
+        private static ItemInformation GetDriedFruits()
+        {
+            return new ItemInformation(DriedFruitID, "Dried Fruits", "Dried fruits.")
+            {
+                Category = CategoryID.ArtisanGoods,
+                Price = 140,
+                ResourceIndex = 17,
+                ResourceLength = 2,
+                MealCategory = MealCategory.Food,
+                Edibility = 40,
+                IsColored = true,
+            };
+        }
+
+        private static ItemInformation GetBlackRisinsMaffin()
+        {
+            return new ItemInformation(BlackRaisinsMuffinID, "Black Raisins Muffin", "A small tasty cake.")
+            {
+                Category = CategoryID.Cooking,
+                Price = 250,
+                ResourceIndex = 19,
+                MealCategory = MealCategory.Food,
+                Edibility = 60,
+            };
+        }
+
         private static ItemInformation GetColorJelly()
         {
             return new ItemInformation(ColorJellyID, "Jelly", "Gooey.")
@@ -279,35 +328,33 @@ namespace Igorious.StardewValley.NewMachinesMod
             };
         }
 
-        private static MachineInformation GetDryer()
+        private static MachineInformation GetDryingRack()
         {
             return new MachineInformation
             {
                 ID = DryerID,
                 ResourceIndex = 5,
                 ResourceLength = 3,
-                Name = "Dryer",
+                Name = "Drying Rack",
                 Description = "It has been created to dry everything.",
                 Skill = Skill.Farming,
                 SkillLevel = 6,
                 Materials = new Dictionary<DynamicID<ItemID>, int>
                 {
-                    { ItemID.Wood, 30 },
-                    { ItemID.Hardwood, 2 },
+                    {ItemID.Wood, 30},
+                    {ItemID.Hardwood, 2},
                 },
                 Output = new MachineOutputInformation
                 {
                     Items = new Dictionary<DynamicID<ItemID, CategoryID>, OutputItem>
                     {
-                        { ItemID.Fiber, new OutputItem {ID = ItemID.Hay} },
+                        { ItemID.Fiber, new OutputItem(2, ItemID.Hay, draw: new MachineDraw { WorkingColor = "A3BE00", Working = +1, ReadyColor = "FCD000", Ready = +1 }) { Count = "2" } },
+                        { 839, new OutputItem(4, ItemID.Rice, draw: new MachineDraw { WorkingColor = "FFFFFF", Working = +2, ReadyColor = "FFFFFF", Ready = +2 }) },
+                        { ItemID.Grape, new OutputItem(BlackRaisinsID, draw: new MachineDraw { WorkingColor = "C46DC9", Working = +2, ReadyColor = "C46DC9", Ready = +2 }) },
+                        { CategoryID.Fruits, new OutputItem(DriedFruitID, draw: new MachineDraw { WorkingColor = "@", Working = +2, ReadyColor = "@", Ready = +2 }) { Color = "@", Name = "Dried {1}", Price = "25 + p * 11 / 10" } },
                     },
                     MinutesUntilReady = 720,
                 },
-                Draw = new MachineDraw
-                {
-                    Working = +1,
-                    Ready = +2,
-                }
             };
         }
 
@@ -399,6 +446,7 @@ namespace Igorious.StardewValley.NewMachinesMod
                     Items = new Dictionary<DynamicID<ItemID, CategoryID>, OutputItem>
                     {
                         { ItemID.Beet, new OutputItem() },
+                        { 870, new OutputItem { Name = "Cane Sugar" } },
                     },
                     Name = "{1} {0}",
                     Price = "p + 25",
@@ -459,7 +507,11 @@ namespace Igorious.StardewValley.NewMachinesMod
                 new GiftPreferences(CharacterName.Gus) { Liked = new PreferencesList {ColorWineID} },
                 new GiftPreferences(CharacterName.Harvey) { Loved = new PreferencesList {ColorWineID} },
                 new GiftPreferences(CharacterName.Jas) { Liked = new PreferencesList {ColorJellyID} },
-                new GiftPreferences(CharacterName.Vincent) { Liked = new PreferencesList {ColorJellyID} },
+                new GiftPreferences(CharacterName.Vincent)
+                {
+                    Liked = new PreferencesList {ColorJellyID},
+                    Loved = new PreferencesList {BlackRaisinsID, BlackRaisinsMuffinID},
+                },
                 new GiftPreferences(CharacterName.Maru) { Hated = new PreferencesList {ColorPicklesID} },
                 new GiftPreferences(CharacterName.Sam) { Hated = new PreferencesList {ColorPicklesID} },
                 new GiftPreferences(CharacterName.Shane) { Hated = new PreferencesList {ColorPicklesID} },

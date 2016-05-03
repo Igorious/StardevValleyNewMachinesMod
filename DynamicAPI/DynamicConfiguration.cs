@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using Igorious.StardewValley.DynamicAPI.Extensions;
 using Newtonsoft.Json;
 using StardewModdingAPI;
@@ -13,6 +15,7 @@ namespace Igorious.StardewValley.DynamicAPI
 
         public void Load(string rootPath)
         {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;            
             CreateDefaultConfiguration();
 
             var jsonSettings = new JsonSerializerSettings {DefaultValueHandling = DefaultValueHandling.Ignore};

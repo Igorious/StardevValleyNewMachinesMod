@@ -3,7 +3,7 @@
     public enum MachineState
     {
         Empty = 0,
-        Processing,
+        Working,
         Ready,
     }
 }

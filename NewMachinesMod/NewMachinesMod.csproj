@@ -17,7 +17,7 @@
     <UpdateAssemblyFileVersion>False</UpdateAssemblyFileVersion>
     <UpdateAssemblyInfoVersion>False</UpdateAssemblyInfoVersion>
     <AssemblyVersionSettings>None.None.None.Increment</AssemblyVersionSettings>
-    <AssemblyVersion>3.1.8.828</AssemblyVersion>
+    <AssemblyVersion>3.1.9.874</AssemblyVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -75,11 +75,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\AdditionalItemInfo.cs" />
     <Compile Include="Data\MachineDraw.cs" />
     <Compile Include="Data\MachineOutputInformation.cs" />
     <Compile Include="Data\OutputItem.cs" />
     <Compile Include="Data\OutputDelegates.cs" />
     <Compile Include="Data\MachineInformation.cs" />
+    <Compile Include="NewMachinesMod.Commands.cs" />
     <Compile Include="NewMachinesModConfig.Struct.cs" />
     <Compile Include="NewMachinesModConfig.Default.cs" />
     <Compile Include="NewMachinesMod.cs" />

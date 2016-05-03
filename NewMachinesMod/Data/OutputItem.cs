@@ -1,4 +1,5 @@
-﻿using Igorious.StardewValley.DynamicAPI.Attributes;
+﻿using System.ComponentModel;
+using Igorious.StardewValley.DynamicAPI.Attributes;
 using Igorious.StardewValley.DynamicAPI.Constants;
 using Igorious.StardewValley.DynamicAPI.Data.Supporting;
 using Newtonsoft.Json;
@@ -12,15 +13,25 @@ namespace Igorious.StardewValley.NewMachinesMod.Data
         [JsonConstructor]
         public OutputItem() { }
 
-        public OutputItem(DynamicID<ItemID> id, string name = null)
+        public OutputItem(DynamicID<ItemID> id, string name = null, MachineDraw draw = null) : this(1, id, name, draw) { }
+
+        public OutputItem(int inputCount, DynamicID<ItemID> id, string name = null, MachineDraw draw = null)
         {
+            InputCount = inputCount;
             ID = id;
             Name = name;
+            Draw = draw;
         }
 
         #endregion
 
         #region	Properties
+
+        [JsonProperty, DefaultValue(1)]
+        public int InputCount { get; set; } = 1;
+
+        [JsonProperty]
+        public AdditionalItemInfo And { get; set; }
 
         /// <summary>
         /// ID of output item.
@@ -64,6 +75,9 @@ namespace Igorious.StardewValley.NewMachinesMod.Data
         /// </summary>
         [JsonProperty]
         public string Color { get; set; }
+
+        [JsonProperty]
+        public MachineDraw Draw { get; set; }
 
         #endregion
     }

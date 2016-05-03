@@ -8,10 +8,10 @@ namespace Igorious.StardewValley.DynamicAPI.Data.Supporting
         #region	Properties
 
         [JsonProperty(Required = Required.Always)]
-        public DynamicID<ItemID, CategoryID> ID { get; }
+        public DynamicID<ItemID, CategoryID> ID { get; set; }
 
         [JsonProperty(Required = Required.Always)]
-        public int Count { get; }
+        public int Count { get; set; }
 
         #endregion
 

@@ -2,24 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Igorious.StardewValley.DynamicAPI.Utils;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.TerrainFeatures;
 using IDrawable = Igorious.StardewValley.DynamicAPI.Interfaces.IDrawable;
+using Texture = Igorious.StardewValley.DynamicAPI.Constants.Texture;
 
 namespace Igorious.StardewValley.DynamicAPI.Services
 {
-    public enum Texture
-    {
-        Craftables = 1,
-        Items = 2,
-        Crops = 3,
-        Trees = 4,
-    }
-
     public sealed class TexturesService
     {
         #region Private Data
@@ -72,7 +65,7 @@ namespace Igorious.StardewValley.DynamicAPI.Services
                 }
                 else if (newValue != oldValue)
                 {
-                    Log.SyncColour($"Texture for ${drawable.GetType().Name} already has another mapping {key}->{oldValue} (current: {newValue})", ConsoleColor.DarkRed);
+                    Log.Fail($"Texture for ${drawable.GetType().Name} already has another mapping {key}->{oldValue} (current: {newValue})");
                 }
             }
         }
@@ -102,7 +95,7 @@ namespace Igorious.StardewValley.DynamicAPI.Services
             OverrideTexture(ref FruitTree.texture, @"Resources\Trees.png", _treeSpriteOverrides, 432, 80);
 
             if (!NeedOverrideIridiumQualityStar) return;
-            Log.SyncColour($"[NMM]: Using overrides from \"Resources\\Other.png\"...", ConsoleColor.DarkGray);
+            Log.Info($"Using overrides from \"Resources\\Other.png\"...");
             using (var imageStream = new FileStream(Path.Combine(RootPath, @"Resources\Other.png"), FileMode.Open))
             {
                 var overrides = Texture2D.FromStream(Game1.graphics.GraphicsDevice, imageStream);
@@ -116,7 +109,7 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         {
             if (spriteOverrides.Count == 0) return;
 
-            Log.SyncColour($"[NMM]: Using overrides from \"{overridingTexturePath}\"...", ConsoleColor.DarkGray);
+            Log.Info($"Using overrides from \"{overridingTexturePath}\"...");
             var maxHeight = GetSourceRectForObject(spriteOverrides.Keys.Max(), originalTexture, gridWidth, gridHeight).Bottom;
             if (maxHeight > originalTexture.Height)
             {

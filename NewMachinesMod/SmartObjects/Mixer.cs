@@ -20,30 +20,6 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects
         private Object FirstDroppedItem { get; set; }
         private Object SecondDroppedItem { get; set; } 
 
-        // TODO: Try understand, how debris works.
-        //protected override bool OnPickaxeAction(Pickaxe pickaxe)
-        //{
-        //    if (FirstDroppedItem != null)
-        //    {
-        //        //var debris = new Debris(FirstDroppedItem, TileLocation);
-        //        var who = pickaxe.getLastFarmerToUse();
-        //        Game1.currentLocation.debris.Add(new Debris(338, who.GetToolLocation(), new Vector2(who.GetBoundingBox().Center.X, who.GetBoundingBox().Center.Y)));
-        //        //FirstDroppedItem = null;
-        //        return false;
-        //    }
-        //    return base.OnPickaxeAction(pickaxe);
-        //}
-
-        //protected override bool OnAxeAction(Axe axe)
-        //{
-        //    if (FirstDroppedItem != null)
-        //    {
-        //        Game1.currentLocation.debris.Add(new Debris(FirstDroppedItem, TileLocation));
-        //        FirstDroppedItem = null;
-        //    }
-        //    return base.OnAxeAction(axe);
-        //}
-
         protected override MachineInformation MachineInformation => NewMachinesMod.Config.Mixer;
 
         public override bool minutesElapsed(int minutes, GameLocation environment)

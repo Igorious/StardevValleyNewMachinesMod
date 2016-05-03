@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
+using Igorious.StardewValley.DynamicAPI.Constants;
 using Igorious.StardewValley.DynamicAPI.Data;
 using Igorious.StardewValley.DynamicAPI.Data.Supporting;
 using Igorious.StardewValley.DynamicAPI.Objects;
@@ -16,7 +15,7 @@ using StardewModdingAPI.Events;
 
 namespace Igorious.StardewValley.NewMachinesMod
 {
-    public class NewMachinesMod : Mod
+    public partial class NewMachinesMod : Mod
     {
         public static NewMachinesModConfig Config { get; } = new NewMachinesModConfig();
 
@@ -24,11 +23,10 @@ namespace Igorious.StardewValley.NewMachinesMod
 
         public override void Entry(params object[] objects)
         {
-            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
             Config.Load(PathOnDisk);
             _machines = new List<MachineInformation>(Config.SimpleMachines) { Config.Tank, Config.Mixer };
 
-            InitializeCraftingRecipes();
+            InitializeRecipes();
             InitializeObjectInformation();
             InitializeObjectMapping();
             InitializeGiftPreferences();
@@ -53,9 +51,10 @@ namespace Igorious.StardewValley.NewMachinesMod
             Config.MachineOverrides.ForEach(m => ClassMapperService.Instance.MapCraftable(DynamicTypeInfo.Create<DynamicOverridedMachine>(m.ID)));
         }
 
-        private void InitializeCraftingRecipes()
+        private void InitializeRecipes()
         {
             _machines.ForEach(m => RecipesService.Instance.Register((CraftingRecipeInformation)m));
+            Config.CookingRecipes.ForEach(RecipesService.Instance.Register);
         }
 
         private void InitializeObjectInformation()
@@ -66,7 +65,7 @@ namespace Igorious.StardewValley.NewMachinesMod
             Config.Crops.ForEach(InformationService.Instance.Register);
         }
 
-        private void InitializeBundles()
+        private static void InitializeBundles()
         {
             Config.Bundles.Added.ForEach(BundlesService.Instance.AddBundleItems);
             Config.Bundles.Removed.ForEach(BundlesService.Instance.RemoveBundleItems);

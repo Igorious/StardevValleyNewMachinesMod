@@ -7,7 +7,7 @@ using StardewValley;
 
 namespace Igorious.StardewValley.DynamicAPI.Data
 {
-    public class CraftableInformation : IInformation
+    public class CraftableInformation : IRecipeInformation, IInformation
     {
         #region Properties
 

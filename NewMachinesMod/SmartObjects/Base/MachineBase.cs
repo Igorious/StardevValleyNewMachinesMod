@@ -27,10 +27,61 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
 
         protected override bool PerformDropIn(Object item, Farmer farmer)
         {
+            if (!ProcessRequiredItems(item, farmer)) return false;
+
             PutItem(GetOutputID(item), GetOutputCount(item), GetOutputQuality(item), GetOutputName(item), GetOutputPrice(item), GetColor(item));
             PlayDropInSounds();
             minutesUntilReady = GetMinutesUntilReady(item);
             return true;
+        }
+
+        protected bool ProcessRequiredItems(Object item, Farmer farmer)
+        {
+            var outputItem = GetOutputItem(item);
+
+            if (item.Stack < outputItem.InputCount)
+            {
+                ShowRedMessage(farmer, $"Requires {outputItem.InputCount} {item.Name}");
+                return false;
+            }
+
+            var and = outputItem.And;
+            if (and == null)
+            {
+                item.Stack -= (outputItem.InputCount - 1);
+                return true;
+            }
+
+            var andName = new Object(and.ID, 1).Name;
+            var actualCount = farmer.getTallyOfObject(and.ID, false);
+            if (actualCount < and.Count)
+            {
+                ShowRedMessage(farmer, $"Requires {and.Count} {andName}");
+                return false;
+            }
+            else
+            {
+                item.Stack -= (outputItem.InputCount - 1);
+                RemoveItems(and.ID, and.Count, farmer);
+                return true;
+            }
+        }
+
+        private void RemoveItems(int id, int count, Farmer farmer)
+        {
+            var items = farmer.Items;
+            var remainedCount = count;
+            for (var i = items.Count - 1; i >= 0; --i)
+            {
+                if ((items[i] as Object)?.ParentSheetIndex != id) continue;
+
+                var delta = Math.Min(items[i].Stack, remainedCount);
+                items[i].Stack -= delta;
+                remainedCount -= delta;
+
+                if (items[i].Stack == 0) items[i] = null;
+                if (remainedCount == 0) break;
+            }
         }
 
         protected virtual void PlayDropInSounds()
@@ -41,7 +92,7 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
         private OutputItem GetOutputItem(Object item)
         {
             OutputItem outputInfo;
-            return Output.Items.TryGetValue(item.ParentSheetIndex, out outputInfo)? outputInfo : Output.Items[item.Category];
+            return Output.Items.TryGetValue(item.ParentSheetIndex, out outputInfo) ? outputInfo : Output.Items[item.Category];
         }
 
         protected virtual string GetOutputName(Object item)
@@ -49,7 +100,7 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
             var itemNameFormat = GetOutputItem(item)?.Name;
             if (!string.IsNullOrWhiteSpace(itemNameFormat)) return string.Format(itemNameFormat, "{0}", item.Name);
             if (itemNameFormat != null && string.IsNullOrWhiteSpace(itemNameFormat)) return null;
-            return (Output.Name != null)? string.Format(Output.Name, "{0}", item.Name) : null;
+            return (Output.Name != null) ? string.Format(Output.Name, "{0}", item.Name) : null;
         }
 
         protected virtual int GetOutputQuality(Object item)
@@ -94,7 +145,7 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
             get
             {
                 if (readyForHarvest) return MachineState.Ready;
-                if (heldObject != null) return MachineState.Processing;
+                if (heldObject != null) return MachineState.Working;
                 return MachineState.Empty;
             }
         }
@@ -110,7 +161,7 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
             }
         }
 
-        protected void DrawSprite(int spriteIndex, SpriteBatch spriteBatch, int x, int y, float alpha)
+        protected void DrawSprite(int spriteIndex, SpriteBatch spriteBatch, int x, int y, float alpha, Color? color = null, int coloredDelta = +1)
         {
             var v1 = getScale() * Game1.pixelZoom;
             var v2 = Game1.GlobalToLocal(Game1.viewport, new Vector2(x * Game1.tileSize, y * Game1.tileSize - Game1.tileSize));
@@ -120,6 +171,7 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
             var height = Game1.tileSize * 2 + v1.Y / 2;
             var destinationRectangle = new Rectangle((int)destinationX, (int)destinationY, (int)width, (int)height);
             spriteBatch.Draw(Game1.bigCraftableSpriteSheet, destinationRectangle, getSourceRectForBigCraftable(spriteIndex), Color.White * alpha, 0, Vector2.Zero, SpriteEffects.None, Math.Max(0, ((y + 1) * Game1.tileSize - Game1.pixelZoom * 6) / 10000f));
+            if (color != null) spriteBatch.Draw(Game1.bigCraftableSpriteSheet, destinationRectangle, getSourceRectForBigCraftable(spriteIndex + coloredDelta), color.Value * alpha, 0, Vector2.Zero, SpriteEffects.None, Math.Max(0, ((y + 1) * Game1.tileSize - Game1.pixelZoom * 6) / 10000f + 0.001f));
             if (!readyForHarvest) return;
 
             var num = (float)(4.0 * Math.Round(Math.Sin(DateTime.Now.TimeOfDay.TotalMilliseconds / 250), 2));
@@ -130,15 +182,15 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
             {
                 spriteBatch.Draw(Game1.objectSpriteSheet, Game1.GlobalToLocal(Game1.viewport, new Vector2(x * Game1.tileSize + Game1.tileSize / 2, y * Game1.tileSize - Game1.tileSize - Game1.tileSize / 8 + num)), Game1.getSourceRectForStandardTileSheet(Game1.objectSpriteSheet, heldObject.parentSheetIndex + 1, 16, 16), ((ColoredObject)heldObject).color, 0, new Vector2(8, 8), Game1.pixelZoom, SpriteEffects.None, depth);
             }
-        }      
-        
+        }
+
         private Color? GetColor(Object dropInItem)
         {
             var color = GetOutputItem(dropInItem)?.Color;
             if (string.IsNullOrWhiteSpace(color)) return null;
 
             return (color != "@")
-                ? RawColor.FromHex(color).ToXnaColor() 
+                ? RawColor.FromHex(color).ToXnaColor()
                 : DominantColorFinder.GetDominantColor(dropInItem.ParentSheetIndex, Game1.objectSpriteSheet, 16, 16);
         }
     }

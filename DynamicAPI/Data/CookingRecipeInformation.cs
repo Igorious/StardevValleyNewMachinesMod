@@ -1,12 +1,26 @@
 using System.Collections.Generic;
 using System.Linq;
+using Igorious.StardewValley.DynamicAPI.Constants;
 using Igorious.StardewValley.DynamicAPI.Data.Supporting;
+using Igorious.StardewValley.DynamicAPI.Interfaces;
 using Newtonsoft.Json;
 
 namespace Igorious.StardewValley.DynamicAPI.Data
 {
-    public sealed class CookingRecipeInformation
+    public sealed class CookingRecipeInformation : IRecipeInformation
     {
+        [JsonConstructor]
+        public CookingRecipeInformation() { }
+
+        public CookingRecipeInformation(ItemInformation item, params IngredientInfo[] ingredients) : this(item.ID, item.Name, ingredients) { }
+
+        public CookingRecipeInformation(DynamicID<ItemID> id, string name, params IngredientInfo[] ingredients)
+        {
+            ID = id;
+            Name = name;
+            Ingredients = ingredients.ToList();
+        }
+
         #region Properties
 
         [JsonProperty(Required = Required.Always)]
@@ -19,10 +33,10 @@ namespace Igorious.StardewValley.DynamicAPI.Data
         private string UnknownVar { get; set; } = "1 10";
 
         [JsonProperty(Required = Required.Always)]
-        public int ID { get; set; }
+        public DynamicID<ItemID> ID { get; set; }
 
-        [JsonProperty(Required = Required.Always)]
-        public WayToGetCookingRecipe WayToGet { get; set; }
+        [JsonProperty]
+        public WayToGetCookingRecipe WayToGet { get; set; } = new WayToGetCookingRecipe {FromTV = true};
 
         #endregion
 
