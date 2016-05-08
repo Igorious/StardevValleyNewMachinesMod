@@ -139,6 +139,8 @@ namespace Igorious.StardewValley.DynamicAPI.Data
 
         int IInformation.ID => SeedID;
 
+        int IDrawable.ResourceHeight { get; } = 1;
+
         #endregion
     }
 }

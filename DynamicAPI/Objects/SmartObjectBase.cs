@@ -11,15 +11,55 @@ namespace Igorious.StardewValley.DynamicAPI.Objects
 {
     public abstract class SmartObjectBase : Object, ISmartObject
     {
+        Type ISmartObject.BaseType { get; } = typeof(Object);
+
         private static readonly Dictionary<Sound, string> SoundNames = new Dictionary<Sound, string>
         {
             {Sound.Bubbles, "bubbles"},
             {Sound.Ship, "Ship"},
+            {Sound.Wand, "wand"},
         };
 
         protected SmartObjectBase(int id) : base(Vector2.Zero, id) { }
 
         private static readonly Object ProbeObject = new Object();
+
+        protected virtual int TileWidth { get; } = 1;
+        protected virtual int TileHeight { get; } = 1;
+
+        public override Rectangle getBoundingBox(Vector2 tile)
+        {
+            boundingBox.X = (int)tile.X * Game1.tileSize;
+            boundingBox.Y = (int)tile.Y * Game1.tileSize;
+            boundingBox.Height = TileHeight * Game1.tileSize;
+            boundingBox.Width = TileWidth * Game1.tileSize;
+            return boundingBox;
+        }
+
+        public override bool canBePlacedHere(GameLocation l, Vector2 tile)
+        {
+            for (var w = 0; w < TileWidth; ++w)
+            for (var h = 0; h < TileHeight; ++h)
+            {
+                if (!base.canBePlacedHere(l, new Vector2(tile.X + w, tile.Y + h))) return false;
+            }
+            return true;
+        }
+
+        public sealed override bool checkForAction(Farmer who, bool justCheckingForActivity = false)
+        {
+            return justCheckingForActivity? CanDoAction(who) : DoAction(who);
+        }
+
+        protected virtual bool CanDoAction(Farmer farmer)
+        {
+            return base.checkForAction(farmer, true);
+        }
+
+        protected virtual bool DoAction(Farmer farmer)
+        {
+            return base.checkForAction(farmer);
+        }
 
         protected Random GetRandom()
         {
@@ -44,7 +84,7 @@ namespace Igorious.StardewValley.DynamicAPI.Objects
 
         protected void PutItem(int itemID, int count, int itemQuality = 0, string overridedName = null, int? overridedPrice = null, Color? color = null)
         {
-            heldObject = color.HasValue? new SmartColoredObject(itemID, count, color.Value) : new Object(itemID, count);          
+            heldObject = color.HasValue ? new SmartColoredObject(itemID, count, color.Value) : new Object(itemID, count);
             heldObject.quality = itemQuality;
             if (overridedName != null) heldObject.Name = string.Format(overridedName, heldObject.Name);
             if (overridedPrice != null) heldObject.Price = overridedPrice.Value;

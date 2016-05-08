@@ -55,6 +55,8 @@ namespace Igorious.StardewValley.DynamicAPI.Data
 
         int IDrawable.ResourceLength { get; } = 1;
 
+        int IDrawable.ResourceHeight { get; } = 1;
+
         int IInformation.ID => SapleID;
 
         #endregion

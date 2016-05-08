@@ -4,5 +4,6 @@
     {
         Ship,
         Bubbles,
+        Wand,
     }
 }

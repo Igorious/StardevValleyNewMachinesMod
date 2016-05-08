@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Igorious.StardewValley.DynamicAPI.Data.Supporting;
 using Igorious.StardewValley.DynamicAPI.Utils;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -19,10 +20,10 @@ namespace Igorious.StardewValley.DynamicAPI.Services
 
         private string RootPath { get; }
 
-        private readonly Dictionary<int, int> _craftableSpriteOverrides = new Dictionary<int, int>();
-        private readonly Dictionary<int, int> _itemSpriteOverrides = new Dictionary<int, int>();
-        private readonly Dictionary<int, int> _cropSpriteOverrides = new Dictionary<int, int>();
-        private readonly Dictionary<int, int> _treeSpriteOverrides = new Dictionary<int, int>();
+        private readonly Dictionary<int, TextureRect> _craftableSpriteOverrides = new Dictionary<int, TextureRect>();
+        private readonly Dictionary<int, TextureRect> _itemSpriteOverrides = new Dictionary<int, TextureRect>();
+        private readonly Dictionary<int, TextureRect> _cropSpriteOverrides = new Dictionary<int, TextureRect>();
+        private readonly Dictionary<int, TextureRect> _treeSpriteOverrides = new Dictionary<int, TextureRect>();
         private bool NeedOverrideIridiumQualityStar { get; set; }
 
         #endregion
@@ -52,21 +53,16 @@ namespace Igorious.StardewValley.DynamicAPI.Services
             var overrides = allOverrides[(int)texture];
             if (overrides == null) return;
 
-            for (var i = 0; i < drawable.ResourceLength; ++i)
+            var key = drawable.TextureIndex;
+            var newValue = new TextureRect(drawable.ResourceIndex.Value, drawable.ResourceLength, drawable.ResourceHeight);
+            TextureRect oldValue;
+            if (!overrides.TryGetValue(key, out oldValue))
             {
-                if (drawable.ResourceIndex == null) continue;
-
-                var key = drawable.TextureIndex + i;
-                var newValue = drawable.ResourceIndex.Value + i;
-                int oldValue;
-                if (!overrides.TryGetValue(key, out oldValue))
-                {
-                    overrides.Add(key, newValue);
-                }
-                else if (newValue != oldValue)
-                {
-                    Log.Fail($"Texture for ${drawable.GetType().Name} already has another mapping {key}->{oldValue} (current: {newValue})");
-                }
+                overrides.Add(key, newValue);
+            }
+            else if (newValue != oldValue)
+            {
+                Log.Fail($"Texture for ${drawable.GetType().Name} already has another mapping {key}->{oldValue} (current: {newValue})");
             }
         }
 
@@ -91,11 +87,16 @@ namespace Igorious.StardewValley.DynamicAPI.Services
             OverrideTexture(ref Game1.objectSpriteSheet, @"Resources\Items.png", _itemSpriteOverrides, 16, 16);
             OverrideTexture(ref Game1.cropSpriteSheet, @"Resources\Crops.png", _cropSpriteOverrides, 128, 32);
 
+            using (var file = File.Create(@"D:\temp2.png"))
+            {
+                Game1.bigCraftableSpriteSheet.SaveAsPng(file, Game1.bigCraftableSpriteSheet.Width, Game1.bigCraftableSpriteSheet.Height);
+            }
+
             new FruitTree().loadSprite();
             OverrideTexture(ref FruitTree.texture, @"Resources\Trees.png", _treeSpriteOverrides, 432, 80);
 
             if (!NeedOverrideIridiumQualityStar) return;
-            Log.Info($"Using overrides from \"Resources\\Other.png\"...");
+            Log.Info("Using overrides from \"Resources\\Other.png\"...");
             using (var imageStream = new FileStream(Path.Combine(RootPath, @"Resources\Other.png"), FileMode.Open))
             {
                 var overrides = Texture2D.FromStream(Game1.graphics.GraphicsDevice, imageStream);
@@ -105,12 +106,44 @@ namespace Igorious.StardewValley.DynamicAPI.Services
             }
         }
 
-        private void OverrideTexture(ref Texture2D originalTexture, string overridingTexturePath, Dictionary<int, int> spriteOverrides, int gridWidth, int gridHeight)
+        private void OverrideTexture(ref Texture2D originalTexture, string overridingTexturePath, Dictionary<int, TextureRect> spriteOverrides, int tileWidth, int tileHeight)
         {
             if (spriteOverrides.Count == 0) return;
 
             Log.Info($"Using overrides from \"{overridingTexturePath}\"...");
-            var maxHeight = GetSourceRectForObject(spriteOverrides.Keys.Max(), originalTexture, gridWidth, gridHeight).Bottom;
+            ExtendTexture(ref originalTexture, spriteOverrides, tileWidth, tileHeight);
+
+            using (var imageStream = new FileStream(Path.Combine(RootPath, overridingTexturePath), FileMode.Open))
+            {
+                var overrideTexture = Texture2D.FromStream(Game1.graphics.GraphicsDevice, imageStream);
+                foreach (var spriteOverride in spriteOverrides)
+                {
+                    var textureRect = spriteOverride.Value;
+                    if (textureRect.Height > 1)
+                    {
+                        var data = new Color[tileWidth * textureRect.Length * tileHeight * textureRect.Height];
+                        overrideTexture.GetData(0, GetSourceRectForObject(textureRect.Index, textureRect.Length, textureRect.Height, overrideTexture, tileWidth, tileHeight), data, 0, data.Length);
+                        originalTexture.SetData(0, GetSourceRectForObject(spriteOverride.Key, textureRect.Length, textureRect.Height, originalTexture, tileWidth, tileHeight), data, 0, data.Length);
+                    }
+                    else
+                    {
+                        for (var i = 0; i < textureRect.Length; ++i)
+                        {
+                            var data = new Color[tileWidth * tileHeight];
+                            overrideTexture.GetData(0, GetSourceRectForObject(textureRect.Index + i, overrideTexture, tileWidth, tileHeight), data, 0, data.Length);
+                            originalTexture.SetData(0, GetSourceRectForObject(spriteOverride.Key + i, originalTexture, tileWidth, tileHeight), data, 0, data.Length);
+                        }
+                    }
+                }
+            }
+        }
+
+        private void ExtendTexture(ref Texture2D originalTexture, Dictionary<int, TextureRect> spriteOverrides, int tileWidth, int tileHeight)
+        {
+            var maxKey = spriteOverrides.Keys.Max();
+            var maxRect = spriteOverrides[maxKey];
+            var maxHeight = GetSourceRectForObject(maxKey, originalTexture, tileWidth, tileHeight).Bottom + (maxRect.Height - 1) * tileHeight;
+
             if (maxHeight > originalTexture.Height)
             {
                 var allData = new Color[originalTexture.Width * originalTexture.Height];
@@ -122,22 +155,16 @@ namespace Igorious.StardewValley.DynamicAPI.Services
                 originalTexture = new Texture2D(Game1.graphics.GraphicsDevice, originalTexture.Width, maxHeight);
                 originalTexture.SetData(newData);
             }
-
-            using (var imageStream = new FileStream(Path.Combine(RootPath, overridingTexturePath), FileMode.Open))
-            {
-                var overrideTexture = Texture2D.FromStream(Game1.graphics.GraphicsDevice, imageStream);
-                foreach (var spriteOverride in spriteOverrides)
-                {
-                    var data = new Color[gridWidth * gridHeight];
-                    overrideTexture.GetData(0, GetSourceRectForObject(spriteOverride.Value, overrideTexture, gridWidth, gridHeight), data, 0, data.Length);
-                    originalTexture.SetData(0, GetSourceRectForObject(spriteOverride.Key, originalTexture, gridWidth, gridHeight), data, 0, data.Length);
-                }
-            }
         }
 
-        internal static Rectangle GetSourceRectForObject(int index, Texture2D texture, int gridWidth, int gridHeight)
+        public static Rectangle GetSourceRectForObject(int index, Texture2D texture, int tileWidth, int tileHeight)
         {
-            return new Rectangle(index % (texture.Width / gridWidth) * gridWidth, index / (texture.Width / gridWidth) * gridHeight, gridWidth, gridHeight);
+            return GetSourceRectForObject(index, 1, 1, texture, tileWidth, tileHeight);
+        }
+
+        public static Rectangle GetSourceRectForObject(int index, int length, int height, Texture2D texture, int tileWidth, int tileHeight)
+        {
+            return new Rectangle(index % (texture.Width / tileWidth) * tileWidth, index / (texture.Width / tileWidth) * tileHeight, tileWidth * length, tileHeight * height);
         }
 
         #endregion

@@ -16,5 +16,7 @@
         /// Length of reserved sprite range from mod resource.
         /// </summary>
         int ResourceLength { get; }
+
+        int ResourceHeight { get; }
     }
 }

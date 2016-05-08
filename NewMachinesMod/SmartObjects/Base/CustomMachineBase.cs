@@ -44,7 +44,7 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
             return MachineInformation.Draw;
         }
 
-        private void GetSpriteDeltaAndColor(out int spriteDelta, out string color)
+        protected void GetSpriteDeltaAndColor(out int spriteDelta, out string color)
         {
             var draw = GetDrawInfo();
             color = null;

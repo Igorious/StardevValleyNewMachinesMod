@@ -78,5 +78,7 @@ namespace Igorious.StardewValley.NewMachinesMod.Data
         #endregion
 
         int IDrawable.TextureIndex => ID;
+
+        int IDrawable.ResourceHeight => 1;
     }
 }

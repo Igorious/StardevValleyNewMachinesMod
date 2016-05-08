@@ -25,5 +25,8 @@ namespace Igorious.StardewValley.NewMachinesMod.Data
         public List<DynamicID<ItemID>> IgnoredItems { get; set; }
 
         public MachineOutputInformation Output { get; set; }
+
+        [JsonProperty]
+        public MachineDraw Draw { get; set; }
     }
 }

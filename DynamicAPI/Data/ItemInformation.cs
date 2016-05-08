@@ -80,6 +80,9 @@ namespace Igorious.StardewValley.DynamicAPI.Data
         [DefaultValue(1)]
         public int ResourceLength { get; set; } = 1;
 
+        [JsonProperty, DefaultValue(1)]
+        public int ResourceHeight { get; set; } = 1;
+
         #endregion
 
         #region Serialization
@@ -129,7 +132,16 @@ namespace Igorious.StardewValley.DynamicAPI.Data
 
         public override string ToString()
         {
-            var buffer = new StringBuilder($"{Name}/{Price}/{Edibility}/{Type}");
+            var buffer = new StringBuilder($"{Name}/{Price}/{Edibility}/");
+            if (Type == ObjectType.Interactive)
+            {
+                buffer.Append(Type.ToLower());
+            }
+            else
+            {
+                buffer.Append(Type);
+            }
+
             if (Category != CategoryID.Undefined) buffer.Append(' ').Append((int)Category);
             buffer.Append('/').Append(Description);
             if (Category == CategoryID.Fish)

@@ -1,4 +1,5 @@
-﻿using Igorious.StardewValley.DynamicAPI.Interfaces;
+﻿using System;
+using Igorious.StardewValley.DynamicAPI.Interfaces;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
@@ -8,6 +9,8 @@ namespace Igorious.StardewValley.DynamicAPI.Objects
 {
     public class SmartColoredObject : ColoredObject, ISmartObject
     {
+        Type ISmartObject.BaseType { get; } = typeof(ColoredObject);
+
         public SmartColoredObject() { }
 
         public SmartColoredObject(int parentSheetIndex, int stack, Color color) : base(parentSheetIndex, stack, color) { }

@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using Igorious.StardewValley.DynamicAPI.Data.Supporting;
 using Igorious.StardewValley.DynamicAPI.Interfaces;
+using Igorious.StardewValley.DynamicAPI.Objects;
 using Igorious.StardewValley.DynamicAPI.Services.Internal;
 using Igorious.StardewValley.DynamicAPI.Utils;
 using StardewModdingAPI.Events;
@@ -20,22 +21,32 @@ namespace Igorious.StardewValley.DynamicAPI.Services
 
         private ClassMapperService()
         {
-            ActivateMapping();
+            MapLocation<SmartFarm>("Farm");
+
+            PlayerEvents.LoadedGame += (s, e) =>
+            {
+                if (!ActivateMapping()) return;
+                Log.ImportantInfo("Activation after loading...");
+                ConvertToSmartObjectsInWorld();
+            };
 
             TimeEvents.TimeOfDayChanged += (s, e) =>
             {
                 if (Game1.timeOfDay != 610) return;
                 if (!ActivateMapping()) return;
                 Log.ImportantInfo("FORCED ACTIVATION!");
-                CovertToSmartObjectsInWorld();
+                ConvertToSmartObjectsInWorld();
             };
 
             TimeEvents.OnNewDay += (s, e) =>
             {
                 if (e.IsNewDay) return;
                 if (!DeactivateMapping()) return;
-                CovertToRawObjectsInWorld(); // Allow use native serializer.
+                ConvertToRawObjectsInWorld(); // Allow use native serializer.
             };
+
+            GameEvents.UpdateTick += (s, e) => ConvertActiveInventoryObject();
+            PlayerEvents.InventoryChanged += OnInventoryChanged;
         }
 
         private static ClassMapperService _instance;
@@ -48,6 +59,9 @@ namespace Igorious.StardewValley.DynamicAPI.Services
 
         private bool IsActivated { get; set; }
 
+        private Object PreviousActiveObject { get; set; }
+
+        private readonly Dictionary<string, Type> _locationTypeMap = new Dictionary<string, Type>();
         private readonly Dictionary<int, Type> _itemTypeMap = new Dictionary<int, Type>();
         private readonly Dictionary<int, Type> _craftableTypeMap = new Dictionary<int, Type>();
         private readonly Dictionary<int, DynamicTypeInfo> _dynamicCraftableTypeMap = new Dictionary<int, DynamicTypeInfo>();
@@ -59,6 +73,39 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         public IReadOnlyDictionary<int, Type> ItemTypeMap => _itemTypeMap;
         public IReadOnlyDictionary<int, Type> CraftableTypeMap => _craftableTypeMap;
         public IReadOnlyDictionary<int, DynamicTypeInfo> DynamicCraftableTypeMap => _dynamicCraftableTypeMap;
+
+        #endregion
+
+        #region Handlers
+
+        private void ConvertActiveInventoryObject()
+        {
+            if (!IsActivated) return;
+
+            var activeObject = Game1.player.ActiveObject;
+            if (activeObject == PreviousActiveObject) return;
+
+            if (IsRawObject(activeObject))
+            {
+                Game1.player.ActiveObject = ToSmartObject(activeObject);
+            }
+            PreviousActiveObject = Game1.player.ActiveObject;
+        }
+
+        private void OnInventoryChanged(object sender, EventArgsInventoryChanged args)
+        {
+            if (!IsActivated || !args.Added.Any()) return;
+
+            var inventory = Game1.player.Items;
+            foreach (var addedItemInfo in args.Added)
+            {
+                var addedItem = addedItemInfo.Item as Object;
+                if (!IsRawObject(addedItem)) continue;
+
+                var index = inventory.FindIndex(i => i == addedItem);
+                inventory[index] = ToSmartObject(addedItem);
+            }
+        }
 
         #endregion
 
@@ -103,14 +150,24 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         {
             return _itemTypeMap.First(kv => kv.Value == typeof(TObject)).Key;
         }
-        
+
+        public void MapLocation<TLocation>(string location) where TLocation : ISmartLocation
+        {
+            _locationTypeMap.Add(location, typeof(TLocation));
+        }
+
         public Object ToSmartObject(Object rawObject)
         {
             var smartObject = rawObject.bigCraftable
                 ? CraftableToSmartObject(rawObject)
                 : ItemToSmartObject(rawObject);
-            Cloner.Instance.CopyProperties(rawObject, smartObject);
+            Cloner.Instance.CopyData(rawObject, smartObject);
             return smartObject;
+        }
+
+        public bool IsRawObject(Object o)
+        {
+            return IsRawCraftable(o) || IsRawItem(o);
         }
 
         #endregion
@@ -123,12 +180,12 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         {
             if (!(args.PriorMenu is SaveGameMenu)) return;
             if (!ActivateMapping()) return;
-            CovertToSmartObjectsInWorld();
+            ConvertToSmartObjectsInWorld();
         }
 
         private void OnLocationObjectsChanged(object sender, EventArgsLocationObjectsChanged eventArgsLocationObjectsChanged)
         {
-            CovertToSmartObjectsInLocation();
+            ConvertToSmartObjectsInLocation();
         }
 
         #endregion
@@ -142,7 +199,7 @@ namespace Igorious.StardewValley.DynamicAPI.Services
             Type type;
             if (_craftableTypeMap.TryGetValue(craftableID, out type))
             {
-                var ctor = type.GetConstructor(new Type[] { });
+                var ctor = type.GetConstructor(Type.EmptyTypes);
                 if (ctor != null) return (Object)ctor.Invoke(new object[] { });
                 Log.Error($"Can't find .ctor (static) for CraftableID={craftableID}.");
                 return rawObject;
@@ -165,14 +222,14 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         {
             var itemID = rawObject.ParentSheetIndex;
             var type = _itemTypeMap[itemID];
-            var ctor = type.GetConstructor(new Type[] { });
+            var ctor = type.GetConstructor(Type.EmptyTypes);
             if (ctor != null) return (Object)ctor.Invoke(new object[] { });
 
             Log.Error($"Can't find .ctor (static) for ItemID={itemID}.");
             return rawObject;
         }
 
-        private void CovertToSmartObjectsInLocation()
+        private void ConvertToSmartObjectsInLocation()
         {
             var sw = Stopwatch.StartNew();
             Log.Info($"Activating objects (changes in {Game1.currentLocation?.Name})...");
@@ -181,10 +238,11 @@ namespace Igorious.StardewValley.DynamicAPI.Services
             Log.Info($"Convertion ('smart') finished: {sw.ElapsedMilliseconds} ms");
         }
 
-        private void CovertToRawObjectsInWorld()
-        {                           
+        private void ConvertToRawObjectsInWorld()
+        {
             var sw = Stopwatch.StartNew();
             Log.Info("Deactivating objects in world...");
+            ConvertToRawLocations();
             foreach (var gameLocation in Game1.locations)
             {
                 Traverser.ConvertObjectsInLocation(gameLocation, IsSmartObject, Cloner.Instance.ToRawObject);
@@ -193,10 +251,11 @@ namespace Igorious.StardewValley.DynamicAPI.Services
             Log.Info($"Convertion ('raw') finished: {sw.ElapsedMilliseconds} ms");
         }
 
-        private void CovertToSmartObjectsInWorld()
-        {                           
+        private void ConvertToSmartObjectsInWorld()
+        {
             var sw = Stopwatch.StartNew();
             Log.Info("Activating objects in world...");
+            ConvertToSmartLocations();
             foreach (var gameLocation in Game1.locations)
             {
                 Traverser.ConvertObjectsInLocation(gameLocation, IsRawObject, ToSmartObject);
@@ -205,13 +264,67 @@ namespace Igorious.StardewValley.DynamicAPI.Services
             Log.Info($"Convertion ('smart') finished: {sw.ElapsedMilliseconds} ms");
         }
 
+        private void ConvertToSmartLocations()
+        {
+            Log.Info("Converting locations to smart...");
+            var locations = Game1.locations;
+            for (var i = 0; i < locations.Count; ++i)
+            {
+                var location = locations[i];
+                Log.Info($"Location {location.Name}:");
+                Type newType;
+                if (location is ISmartLocation || !_locationTypeMap.TryGetValue(location.Name, out newType))
+                {
+                    Log.Info($"Skip.");
+                    continue;
+                }
+
+                var ctor = newType.GetConstructor(Type.EmptyTypes);
+                if (ctor != null)
+                {
+                    var smartLocation = (GameLocation)ctor.Invoke(new object[] {});
+                    Cloner.Instance.CopyData(location, smartLocation, location.GetType());
+                    locations[i] = smartLocation;
+                    Log.Info($"Created.");
+                }
+                else
+                {
+                    Log.Error($"Can't find {newType.FullName}.ctor for Location={location.Name}.");
+                }
+            }
+            Log.Info("Locations converted.");
+        }
+
+        private void ConvertToRawLocations()
+        {
+            var locations = Game1.locations;
+            for (var i = 0; i < locations.Count; ++i)
+            {
+                var location = locations[i];
+                if (!(location is ISmartLocation)) continue;
+
+                var baseType = (location as ISmartLocation).BaseType;
+                var ctor = baseType.GetConstructor(Type.EmptyTypes);
+                if (ctor != null)
+                {
+                    var rawLocation = (GameLocation)ctor.Invoke(new object[] {});
+                    Cloner.Instance.CopyData(location, rawLocation, baseType);
+                    locations[i] = rawLocation;
+                }
+                else
+                {
+                    Log.Error($"Can't find {baseType.FullName}.ctor for Location={location.Name}.");
+                }
+            }
+        }
+
         #endregion
 
         #region Checks
 
         private bool IsRawCraftable(Object o)
         {
-            if (!o.bigCraftable) return false;
+            if (o == null || !o.bigCraftable) return false;
             var craftableID = o.ParentSheetIndex;
 
             Type type;
@@ -231,7 +344,7 @@ namespace Igorious.StardewValley.DynamicAPI.Services
 
         private bool IsRawItem(Object o)
         {
-            if (o.bigCraftable) return false;
+            if (o == null || o.bigCraftable) return false;
             var itemID = o.ParentSheetIndex;
 
             Type type;
@@ -241,11 +354,6 @@ namespace Igorious.StardewValley.DynamicAPI.Services
             }
 
             return false;
-        }
-
-        private bool IsRawObject(Object o)
-        {
-            return IsRawCraftable(o) || IsRawItem(o);
         }
 
         private bool IsSmartObject(Object o)

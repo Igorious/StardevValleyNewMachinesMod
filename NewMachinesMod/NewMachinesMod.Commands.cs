@@ -65,6 +65,7 @@ namespace Igorious.StardewValley.NewMachinesMod
                     return;
                 }
                 id = activeObject.ParentSheetIndex;
+                Log.Async($"Current item type: {activeObject.GetType().FullName}");
             }
                     
             var machine = new Object(Vector2.Zero, id);

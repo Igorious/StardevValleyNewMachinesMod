@@ -17,7 +17,7 @@
     <UpdateAssemblyFileVersion>False</UpdateAssemblyFileVersion>
     <UpdateAssemblyInfoVersion>False</UpdateAssemblyInfoVersion>
     <AssemblyVersionSettings>None.None.None.Increment</AssemblyVersionSettings>
-    <AssemblyVersion>3.1.9.874</AssemblyVersion>
+    <AssemblyVersion>3.1.9.948</AssemblyVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -68,6 +68,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.XML" />
     <Reference Include="xTile, Version=2.0.4.0, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>D:\Games\Steam\steamapps\common\Stardew Valley\xTile.dll</HintPath>
@@ -89,6 +90,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SmartObjects\Base\OverridedMachineBase.cs" />
     <Compile Include="SmartObjects\Base\MachineBase.cs" />
+    <Compile Include="SmartObjects\BigTotem.cs" />
     <Compile Include="SmartObjects\Dynamic\DynamicOverridedMachine.cs" />
     <Compile Include="SmartObjects\Dynamic\DynamicCustomMachine.cs" />
     <Compile Include="SmartObjects\Base\CustomMachineBase.cs" />

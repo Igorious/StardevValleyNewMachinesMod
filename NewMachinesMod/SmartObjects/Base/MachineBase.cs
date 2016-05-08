@@ -164,11 +164,11 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
         protected void DrawSprite(int spriteIndex, SpriteBatch spriteBatch, int x, int y, float alpha, Color? color = null, int coloredDelta = +1)
         {
             var v1 = getScale() * Game1.pixelZoom;
-            var v2 = Game1.GlobalToLocal(Game1.viewport, new Vector2(x * Game1.tileSize, y * Game1.tileSize - Game1.tileSize));
+            var v2 = Game1.GlobalToLocal(Game1.viewport, new Vector2(x * Game1.tileSize, y * Game1.tileSize - TileHeight * Game1.tileSize));
             var destinationX = v2.X - v1.X / 2 + (shakeTimer > 0 ? Game1.random.Next(-1, 2) : 0);
             var destinationY = v2.Y - v1.Y / 2 + (shakeTimer > 0 ? Game1.random.Next(-1, 2) : 0);
-            var width = Game1.tileSize + v1.X;
-            var height = Game1.tileSize * 2 + v1.Y / 2;
+            var width = Game1.tileSize * TileWidth + v1.X;
+            var height = Game1.tileSize * TileHeight * 2 + v1.Y / 2;
             var destinationRectangle = new Rectangle((int)destinationX, (int)destinationY, (int)width, (int)height);
             spriteBatch.Draw(Game1.bigCraftableSpriteSheet, destinationRectangle, getSourceRectForBigCraftable(spriteIndex), Color.White * alpha, 0, Vector2.Zero, SpriteEffects.None, Math.Max(0, ((y + 1) * Game1.tileSize - Game1.pixelZoom * 6) / 10000f));
             if (color != null) spriteBatch.Draw(Game1.bigCraftableSpriteSheet, destinationRectangle, getSourceRectForBigCraftable(spriteIndex + coloredDelta), color.Value * alpha, 0, Vector2.Zero, SpriteEffects.None, Math.Max(0, ((y + 1) * Game1.tileSize - Game1.pixelZoom * 6) / 10000f + 0.001f));

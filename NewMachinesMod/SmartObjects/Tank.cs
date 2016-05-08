@@ -4,7 +4,6 @@ using Igorious.StardewValley.NewMachinesMod.Data;
 using Igorious.StardewValley.NewMachinesMod.SmartObjects.Base;
 using StardewValley;
 using StardewValley.Tools;
-using Object = StardewValley.Object;
 
 namespace Igorious.StardewValley.NewMachinesMod.SmartObjects
 {
@@ -20,7 +19,11 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects
         private static readonly int ID = ClassMapperService.Instance.GetCraftableID<Tank>();
 
         public Tank() : this(ID) { }
+
         protected Tank(int id) : base(id) { }
+
+        protected override int TileWidth { get; } = 2;
+        protected override int TileHeight { get; } = 2;
 
         protected bool IsEmpty
         {

@@ -33,6 +33,7 @@ namespace Igorious.StardewValley.NewMachinesMod
             InitializeBundles();
             OverrideTextures();
             PrecompileExpressions();
+            RegisterCommands();
         }
 
         private static void InitializeGiftPreferences()
@@ -45,6 +46,7 @@ namespace Igorious.StardewValley.NewMachinesMod
             ClassMapperService.Instance.MapCraftable<Tank>(Config.Tank.ID);
             ClassMapperService.Instance.MapCraftable<FullTank>(Config.Tank.ID + 1);
             ClassMapperService.Instance.MapCraftable<Mixer>(Config.Mixer.ID);
+            ClassMapperService.Instance.MapItem<BigTotem>(Config.BigTotem.ID);
 
             Config.Items.ForEach(i => ClassMapperService.Instance.MapItem<SmartColoredObject>(i.ID));
             Config.SimpleMachines.ForEach(m => ClassMapperService.Instance.MapCraftable(DynamicTypeInfo.Create<DynamicCustomMachine>(m.ID)));
@@ -55,6 +57,7 @@ namespace Igorious.StardewValley.NewMachinesMod
         {
             _machines.ForEach(m => RecipesService.Instance.Register((CraftingRecipeInformation)m));
             Config.CookingRecipes.ForEach(RecipesService.Instance.Register);
+            Config.CraftingRecipes.ForEach(RecipesService.Instance.Register);
         }
 
         private void InitializeObjectInformation()
@@ -62,6 +65,7 @@ namespace Igorious.StardewValley.NewMachinesMod
             _machines.ForEach(m => InformationService.Instance.Register((CraftableInformation)m));
             Config.ItemOverrides.ForEach(InformationService.Instance.Override);
             Config.Items.ForEach(InformationService.Instance.Register);
+            InformationService.Instance.Register(Config.BigTotem);
             Config.Crops.ForEach(InformationService.Instance.Register);
         }
 
@@ -76,6 +80,7 @@ namespace Igorious.StardewValley.NewMachinesMod
             var textureService = new TexturesService(PathOnDisk);
             _machines.ForEach(i => textureService.Override(Texture.Craftables, i));
             Config.Items.ForEach(i => textureService.Override(Texture.Items, i));
+            textureService.Override(Texture.Items, Config.BigTotem);
             Config.Crops.ForEach(i => textureService.Override(Texture.Crops, i));
             textureService.OverrideIridiumQualityStar();
         }

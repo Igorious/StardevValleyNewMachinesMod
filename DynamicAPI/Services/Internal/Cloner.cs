@@ -1,7 +1,8 @@
+using System;
 using System.Linq;
 using System.Reflection;
-using StardewValley;
 using StardewValley.Objects;
+using Object = StardewValley.Object;
 
 namespace Igorious.StardewValley.DynamicAPI.Services.Internal
 {
@@ -9,7 +10,7 @@ namespace Igorious.StardewValley.DynamicAPI.Services.Internal
     {
         #region Singleton Access
 
-        private Cloner() {}
+        private Cloner() { }
 
         private static Cloner _instance;
 
@@ -19,20 +20,26 @@ namespace Igorious.StardewValley.DynamicAPI.Services.Internal
 
         #region	Public Methods
 
-        public void CopyProperties(Object from, Object to)
+        public void CopyData<T>(T from, T to) => CopyData(@from, to, typeof(T));
+
+        public void CopyData(object from, object to, Type type)
         {
-            var properties = typeof(Object).GetProperties(BindingFlags.Instance | BindingFlags.Public).Where(p => p.CanRead && p.CanWrite);
+            var properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public).Where(p => p.CanRead && p.CanWrite);
             foreach (var property in properties)
             {
-                property.SetValue(to, property.GetValue(@from));
+                property.SetValue(to, property.GetValue(from));
             }
 
-            var fields = typeof(Object).GetFields(BindingFlags.Instance | BindingFlags.Public).Where(f => !f.IsInitOnly);
+            var fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public).Where(f => !f.IsInitOnly);
             foreach (var field in fields)
             {
-                field.SetValue(to, field.GetValue(@from));
+                field.SetValue(to, field.GetValue(from));
             }
+        }
 
+        public void CopyData(Object from, Object to)
+        {
+            CopyData<Object>(from, to);
             if (from is ColoredObject && to is ColoredObject)
             {
                 ((ColoredObject)to).color = ((ColoredObject)@from).color;
@@ -46,7 +53,7 @@ namespace Igorious.StardewValley.DynamicAPI.Services.Internal
                 : (smartObject.bigCraftable
                     ? CraftableToRawObject(smartObject)
                     : ItemToRawObject(smartObject));
-            CopyProperties(smartObject, rawObject);
+            CopyData(smartObject, rawObject);
             return rawObject;
         }
 

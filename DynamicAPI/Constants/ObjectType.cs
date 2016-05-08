@@ -12,5 +12,6 @@
         Seeds,
         Ring,
         Quest,
+        Interactive,
     }
 }

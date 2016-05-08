@@ -47,7 +47,7 @@ namespace Igorious.StardewValley.DynamicAPI.Services
 
         #region	Auxiliary Methods
 
-        private void OnLoadContent(object sender, EventArgs e)
+        private Dictionary<string, string> LoadGameBundles()
         {
             Game1.content.Load<Dictionary<string, string>>(@"Data\Bundles");
             var loadedAssets = Game1.content.GetField<Dictionary<string, object>>("loadedAssets");
@@ -58,27 +58,74 @@ namespace Igorious.StardewValley.DynamicAPI.Services
                 _bundleInformations.Add(BundleInformation.Parse(kv.Value, kv.Key));
             }
 
-            foreach (var addedBundle in _addedBundleItems)
-            {
-                var bundle = _bundleInformations.First(b => b.Key == addedBundle.Key);
-                bundle.Items.AddRange(addedBundle.Items);
-                bundles[bundle.Key] = bundle.ToString();
-            }
+            return bundles;
+        }
 
+        private void RemoveBundleItems()
+        {
             foreach (var removedBundle in _removedBundleItems)
             {
                 var bundle = _bundleInformations.First(b => b.Key == removedBundle.Key);
-                var currentItems = bundle.Items.ToList();
-                bundle.Items.Clear();
 
-                foreach (var currentItem in currentItems)
+                foreach (var bundleItem in removedBundle.Items)
                 {
-                    if (removedBundle.Items.Any(i => i.ID == currentItem.ID)) continue;
-                    bundle.Items.Add(currentItem);
+                    var index = bundle.Items.FindIndex(bi => bi.ID == bundleItem.ID);
+                    if (index != -1)
+                    {
+                        bundle.Items[index] = null;
+                    }
                 }
+            }
+        }
 
+        private void AddBundleItems()
+        {
+            foreach (var addedBundle in _addedBundleItems)
+            {
+                var bundle = _bundleInformations.First(b => b.Key == addedBundle.Key);
+
+                foreach (var bundleItem in addedBundle.Items)
+                {
+                    var index = bundle.Items.FindIndex(bi => bi == null);
+                    if (index != -1)
+                    {
+                        bundle.Items[index] = bundleItem;
+                    }
+                    else
+                    {
+                        bundle.Items.Add(bundleItem);
+                    }
+                }    
+            }
+        }
+
+        private void ClearEmptyValues()
+        {
+            var bundles = _bundleInformations.ToList();
+
+            foreach (var bundle in bundles)
+            {
+                var items = bundle.Items.Where(i => i != null).ToList();
+                bundle.Items.Clear();
+                bundle.Items.AddRange(items);
+            }
+        }
+
+        private void ApplyValues(IDictionary<string, string> bundles)
+        {
+            foreach (var bundle in _bundleInformations)
+            {
                 bundles[bundle.Key] = bundle.ToString();
             }
+        }
+
+        private void OnLoadContent(object sender, EventArgs e)
+        {
+            var bundles = LoadGameBundles();
+            RemoveBundleItems();
+            AddBundleItems();
+            ClearEmptyValues();
+            ApplyValues(bundles);          
         }
 
         #endregion

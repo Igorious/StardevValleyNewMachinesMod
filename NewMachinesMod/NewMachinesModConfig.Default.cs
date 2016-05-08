@@ -32,6 +32,7 @@ namespace Igorious.StardewValley.NewMachinesMod
         private const int BlackRaisinsID = 915;
         private const int DriedFruitID = 917;
         private const int BlackRaisinsMuffinID = 919;
+        private const int BigTotemID = 921;
 
         #endregion
 
@@ -75,10 +76,39 @@ namespace Igorious.StardewValley.NewMachinesMod
                 GetBlackRisinsMaffin(),
             };
 
+            BigTotem = new ItemInformation(BigTotemID, "Big Totem", "...")
+            {
+                Category = CategoryID.Crafting,
+                ResourceLength = 2,
+                ResourceHeight = 2,
+                ResourceIndex = 21,
+                Type = ObjectType.Interactive,
+            };
+
+            CraftingRecipes = new List<CraftingRecipeInformation>
+            {
+                new CraftingRecipeInformation
+                {
+                    IsBig = false,
+                    ID = BigTotemID,
+                    Name = "Big Totem",
+                    Materials = new List<IngredientInfo>
+                    {
+                        new IngredientInfo(ItemID.Wood, 1)
+                    },
+                    WayToGet = new WayToGetCraftingRecipe
+                    {
+                        Skill = Skill.Farming,
+                        SkillLevel = 1,
+                    },
+                }
+            };
+
             MachineOverrides = new List<OverridedMachineInformation>
             {
                 GetKegOverride(),
-                GetPreserveJarOverride()
+                GetPreserveJarOverride(),
+                GetCharcoalKilnOverride(),
             };
 
             LocalizationStrings = new Dictionary<LocalizationString, string>
@@ -113,9 +143,9 @@ namespace Igorious.StardewValley.NewMachinesMod
                 new List<OverridedBundleInformation>
                 {
                     new OverridedBundleInformation("Bulletin Board/33",
-                        new BundleItemInformation(ItemID.Wine, quality: 2)),
+                        new BundleItemInformation(ItemID.Wine)),
                     new OverridedBundleInformation("Pantry/5",
-                        new BundleItemInformation(ItemID.Jelly, quality: 2)),
+                        new BundleItemInformation(ItemID.Jelly)),
                 });
         }
 
@@ -180,6 +210,21 @@ namespace Igorious.StardewValley.NewMachinesMod
                     MinutesUntilReady = 1440,
                     Sounds = new List<Sound> { Sound.Ship, Sound.Bubbles },
                 });
+        }
+
+        private static OverridedMachineInformation GetCharcoalKilnOverride()
+        {
+            return new OverridedMachineInformation(CraftableID.CharcoalKiln,
+                new MachineOutputInformation(new Dictionary<DynamicID<ItemID, CategoryID>, OutputItem>
+                {
+                    { ItemID.Hardwood, new OutputItem(ItemID.Coal) { MinutesUntilReady = 150, Count = "5" } },
+                    { ItemID.HardwoodFence, new OutputItem(ItemID.Coal) { MinutesUntilReady = 150, Count = "5" } },
+                    { ItemID.Gate, new OutputItem(ItemID.Coal) { MinutesUntilReady = 30, Count = "1" } },
+                    { ItemID.WoodFence, new OutputItem(ItemID.Coal) { InputCount = 5, MinutesUntilReady = 30, Count = "1" } },
+                }))
+            {
+                Draw = new MachineDraw { Working = +1 },
+            };
         }
 
         private static ItemInformation GetColorPickles()

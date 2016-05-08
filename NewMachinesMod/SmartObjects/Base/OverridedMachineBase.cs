@@ -1,4 +1,5 @@
 ﻿using Igorious.StardewValley.NewMachinesMod.Data;
+using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 
 namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
@@ -34,6 +35,27 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
 
             UsedOverride = null;
             return false;
+        }
+
+        public override void draw(SpriteBatch spriteBatch, int x, int y, float alpha = 1)
+        {
+            var draw = MachineInformation.Draw;
+            if (draw != null)
+            {
+                if (readyForHarvest)
+                {
+                    showNextIndex = (draw.Ready != 0);
+                }
+                else if (heldObject != null)
+                {
+                    showNextIndex = (draw.Working != 0);
+                }
+                else
+                {
+                    showNextIndex = (draw.Empty != 0);
+                }
+            }
+            base.draw(spriteBatch, x, y, alpha);         
         }
 
         protected virtual bool CanPerformDropInOverrided(Object item, Farmer farmer)

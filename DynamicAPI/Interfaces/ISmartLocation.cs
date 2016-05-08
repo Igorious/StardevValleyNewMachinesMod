@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 
 namespace Igorious.StardewValley.DynamicAPI.Interfaces
 {
-    public interface ISmartObject
+    public interface ISmartLocation
     {
         Type BaseType { get; }
     }
