@@ -23,7 +23,7 @@ namespace Igorious.StardewValley.DynamicAPI.Data
         private string Area { get; set; } = "Home";
 
         [JsonProperty(Required = Required.Always)]
-        public DynamicID<CraftableID> ID { get; set; }
+        public DynamicID<ItemID, CraftableID> ID { get; set; }
 
         [JsonProperty, DefaultValue(true)]
         public bool IsBig { get; set; } = true;

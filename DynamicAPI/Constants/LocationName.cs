@@ -4,5 +4,7 @@
     {
         public const string Farm = "Farm";
         public const string FarmHouse = "FarmHouse";
+        public const string Beach = "Beach";
+        public const string Mountain = "Mountain";
     }
 }

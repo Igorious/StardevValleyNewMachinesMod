@@ -1,6 +1,10 @@
-﻿using Igorious.StardewValley.NewMachinesMod.Data;
+﻿using System;
+using Igorious.StardewValley.DynamicAPI.Constants;
+using Igorious.StardewValley.DynamicAPI.Utils;
+using Igorious.StardewValley.NewMachinesMod.Data;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
+using Object = StardewValley.Object;
 
 namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
 {
@@ -42,20 +46,20 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
             var draw = MachineInformation.Draw;
             if (draw != null)
             {
-                if (readyForHarvest)
+                switch (State)
                 {
-                    showNextIndex = (draw.Ready != 0);
-                }
-                else if (heldObject != null)
-                {
-                    showNextIndex = (draw.Working != 0);
-                }
-                else
-                {
-                    showNextIndex = (draw.Empty != 0);
+                    case MachineState.Empty:
+                        showNextIndex = (draw.Empty != 0);
+                        break;
+                    case MachineState.Working:
+                        showNextIndex = (draw.Working != 0);
+                        break;
+                    case MachineState.Ready:
+                        showNextIndex = (draw.Ready != 0);
+                        break;
                 }
             }
-            base.draw(spriteBatch, x, y, alpha);         
+            base.draw(spriteBatch, x, y, alpha);
         }
 
         protected virtual bool CanPerformDropInOverrided(Object item, Farmer farmer)

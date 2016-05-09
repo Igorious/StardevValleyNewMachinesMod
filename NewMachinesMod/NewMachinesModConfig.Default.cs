@@ -20,6 +20,8 @@ namespace Igorious.StardewValley.NewMachinesMod
         private const int DryerID = 169;
         private const int MixerID = 172;
 
+        private const int MoreCrops_Rice = 839;
+
         private const int MeadID = 900;
         private const int VodkaID = 901;
         private const int ColorWineID = 902;
@@ -32,7 +34,10 @@ namespace Igorious.StardewValley.NewMachinesMod
         private const int BlackRaisinsID = 915;
         private const int DriedFruitID = 917;
         private const int BlackRaisinsMuffinID = 919;
-        private const int BigTotemID = 921;
+        private const int BigWarpTotemFarmID = 921;
+        private const int BigWarpTotemMountainsID = 924;
+        private const int BigWarpTotemBeachID = 927;
+        private const int SakeID = 930;
 
         #endregion
 
@@ -74,35 +79,9 @@ namespace Igorious.StardewValley.NewMachinesMod
                 GetBlackRaisins(),
                 GetDriedFruits(),
                 GetBlackRisinsMaffin(),
+                GetSake(),
             };
-
-            BigTotem = new ItemInformation(BigTotemID, "Big Totem", "...")
-            {
-                Category = CategoryID.Crafting,
-                ResourceLength = 2,
-                ResourceHeight = 2,
-                ResourceIndex = 21,
-                Type = ObjectType.Interactive,
-            };
-
-            CraftingRecipes = new List<CraftingRecipeInformation>
-            {
-                new CraftingRecipeInformation
-                {
-                    IsBig = false,
-                    ID = BigTotemID,
-                    Name = "Big Totem",
-                    Materials = new List<IngredientInfo>
-                    {
-                        new IngredientInfo(ItemID.Wood, 1)
-                    },
-                    WayToGet = new WayToGetCraftingRecipe
-                    {
-                        Skill = Skill.Farming,
-                        SkillLevel = 1,
-                    },
-                }
-            };
+            Totems = GetWarpTotems();
 
             MachineOverrides = new List<OverridedMachineInformation>
             {
@@ -163,6 +142,66 @@ namespace Igorious.StardewValley.NewMachinesMod
             };
         }
 
+        private List<WarpTotemInformation> GetWarpTotems()
+        {
+            return new List<WarpTotemInformation>
+            {
+                new WarpTotemInformation(BigWarpTotemFarmID, "Big Warp Totem: Farm", "Warp directly to your house.")
+                {
+                    Category = CategoryID.Crafting,
+                    Price = 300,
+                    ResourceLength = 3,
+                    ResourceHeight = 2,
+                    ResourceIndex = 21,
+                    WarpLocation = LocationName.Farm,
+                    Materials = new Dictionary<DynamicID<ItemID>, int>
+                    {
+                        { ItemID.Hardwood, 20 },
+                        { ItemID.Honey, 10 },
+                        { ItemID.Fiber, 150 },
+                    },
+                    Skill = Skill.Foraging,
+                    SkillLevel = 10,
+                },
+
+                new WarpTotemInformation(BigWarpTotemMountainsID, "Big Warp Totem: Mountains", "Warp directly to the mountains.")
+                {
+                    Category = CategoryID.Crafting,
+                    Price = 300,
+                    ResourceLength = 3,
+                    ResourceHeight = 2,
+                    ResourceIndex = 24,
+                    WarpLocation = LocationName.Mountain,
+                    Materials = new Dictionary<DynamicID<ItemID>, int>
+                    {
+                        { ItemID.Hardwood, 20 },
+                        { ItemID.IronBar, 10 },
+                        { ItemID.Stone, 175 },
+                    },
+                    Skill = Skill.Foraging,
+                    SkillLevel = 10,
+                },
+
+                new WarpTotemInformation(BigWarpTotemBeachID, "Big Warp Totem: Beach", "Warp directly to the beach.")
+                {
+                    Category = CategoryID.Crafting,
+                    Price = 300,
+                    ResourceLength = 3,
+                    ResourceHeight = 2,
+                    ResourceIndex = 27,
+                    WarpLocation = LocationName.Beach,
+                    Materials = new Dictionary<DynamicID<ItemID>, int>
+                    {
+                        { ItemID.Hardwood, 20 },
+                        { ItemID.Coral, 20 },
+                        { ItemID.Fiber, 75 },
+                    },
+                    Skill = Skill.Foraging,
+                    SkillLevel = 10,
+                },
+            };
+        }
+
         private static OverridedMachineInformation GetPreserveJarOverride()
         {
             return new OverridedMachineInformation(CraftableID.PreservesJar,
@@ -202,8 +241,10 @@ namespace Igorious.StardewValley.NewMachinesMod
                     {ItemID.Wheat, new OutputItem(ItemID.Beer) {MinutesUntilReady = 2250}},
                     {ItemID.Honey, new OutputItem(MeadID) {MinutesUntilReady = 4000, Quality = "p / 300"}},
                     {ItemID.Potato, new OutputItem(VodkaID) {MinutesUntilReady = 3000}},
+                    {MoreCrops_Rice, new OutputItem(SakeID) {InputCount = 5, MinutesUntilReady = 3000}},
                     {CategoryID.Vegetable, new OutputItem(ColorJuiceID) {MinutesUntilReady = 6000, Color = AutoColor, Price = "9 * p / 5", Name = "{1} {0}"}},
                     {CategoryID.Fruits, new OutputItem(ColorWineID) {MinutesUntilReady = 10000, Color = AutoColor, Price = "12 * p / 5", Name = "{1} {0}"}},
+                    {ItemID.WildPlum, new OutputItem(ColorWineID) {MinutesUntilReady = 10000, Color = AutoColor, Price = "12 * p / 5", Name = "{1} {0}"}},
                 })
                 {
                     Quality = "q",
@@ -217,13 +258,17 @@ namespace Igorious.StardewValley.NewMachinesMod
             return new OverridedMachineInformation(CraftableID.CharcoalKiln,
                 new MachineOutputInformation(new Dictionary<DynamicID<ItemID, CategoryID>, OutputItem>
                 {
-                    { ItemID.Hardwood, new OutputItem(ItemID.Coal) { MinutesUntilReady = 150, Count = "5" } },
-                    { ItemID.HardwoodFence, new OutputItem(ItemID.Coal) { MinutesUntilReady = 150, Count = "5" } },
+                    { ItemID.Hardwood, new OutputItem(ItemID.Coal) { MinutesUntilReady = 30, Count = "1" } },
+                    { ItemID.HardwoodFence, new OutputItem(ItemID.Coal) { MinutesUntilReady = 30, Count = "1" } },
                     { ItemID.Gate, new OutputItem(ItemID.Coal) { MinutesUntilReady = 30, Count = "1" } },
                     { ItemID.WoodFence, new OutputItem(ItemID.Coal) { InputCount = 5, MinutesUntilReady = 30, Count = "1" } },
-                }))
+                })
+                {
+                    Sounds = new List<Sound> { Sound.OpenBox, Sound.Fireball },
+                    Animation = Animation.Steam,
+                })
             {
-                Draw = new MachineDraw { Working = +1 },
+                Draw = new MachineDraw { Working = +1 },               
             };
         }
 
@@ -348,7 +393,7 @@ namespace Igorious.StardewValley.NewMachinesMod
 
         private static ItemInformation GetVodka()
         {
-            return new ItemInformation(VodkaID, "Vodka", "Light alcohol drink.")
+            return new ItemInformation(VodkaID, "Vodka", "A light alcohol drink.")
             {
                 Category = CategoryID.ArtisanGoods,
                 Price = 400,
@@ -357,6 +402,20 @@ namespace Igorious.StardewValley.NewMachinesMod
                 SkillUps = new SkillUpInformation { Speed = -1, Defence = +1 },
                 Duration = 60,
                 ResourceIndex = 1,
+            };
+        }
+
+         private static ItemInformation GetSake()
+        {
+            return new ItemInformation(SakeID, "Sake", "A Japanese alcohol drink.")
+            {
+                Category = CategoryID.ArtisanGoods,
+                Price = 400,
+                Edibility = 17,
+                MealCategory = MealCategory.Drink,
+                SkillUps = new SkillUpInformation { MaxEnergy = +50, Speed = -1 },
+                Duration = 60,
+                ResourceIndex = 30,
             };
         }
 
@@ -394,7 +453,7 @@ namespace Igorious.StardewValley.NewMachinesMod
                     Items = new Dictionary<DynamicID<ItemID, CategoryID>, OutputItem>
                     {
                         { ItemID.Fiber, new OutputItem(2, ItemID.Hay, draw: new MachineDraw { WorkingColor = "A3BE00", Working = +1, ReadyColor = "FCD000", Ready = +1 }) { Count = "2" } },
-                        { 839, new OutputItem(4, ItemID.Rice, draw: new MachineDraw { WorkingColor = "FFFFFF", Working = +2, ReadyColor = "FFFFFF", Ready = +2 }) },
+                        { MoreCrops_Rice, new OutputItem(4, ItemID.Rice, draw: new MachineDraw { WorkingColor = "FFFFFF", Working = +2, ReadyColor = "FFFFFF", Ready = +2 }) },
                         { ItemID.Grape, new OutputItem(BlackRaisinsID, draw: new MachineDraw { WorkingColor = "C46DC9", Working = +2, ReadyColor = "C46DC9", Ready = +2 }) },
                         { CategoryID.Fruits, new OutputItem(DriedFruitID, draw: new MachineDraw { WorkingColor = "@", Working = +2, ReadyColor = "@", Ready = +2 }) { Color = "@", Name = "Dried {1}", Price = "25 + p * 11 / 10" } },
                     },

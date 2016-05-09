@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Igorious.StardewValley.DynamicAPI.Data.Supporting;
+using Igorious.StardewValley.DynamicAPI.Extensions;
 using Igorious.StardewValley.DynamicAPI.Interfaces;
-using Igorious.StardewValley.DynamicAPI.Objects;
+using Igorious.StardewValley.DynamicAPI.Locations;
 using Igorious.StardewValley.DynamicAPI.Services.Internal;
 using Igorious.StardewValley.DynamicAPI.Utils;
 using StardewModdingAPI.Events;
 using StardewValley;
+using StardewValley.Locations;
 using StardewValley.Menus;
 using StardewValley.Objects;
 using Object = StardewValley.Object;
@@ -21,7 +23,7 @@ namespace Igorious.StardewValley.DynamicAPI.Services
 
         private ClassMapperService()
         {
-            MapLocation<SmartFarm>("Farm");
+            MapDefaultLocations();
 
             PlayerEvents.LoadedGame += (s, e) =>
             {
@@ -47,6 +49,48 @@ namespace Igorious.StardewValley.DynamicAPI.Services
 
             GameEvents.UpdateTick += (s, e) => ConvertActiveInventoryObject();
             PlayerEvents.InventoryChanged += OnInventoryChanged;
+
+            MenuEvents.MenuChanged += (s, e) =>
+            {
+                if (!(e.NewMenu is GameMenu)) return;
+
+                CraftingMenu = e.NewMenu.GetField<List<IClickableMenu>>("pages").OfType<CraftingPage>().First();
+                GameEvents.UpdateTick += OnCrafted;
+                MenuEvents.MenuClosed += OnCraftingMenuClosed;
+            };
+        }
+
+        private void MapDefaultLocations()
+        {
+            MapLocation<SmartFarm>(nameof(Farm));
+            MapLocation<SmartBeach>(nameof(Beach));
+            MapLocation<SmartBusStop>(nameof(BusStop));
+            MapLocation<SmartFarmCave>(nameof(FarmCave));
+            MapLocation<SmartForest>(nameof(Forest));
+            MapLocation<SmartMountain>(nameof(Mountain));
+            MapLocation<SmartRailroad>(nameof(Railroad));
+            MapLocation<SmartTown>(nameof(Town));
+            MapLocation<SmartWoods>(nameof(Woods));
+        }
+
+        private void OnCraftingMenuClosed(object sender, EventArgsClickableMenuClosed eventArgsClickableMenuClosed)
+        {
+            GameEvents.UpdateTick -= OnCrafted;
+            MenuEvents.MenuClosed -= OnCraftingMenuClosed;
+            CraftingMenu = null;
+        }
+
+        private CraftingPage CraftingMenu { get; set; }
+
+        private void OnCrafted(object sender, EventArgs e)
+        {
+            if (CraftingMenu == null || !IsActivated) return;
+
+            var heldItem = CraftingMenu.GetField<Item>("heldItem") as Object;
+            if (IsRawObject(heldItem))
+            {
+                CraftingMenu.SetField<Item>("heldItem", ToSmartObject(heldItem));
+            }
         }
 
         private static ClassMapperService _instance;
@@ -271,32 +315,27 @@ namespace Igorious.StardewValley.DynamicAPI.Services
             for (var i = 0; i < locations.Count; ++i)
             {
                 var location = locations[i];
-                Log.Info($"Location {location.Name}:");
                 Type newType;
-                if (location is ISmartLocation || !_locationTypeMap.TryGetValue(location.Name, out newType))
-                {
-                    Log.Info($"Skip.");
-                    continue;
-                }
+                if (location is ISmartLocation || !_locationTypeMap.TryGetValue(location.Name, out newType)) continue;
 
                 var ctor = newType.GetConstructor(Type.EmptyTypes);
                 if (ctor != null)
                 {
-                    var smartLocation = (GameLocation)ctor.Invoke(new object[] {});
+                    var smartLocation = (GameLocation)ctor.Invoke(new object[] { });
                     Cloner.Instance.CopyData(location, smartLocation, location.GetType());
                     locations[i] = smartLocation;
-                    Log.Info($"Created.");
+                    Log.Info($"Converted location {location.Name}.");
                 }
                 else
                 {
                     Log.Error($"Can't find {newType.FullName}.ctor for Location={location.Name}.");
                 }
             }
-            Log.Info("Locations converted.");
         }
 
         private void ConvertToRawLocations()
         {
+            Log.Info("Converting locations to raw...");
             var locations = Game1.locations;
             for (var i = 0; i < locations.Count; ++i)
             {
@@ -307,9 +346,10 @@ namespace Igorious.StardewValley.DynamicAPI.Services
                 var ctor = baseType.GetConstructor(Type.EmptyTypes);
                 if (ctor != null)
                 {
-                    var rawLocation = (GameLocation)ctor.Invoke(new object[] {});
+                    var rawLocation = (GameLocation)ctor.Invoke(new object[] { });
                     Cloner.Instance.CopyData(location, rawLocation, baseType);
                     locations[i] = rawLocation;
+                    Log.Info($"Converted location {location.Name}.");
                 }
                 else
                 {

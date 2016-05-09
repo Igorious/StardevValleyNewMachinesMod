@@ -1,6 +1,6 @@
 namespace Igorious.StardewValley.DynamicAPI.Constants
 {
-    public enum Texture
+    public enum TextureType
     {
         Craftables = 1,
         Items = 2,

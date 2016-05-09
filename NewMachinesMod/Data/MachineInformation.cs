@@ -62,7 +62,7 @@ namespace Igorious.StardewValley.NewMachinesMod.Data
         {
             return new CraftingRecipeInformation
             {
-                ID = m.ID,
+                ID = (int)m.ID,
                 Name = m.Name,
                 IsBig = true,
                 Materials = m.Materials.Select(_ => new IngredientInfo((int)_.Key, _.Value)).ToList(),

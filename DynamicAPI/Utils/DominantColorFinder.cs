@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Igorious.StardewValley.DynamicAPI.Constants;
 using Igorious.StardewValley.DynamicAPI.Data.Supporting;
 using Igorious.StardewValley.DynamicAPI.Services;
 using Microsoft.Xna.Framework.Graphics;
@@ -18,7 +19,7 @@ namespace Igorious.StardewValley.DynamicAPI.Utils
             XColor cachedColor;
             if (ColorCache.TryGetValue(spriteIndex, out cachedColor)) return cachedColor;
 
-            var rect = TexturesService.GetSourceRectForObject(spriteIndex, texture, width, height);
+            var rect = TextureInfo.Default[TextureType.Items].GetSourceRect(spriteIndex);
             var size = width * height;
             var data = new XColor[size];
             texture.GetData(0, rect, data, 0, data.Length);

@@ -11,7 +11,7 @@ using Object = StardewValley.Object;
 
 namespace Igorious.StardewValley.DynamicAPI.Data
 {
-    public sealed class ItemInformation : IItem, IItemInformation
+    public class ItemInformation : IItem, IItemInformation
     {
         #region	Constructors
 

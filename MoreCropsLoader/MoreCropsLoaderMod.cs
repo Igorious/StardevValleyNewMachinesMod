@@ -29,9 +29,9 @@ namespace Igorious.StardewValley.MoreCropsLoader
         private void OverrideTextures()
         {
             var textureService = new TexturesService(PathOnDisk);
-            Config.Items.ForEach(i => textureService.Override(Texture.Items, i));
-            Config.Crops.ForEach(i => textureService.Override(Texture.Crops, i));
-            Config.Trees.ForEach(i => textureService.Override(Texture.Trees, i));
+            Config.Items.ForEach(i => textureService.Override(TextureType.Items, i));
+            Config.Crops.ForEach(i => textureService.Override(TextureType.Crops, i));
+            Config.Trees.ForEach(i => textureService.Override(TextureType.Trees, i));
         }
     }
 }

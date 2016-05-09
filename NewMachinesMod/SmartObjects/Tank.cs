@@ -22,9 +22,6 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects
 
         protected Tank(int id) : base(id) { }
 
-        protected override int TileWidth { get; } = 2;
-        protected override int TileHeight { get; } = 2;
-
         protected bool IsEmpty
         {
             get { return (ParentSheetIndex == ID); }

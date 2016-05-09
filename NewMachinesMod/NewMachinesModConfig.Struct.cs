@@ -40,8 +40,7 @@ namespace Igorious.StardewValley.NewMachinesMod
             TankRequiresWater,
         }
 
-        public ItemInformation BigTotem { get; set; }
-
+        public List<WarpTotemInformation> Totems { get; set; } = new List<WarpTotemInformation>();
         public List<MachineInformation> SimpleMachines { get; set; } = new List<MachineInformation>();
         public List<OverridedMachineInformation> MachineOverrides { get; set; } = new List<OverridedMachineInformation>();
         public MachineInformation Tank { get; set; }

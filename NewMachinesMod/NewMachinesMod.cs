@@ -46,9 +46,9 @@ namespace Igorious.StardewValley.NewMachinesMod
             ClassMapperService.Instance.MapCraftable<Tank>(Config.Tank.ID);
             ClassMapperService.Instance.MapCraftable<FullTank>(Config.Tank.ID + 1);
             ClassMapperService.Instance.MapCraftable<Mixer>(Config.Mixer.ID);
-            ClassMapperService.Instance.MapItem<BigTotem>(Config.BigTotem.ID);
 
-            Config.Items.ForEach(i => ClassMapperService.Instance.MapItem<SmartColoredObject>(i.ID));
+            Config.Totems.ForEach(t => ClassMapperService.Instance.MapItem<BigWarpTotem>(t.ID));
+            Config.Items.ForEach(i => ClassMapperService.Instance.MapItem<SmartObject>(i.ID));
             Config.SimpleMachines.ForEach(m => ClassMapperService.Instance.MapCraftable(DynamicTypeInfo.Create<DynamicCustomMachine>(m.ID)));
             Config.MachineOverrides.ForEach(m => ClassMapperService.Instance.MapCraftable(DynamicTypeInfo.Create<DynamicOverridedMachine>(m.ID)));
         }
@@ -56,6 +56,7 @@ namespace Igorious.StardewValley.NewMachinesMod
         private void InitializeRecipes()
         {
             _machines.ForEach(m => RecipesService.Instance.Register((CraftingRecipeInformation)m));
+            Config.Totems.ForEach(t => RecipesService.Instance.Register((CraftingRecipeInformation)t));
             Config.CookingRecipes.ForEach(RecipesService.Instance.Register);
             Config.CraftingRecipes.ForEach(RecipesService.Instance.Register);
         }
@@ -63,9 +64,9 @@ namespace Igorious.StardewValley.NewMachinesMod
         private void InitializeObjectInformation()
         {
             _machines.ForEach(m => InformationService.Instance.Register((CraftableInformation)m));
+            Config.Totems.ForEach(InformationService.Instance.Register);
             Config.ItemOverrides.ForEach(InformationService.Instance.Override);
             Config.Items.ForEach(InformationService.Instance.Register);
-            InformationService.Instance.Register(Config.BigTotem);
             Config.Crops.ForEach(InformationService.Instance.Register);
         }
 
@@ -78,10 +79,10 @@ namespace Igorious.StardewValley.NewMachinesMod
         private void OverrideTextures()
         {
             var textureService = new TexturesService(PathOnDisk);
-            _machines.ForEach(i => textureService.Override(Texture.Craftables, i));
-            Config.Items.ForEach(i => textureService.Override(Texture.Items, i));
-            textureService.Override(Texture.Items, Config.BigTotem);
-            Config.Crops.ForEach(i => textureService.Override(Texture.Crops, i));
+            _machines.ForEach(i => textureService.Override(TextureType.Craftables, i));
+            Config.Items.ForEach(i => textureService.Override(TextureType.Items, i));
+            Config.Totems.ForEach(i => textureService.Override(TextureType.Items, i));
+            Config.Crops.ForEach(i => textureService.Override(TextureType.Crops, i));
             textureService.OverrideIridiumQualityStar();
         }
 

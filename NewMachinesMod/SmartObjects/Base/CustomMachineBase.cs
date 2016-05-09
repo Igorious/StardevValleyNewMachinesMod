@@ -22,15 +22,17 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
             int spriteDelta;
             string color;
             GetSpriteDeltaAndColor(out spriteDelta, out color);
-            
+
             if (color == null)
             {
-                DrawSprite(ParentSheetIndex + spriteDelta, spriteBatch, x, y, alpha);
+                DrawObject(spriteBatch, x, y, alpha, null, spriteDelta);
             }
             else
             {
-                DrawSprite(ParentSheetIndex, spriteBatch, x, y, alpha, ConvertColor(color), spriteDelta);
+                DrawObject(spriteBatch, x, y, alpha);
+                DrawObject(spriteBatch, x, y, alpha, ConvertColor(color), spriteDelta);
             }
+            DrawHeldObject(spriteBatch, x, y);
         }
 
         private MachineDraw GetDrawInfo()
@@ -38,7 +40,7 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
             if (heldObject == null) return MachineInformation.Draw;
 
             var itemDraw = MachineInformation.Output.Items.Values
-                .FirstOrDefault(i => i.ID == heldObject.ParentSheetIndex)?.Draw;
+                .FirstOrDefault(i => i?.ID == heldObject.ParentSheetIndex)?.Draw;
             if (itemDraw != null) return itemDraw;
 
             return MachineInformation.Draw;

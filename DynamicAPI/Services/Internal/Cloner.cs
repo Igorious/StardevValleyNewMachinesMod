@@ -1,6 +1,8 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using Igorious.StardewValley.DynamicAPI.Extensions;
+using Igorious.StardewValley.DynamicAPI.Objects;
 using StardewValley.Objects;
 using Object = StardewValley.Object;
 
@@ -30,7 +32,7 @@ namespace Igorious.StardewValley.DynamicAPI.Services.Internal
                 property.SetValue(to, property.GetValue(from));
             }
 
-            var fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public).Where(f => !f.IsInitOnly);
+            var fields = type.GetAllFields().Where(f => !f.IsInitOnly && !f.IsLiteral);
             foreach (var field in fields)
             {
                 field.SetValue(to, field.GetValue(from));
@@ -40,16 +42,13 @@ namespace Igorious.StardewValley.DynamicAPI.Services.Internal
         public void CopyData(Object from, Object to)
         {
             CopyData<Object>(from, to);
-            if (from is ColoredObject && to is ColoredObject)
-            {
-                ((ColoredObject)to).color = ((ColoredObject)@from).color;
-            }
+            to.SetColor(from.GetColor());
         }
 
         public Object ToRawObject(Object smartObject)
         {
-            var rawObject = (smartObject is ColoredObject)
-                ? ColoredToRawObject((ColoredObject)smartObject)
+            var rawObject = (smartObject.GetColor() != null)
+                ? ColoredToRawObject((SmartObject)smartObject)
                 : (smartObject.bigCraftable
                     ? CraftableToRawObject(smartObject)
                     : ItemToRawObject(smartObject));
@@ -61,9 +60,9 @@ namespace Igorious.StardewValley.DynamicAPI.Services.Internal
 
         #region	Auxiliary Methods
 
-        private static Object ColoredToRawObject(ColoredObject smartObject)
+        private static Object ColoredToRawObject(SmartObject smartObject)
         {
-            return new ColoredObject(smartObject.ParentSheetIndex, smartObject.stack, smartObject.color);
+            return new ColoredObject(smartObject.ParentSheetIndex, smartObject.stack, smartObject.Color.Value);
         }
 
         private static Object CraftableToRawObject(Object smartObject)

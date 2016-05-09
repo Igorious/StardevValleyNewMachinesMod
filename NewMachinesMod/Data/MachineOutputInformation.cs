@@ -67,5 +67,8 @@ namespace Igorious.StardewValley.NewMachinesMod.Data
         /// </summary>
         [JsonProperty]
         public List<Sound> Sounds { get; set; }
+
+        [JsonProperty]
+        public Animation? Animation { get; set; }
     }
 }
