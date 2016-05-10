@@ -6,7 +6,6 @@ using Igorious.StardewValley.DynamicAPI.Interfaces;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
-using StardewValley.Objects;
 using StardewValley.Tools;
 using Object = StardewValley.Object;
 using XColor = Microsoft.Xna.Framework.Color;
@@ -15,8 +14,6 @@ namespace Igorious.StardewValley.DynamicAPI.Objects
 {
     public class SmartObject : Object, ISmartObject
     {
-        Type ISmartObject.BaseType => Color.HasValue ? typeof(ColoredObject) : typeof(Object);
-
         protected static Rectangle Rectangle(float x, float y, float width, float height)
         {
             return new Rectangle((int)x, (int)y, (int)width, (int)height);

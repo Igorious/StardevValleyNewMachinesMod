@@ -1,17 +1,16 @@
 using Igorious.StardewValley.DynamicAPI.Interfaces;
 using Microsoft.Xna.Framework;
 using StardewValley;
-using StardewValley.Locations;
 using xTile.Dimensions;
 using Rectangle = xTile.Dimensions.Rectangle;
 
 namespace Igorious.StardewValley.DynamicAPI.Locations
 {
-    public sealed class SmartBeach : Beach, ISmartLocation
+    public sealed class SmartGameLocation : GameLocation, ISmartLocation
     {
         public SmartLocationProxy Proxy { get; }
 
-        public SmartBeach() { Proxy = new SmartLocationProxy(this); }
+        public SmartGameLocation() { Proxy = new SmartLocationProxy(this); }
 
         public override bool performToolAction(Tool t, int tileX, int tileY) => Proxy.PerformToolAction(base.performToolAction, t, tileX, tileY);
 

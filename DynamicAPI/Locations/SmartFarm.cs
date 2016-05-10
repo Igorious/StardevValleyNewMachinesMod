@@ -1,5 +1,4 @@
-﻿using System;
-using Igorious.StardewValley.DynamicAPI.Interfaces;
+﻿using Igorious.StardewValley.DynamicAPI.Interfaces;
 using Microsoft.Xna.Framework;
 using StardewValley;
 using xTile.Dimensions;
@@ -10,7 +9,6 @@ namespace Igorious.StardewValley.DynamicAPI.Locations
 {
     public sealed class SmartFarm : Farm, ISmartLocation
     {
-        Type ISmartLocation.BaseType { get; } = typeof(Farm);
         public SmartLocationProxy Proxy { get; }
 
         public SmartFarm() { Proxy = new SmartLocationProxy(this); }

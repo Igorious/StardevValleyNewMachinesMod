@@ -1,6 +1,4 @@
-﻿using System;
-using Igorious.StardewValley.DynamicAPI.Constants;
-using Igorious.StardewValley.DynamicAPI.Utils;
+﻿using Igorious.StardewValley.DynamicAPI.Constants;
 using Igorious.StardewValley.NewMachinesMod.Data;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;

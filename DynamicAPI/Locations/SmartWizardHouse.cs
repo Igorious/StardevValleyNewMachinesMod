@@ -7,11 +7,11 @@ using Rectangle = xTile.Dimensions.Rectangle;
 
 namespace Igorious.StardewValley.DynamicAPI.Locations
 {
-    public sealed class SmartBeach : Beach, ISmartLocation
+    public sealed class SmartWizardHouse : WizardHouse, ISmartLocation
     {
         public SmartLocationProxy Proxy { get; }
 
-        public SmartBeach() { Proxy = new SmartLocationProxy(this); }
+        public SmartWizardHouse() { Proxy = new SmartLocationProxy(this); }
 
         public override bool performToolAction(Tool t, int tileX, int tileY) => Proxy.PerformToolAction(base.performToolAction, t, tileX, tileY);
 

@@ -1,8 +1,10 @@
+using System;
 using System.Linq;
 using Igorious.StardewValley.DynamicAPI.Utils;
 using StardewValley;
 using StardewValley.Locations;
 using StardewValley.Objects;
+using Object = StardewValley.Object;
 
 namespace Igorious.StardewValley.DynamicAPI.Services.Internal
 {
@@ -10,7 +12,7 @@ namespace Igorious.StardewValley.DynamicAPI.Services.Internal
     {
         #region Singleton Access
 
-        private Traverser() {}
+        private Traverser() { }
 
         private static Traverser _instance;
 
@@ -20,7 +22,27 @@ namespace Igorious.StardewValley.DynamicAPI.Services.Internal
 
         #region	Public Methods
 
-        public static void ConvertObjectsInLocation(GameLocation location, System.Predicate<Object> condition, System.Func<Object, Object> convert)
+        public void ConvertLocations(Predicate<GameLocation> condition, Func<GameLocation, GameLocation> convert)
+        {
+            for (var i = 0; i < Game1.locations.Count; ++i)
+            {
+                var location = Game1.locations[i];
+                if (condition(location)) Game1.locations[i] = convert(location);
+
+                var buildableLocation = location as BuildableGameLocation;
+                if (buildableLocation == null) continue;
+
+                foreach (var building in buildableLocation.buildings)
+                {
+                    var indoorLocation = building.indoors;
+                    if (indoorLocation == null) continue;
+                    if (!condition(indoorLocation)) continue;
+                    building.indoors = convert(indoorLocation);
+                }
+            }
+        }
+
+        public void ConvertObjectsInLocation(GameLocation location, Predicate<Object> condition, Func<Object, Object> convert)
         {
             var locationObjects = location.Objects;
             var wrongObjectInfos = locationObjects.Where(o => condition(o.Value)).ToList();
@@ -40,7 +62,7 @@ namespace Igorious.StardewValley.DynamicAPI.Services.Internal
             ConvertObjectsInBuildings(location, condition, convert);
         }
 
-        public static void ConvertObjectsInInventory(Farmer farmer, System.Predicate<Object> condition, System.Func<Object, Object> convert)
+        public void ConvertObjectsInInventory(Farmer farmer, Predicate<Object> condition, Func<Object, Object> convert)
         {
             var count = 0;
             for (var i = 0; i < farmer.Items.Count; ++i)
@@ -58,7 +80,7 @@ namespace Igorious.StardewValley.DynamicAPI.Services.Internal
 
         #region	Auxiliary Methods
 
-        private static void ConvertObjectsInChests(GameLocation location, System.Predicate<Object> condition, System.Func<Object, Object> convert)
+        private void ConvertObjectsInChests(GameLocation location, Predicate<Object> condition, Func<Object, Object> convert)
         {
             var chests = location.Objects.Values.OfType<Chest>().ToList();
             if (location is FarmHouse) chests.Add(((FarmHouse)location).fridge);
@@ -76,7 +98,7 @@ namespace Igorious.StardewValley.DynamicAPI.Services.Internal
             }
         }
 
-        private static void ConvertObjectsInMachines(GameLocation location, System.Predicate<Object> condition, System.Func<Object, Object> convert)
+        private void ConvertObjectsInMachines(GameLocation location, Predicate<Object> condition, Func<Object, Object> convert)
         {
             var count = 0;
             var machines = location.Objects.Values.Where(o => o.bigCraftable).ToList();
@@ -90,7 +112,7 @@ namespace Igorious.StardewValley.DynamicAPI.Services.Internal
             if (count != 0) Log.Info($"Found {count} objects in machines.");
         }
 
-        private static void ConvertObjectsInBuildings(GameLocation location, System.Predicate<Object> condition, System.Func<Object, Object> convert)
+        private void ConvertObjectsInBuildings(GameLocation location, Predicate<Object> condition, Func<Object, Object> convert)
         {
             var buildableLocation = location as BuildableGameLocation;
             if (buildableLocation == null) return;

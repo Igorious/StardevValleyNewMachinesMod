@@ -1,4 +1,3 @@
-using System;
 using Igorious.StardewValley.DynamicAPI.Interfaces;
 using Microsoft.Xna.Framework;
 using StardewValley;
@@ -10,7 +9,6 @@ namespace Igorious.StardewValley.DynamicAPI.Locations
 {
     public sealed class SmartFarmCave : FarmCave, ISmartLocation
     {
-        Type ISmartLocation.BaseType { get; } = typeof(FarmCave);
         public SmartLocationProxy Proxy { get; }
 
         public SmartFarmCave() { Proxy = new SmartLocationProxy(this); }

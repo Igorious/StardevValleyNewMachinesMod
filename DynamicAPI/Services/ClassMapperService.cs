@@ -29,22 +29,24 @@ namespace Igorious.StardewValley.DynamicAPI.Services
             {
                 if (!ActivateMapping()) return;
                 Log.ImportantInfo("Activation after loading...");
-                ConvertToSmartObjectsInWorld();
+                ConvertToSmartInWorld();
             };
+
+            LocationEvents.CurrentLocationChanged += BuildableActivation;
 
             TimeEvents.TimeOfDayChanged += (s, e) =>
             {
                 if (Game1.timeOfDay != 610) return;
                 if (!ActivateMapping()) return;
                 Log.ImportantInfo("FORCED ACTIVATION!");
-                ConvertToSmartObjectsInWorld();
+                ConvertToSmartInWorld();
             };
 
             TimeEvents.OnNewDay += (s, e) =>
             {
                 if (e.IsNewDay) return;
                 if (!DeactivateMapping()) return;
-                ConvertToRawObjectsInWorld(); // Allow use native serializer.
+                ConvertToRawInWorld(); // Allow use native serializer.
             };
 
             GameEvents.UpdateTick += (s, e) => ConvertActiveInventoryObject();
@@ -62,16 +64,62 @@ namespace Igorious.StardewValley.DynamicAPI.Services
 
         private void MapDefaultLocations()
         {
-            MapLocation<SmartFarm>(nameof(Farm));
-            MapLocation<SmartBeach>(nameof(Beach));
-            MapLocation<SmartBusStop>(nameof(BusStop));
-            MapLocation<SmartFarmCave>(nameof(FarmCave));
-            MapLocation<SmartForest>(nameof(Forest));
-            MapLocation<SmartMountain>(nameof(Mountain));
-            MapLocation<SmartRailroad>(nameof(Railroad));
-            MapLocation<SmartTown>(nameof(Town));
-            MapLocation<SmartWoods>(nameof(Woods));
+            MapLocation<AdventureGuild, SmartAdventureGuild>();
+            MapLocation<AnimalHouse, SmartAnimalHouse>();
+            MapLocation<BathHousePool, SmartBathHousePool>();
+            MapLocation<Beach, SmartBeach>();
+            MapLocation<BusStop, SmartBusStop>();
+            MapLocation<Club, SmartClub>();
+            MapLocation<CommunityCenter, SmartCommunityCenter>();
+            MapLocation<Desert, SmartDesert>();
+            MapLocation<Farm, SmartFarm>();
+            MapLocation<FarmCave, SmartFarmCave>();
+            MapLocation<FarmHouse, SmartFarmHouse>();
+            MapLocation<Forest, SmartForest>();
+            MapLocation<JojaMart, SmartJojaMart>();
+            MapLocation<LibraryMuseum, SmartLibraryMuseum>();
+            MapLocation<MineShaft, SmartMineShaft>();
+            MapLocation<Mountain, SmartMountain>();
+            MapLocation<Railroad, SmartRailroad>();
+            MapLocation<SeedShop, SmartSeedShop>();
+            MapLocation<Sewer, SmartSewer>();
+            MapLocation<SlimeHutch, SmartSlimeHutch>();
+            MapLocation<Summit, SmartSummit>();
+            MapLocation<Town, SmartTown>();
+            MapLocation<WizardHouse, SmartWizardHouse>();
+            MapLocation<Woods, SmartWoods>();
+
+            MapLocation<GameLocation, SmartGameLocation>();
         }
+
+        private static ClassMapperService _instance;
+
+        public static ClassMapperService Instance => _instance ?? (_instance = new ClassMapperService());
+
+        #endregion
+
+        #region Private Data
+
+        private bool IsActivated { get; set; }
+
+        private Object PreviousActiveObject { get; set; }
+
+        private readonly Dictionary<Type, Type> _locationTypeMap = new Dictionary<Type, Type>();
+        private readonly Dictionary<int, Type> _itemTypeMap = new Dictionary<int, Type>();
+        private readonly Dictionary<int, Type> _craftableTypeMap = new Dictionary<int, Type>();
+        private readonly Dictionary<int, DynamicTypeInfo> _dynamicCraftableTypeMap = new Dictionary<int, DynamicTypeInfo>();
+
+        #endregion
+
+        #region	Properties
+
+        public IReadOnlyDictionary<int, Type> ItemTypeMap => _itemTypeMap;
+        public IReadOnlyDictionary<int, Type> CraftableTypeMap => _craftableTypeMap;
+        public IReadOnlyDictionary<int, DynamicTypeInfo> DynamicCraftableTypeMap => _dynamicCraftableTypeMap;
+
+        #endregion
+
+        #region Handlers
 
         private void OnCraftingMenuClosed(object sender, EventArgsClickableMenuClosed eventArgsClickableMenuClosed)
         {
@@ -92,35 +140,6 @@ namespace Igorious.StardewValley.DynamicAPI.Services
                 CraftingMenu.SetField<Item>("heldItem", ToSmartObject(heldItem));
             }
         }
-
-        private static ClassMapperService _instance;
-
-        public static ClassMapperService Instance => _instance ?? (_instance = new ClassMapperService());
-
-        #endregion
-
-        #region Private Data
-
-        private bool IsActivated { get; set; }
-
-        private Object PreviousActiveObject { get; set; }
-
-        private readonly Dictionary<string, Type> _locationTypeMap = new Dictionary<string, Type>();
-        private readonly Dictionary<int, Type> _itemTypeMap = new Dictionary<int, Type>();
-        private readonly Dictionary<int, Type> _craftableTypeMap = new Dictionary<int, Type>();
-        private readonly Dictionary<int, DynamicTypeInfo> _dynamicCraftableTypeMap = new Dictionary<int, DynamicTypeInfo>();
-
-        #endregion
-
-        #region	Properties
-
-        public IReadOnlyDictionary<int, Type> ItemTypeMap => _itemTypeMap;
-        public IReadOnlyDictionary<int, Type> CraftableTypeMap => _craftableTypeMap;
-        public IReadOnlyDictionary<int, DynamicTypeInfo> DynamicCraftableTypeMap => _dynamicCraftableTypeMap;
-
-        #endregion
-
-        #region Handlers
 
         private void ConvertActiveInventoryObject()
         {
@@ -149,6 +168,12 @@ namespace Igorious.StardewValley.DynamicAPI.Services
                 var index = inventory.FindIndex(i => i == addedItem);
                 inventory[index] = ToSmartObject(addedItem);
             }
+        }
+
+        private void BuildableActivation(object sender, EventArgsCurrentLocationChanged args)
+        {
+            if (!(args.NewLocation is BuildableGameLocation)) return;
+            ConvertToSmartLocations();
         }
 
         #endregion
@@ -195,9 +220,9 @@ namespace Igorious.StardewValley.DynamicAPI.Services
             return _itemTypeMap.First(kv => kv.Value == typeof(TObject)).Key;
         }
 
-        public void MapLocation<TLocation>(string location) where TLocation : ISmartLocation
+        public void MapLocation<TLocationBase, TLocationSmart>() where TLocationSmart : TLocationBase, ISmartLocation where TLocationBase : GameLocation
         {
-            _locationTypeMap.Add(location, typeof(TLocation));
+            _locationTypeMap.Add(typeof(TLocationBase), typeof(TLocationSmart));
         }
 
         public Object ToSmartObject(Object rawObject)
@@ -224,7 +249,7 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         {
             if (!(args.PriorMenu is SaveGameMenu)) return;
             if (!ActivateMapping()) return;
-            ConvertToSmartObjectsInWorld();
+            ConvertToSmartInWorld();
         }
 
         private void OnLocationObjectsChanged(object sender, EventArgsLocationObjectsChanged eventArgsLocationObjectsChanged)
@@ -277,84 +302,73 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         {
             var sw = Stopwatch.StartNew();
             Log.Info($"Activating objects (changes in {Game1.currentLocation?.Name})...");
-            Traverser.ConvertObjectsInLocation(Game1.currentLocation, IsRawObject, ToSmartObject);
-            Game1.getAllFarmers().ForEach(f => Traverser.ConvertObjectsInInventory(f, IsRawObject, ToSmartObject));
+            Traverser.Instance.ConvertObjectsInLocation(Game1.currentLocation, IsRawObject, ToSmartObject);
+            Game1.getAllFarmers().ForEach(f => Traverser.Instance.ConvertObjectsInInventory(f, IsRawObject, ToSmartObject));
             Log.Info($"Convertion ('smart') finished: {sw.ElapsedMilliseconds} ms");
         }
 
-        private void ConvertToRawObjectsInWorld()
+        private void ConvertToRawInWorld()
         {
             var sw = Stopwatch.StartNew();
             Log.Info("Deactivating objects in world...");
-            ConvertToRawLocations();
+            Traverser.Instance.ConvertLocations(l => l is ISmartLocation, l => ConvertLocation(l, GetRawLocationType));
             foreach (var gameLocation in Game1.locations)
             {
-                Traverser.ConvertObjectsInLocation(gameLocation, IsSmartObject, Cloner.Instance.ToRawObject);
+                Traverser.Instance.ConvertObjectsInLocation(gameLocation, IsSmartObject, Cloner.Instance.ToRawObject);
             }
-            Game1.getAllFarmers().ForEach(f => Traverser.ConvertObjectsInInventory(f, IsSmartObject, Cloner.Instance.ToRawObject));
+            Game1.getAllFarmers().ForEach(f => Traverser.Instance.ConvertObjectsInInventory(f, IsSmartObject, Cloner.Instance.ToRawObject));
             Log.Info($"Convertion ('raw') finished: {sw.ElapsedMilliseconds} ms");
         }
 
-        private void ConvertToSmartObjectsInWorld()
+        private void ConvertToSmartInWorld()
         {
             var sw = Stopwatch.StartNew();
             Log.Info("Activating objects in world...");
             ConvertToSmartLocations();
             foreach (var gameLocation in Game1.locations)
             {
-                Traverser.ConvertObjectsInLocation(gameLocation, IsRawObject, ToSmartObject);
+                Traverser.Instance.ConvertObjectsInLocation(gameLocation, IsRawObject, ToSmartObject);
             }
-            Game1.getAllFarmers().ForEach(f => Traverser.ConvertObjectsInInventory(f, IsRawObject, ToSmartObject));
+            Game1.getAllFarmers().ForEach(f => Traverser.Instance.ConvertObjectsInInventory(f, IsRawObject, ToSmartObject));
             Log.Info($"Convertion ('smart') finished: {sw.ElapsedMilliseconds} ms");
         }
 
         private void ConvertToSmartLocations()
         {
-            Log.Info("Converting locations to smart...");
-            var locations = Game1.locations;
-            for (var i = 0; i < locations.Count; ++i)
-            {
-                var location = locations[i];
-                Type newType;
-                if (location is ISmartLocation || !_locationTypeMap.TryGetValue(location.Name, out newType)) continue;
-
-                var ctor = newType.GetConstructor(Type.EmptyTypes);
-                if (ctor != null)
-                {
-                    var smartLocation = (GameLocation)ctor.Invoke(new object[] { });
-                    Cloner.Instance.CopyData(location, smartLocation, location.GetType());
-                    locations[i] = smartLocation;
-                    Log.Info($"Converted location {location.Name}.");
-                }
-                else
-                {
-                    Log.Error($"Can't find {newType.FullName}.ctor for Location={location.Name}.");
-                }
-            }
+            Traverser.Instance.ConvertLocations(l => !(l is ISmartLocation), l => ConvertLocation(l, GetSmartLocationType));
         }
 
-        private void ConvertToRawLocations()
+        private Type GetRawLocationType(Type smartLocationType)
         {
-            Log.Info("Converting locations to raw...");
-            var locations = Game1.locations;
-            for (var i = 0; i < locations.Count; ++i)
-            {
-                var location = locations[i];
-                if (!(location is ISmartLocation)) continue;
+            return _locationTypeMap.FirstOrDefault(p => p.Value == smartLocationType).Key;
+        }
 
-                var baseType = (location as ISmartLocation).BaseType;
-                var ctor = baseType.GetConstructor(Type.EmptyTypes);
-                if (ctor != null)
-                {
-                    var rawLocation = (GameLocation)ctor.Invoke(new object[] { });
-                    Cloner.Instance.CopyData(location, rawLocation, baseType);
-                    locations[i] = rawLocation;
-                    Log.Info($"Converted location {location.Name}.");
-                }
-                else
-                {
-                    Log.Error($"Can't find {baseType.FullName}.ctor for Location={location.Name}.");
-                }
+        private Type GetSmartLocationType(Type rawLocationType)
+        {
+            Type newType;
+            return _locationTypeMap.TryGetValue(rawLocationType, out newType) ? newType : null;
+        }
+
+        private GameLocation ConvertLocation(GameLocation oldLocation, Func<Type, Type> getNewType)
+        {
+            var newType = getNewType(oldLocation.GetType());
+            if (newType == null)
+            {
+                Log.Fail($"Can't find mapping for {oldLocation.GetType()}:{oldLocation.Name}");
+                return oldLocation;
+            }
+            var ctor = newType.GetConstructor(Type.EmptyTypes);
+            if (ctor != null)
+            {
+                var newLocation = (GameLocation)ctor.Invoke(new object[] { });
+                Cloner.Instance.CopyData(oldLocation, newLocation, oldLocation.GetType());
+                Log.Info($"Converted location {oldLocation.Name}.");
+                return newLocation;
+            }
+            else
+            {
+                Log.Error($"Can't find {newType.FullName}.ctor for Location={oldLocation.Name}.");
+                return oldLocation;
             }
         }
 
