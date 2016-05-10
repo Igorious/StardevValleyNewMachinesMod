@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Igorious.StardewValley.DynamicAPI</RootNamespace>
-    <AssemblyName>Igorious.StardewValley.DynamicAPI.4_0_0</AssemblyName>
+    <AssemblyName>Igorious.StardewValley.DynamicAPI.4_0_1</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>

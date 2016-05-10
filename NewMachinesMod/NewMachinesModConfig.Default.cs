@@ -21,6 +21,8 @@ namespace Igorious.StardewValley.NewMachinesMod
         private const int MixerID = 172;
 
         private const int MoreCrops_Rice = 839;
+        private const int MoreCrops_Cotton = 836;
+        private const int MoreCrops_Olive = 812;
 
         private const int MeadID = 900;
         private const int VodkaID = 901;
@@ -88,6 +90,8 @@ namespace Igorious.StardewValley.NewMachinesMod
                 GetKegOverride(),
                 GetPreserveJarOverride(),
                 GetCharcoalKilnOverride(),
+                GetLoomOverride(),
+                GetOilMakerOverride(),
             };
 
             LocalizationStrings = new Dictionary<LocalizationString, string>
@@ -258,18 +262,42 @@ namespace Igorious.StardewValley.NewMachinesMod
             return new OverridedMachineInformation(CraftableID.CharcoalKiln,
                 new MachineOutputInformation(new Dictionary<DynamicID<ItemID, CategoryID>, OutputItem>
                 {
-                    { ItemID.Hardwood, new OutputItem(ItemID.Coal) { MinutesUntilReady = 30, Count = "1" } },
-                    { ItemID.HardwoodFence, new OutputItem(ItemID.Coal) { MinutesUntilReady = 30, Count = "1" } },
-                    { ItemID.Gate, new OutputItem(ItemID.Coal) { MinutesUntilReady = 30, Count = "1" } },
-                    { ItemID.WoodFence, new OutputItem(ItemID.Coal) { InputCount = 5, MinutesUntilReady = 30, Count = "1" } },
+                    { ItemID.Hardwood, new OutputItem(ItemID.Coal) { MinutesUntilReady = 30 } },
+                    { ItemID.HardwoodFence, new OutputItem(ItemID.Coal) { MinutesUntilReady = 30 } },
+                    { ItemID.Gate, new OutputItem(ItemID.Coal) { MinutesUntilReady = 30 } },
+                    { ItemID.WoodFence, new OutputItem(ItemID.Coal) { InputCount = 5, MinutesUntilReady = 30 } },
                 })
                 {
                     Sounds = new List<Sound> { Sound.OpenBox, Sound.Fireball },
                     Animation = Animation.Steam,
                 })
-            {
-                Draw = new MachineDraw { Working = +1 },               
-            };
+                {
+                    Draw = new MachineDraw { Working = +1 },
+                };
+        }
+
+        private static OverridedMachineInformation GetLoomOverride()
+        {
+            return new OverridedMachineInformation(CraftableID.Loom,
+                new MachineOutputInformation(new Dictionary<DynamicID<ItemID, CategoryID>, OutputItem>
+                {
+                    { MoreCrops_Cotton, new OutputItem(ItemID.Cloth) { InputCount = 4, MinutesUntilReady = 240 } },
+                }))
+                {
+                    Draw = new MachineDraw { Ready = +1 },
+                };
+        }
+
+        private static OverridedMachineInformation GetOilMakerOverride()
+        {
+            return new OverridedMachineInformation(CraftableID.OilMaker,
+                new MachineOutputInformation(new Dictionary<DynamicID<ItemID, CategoryID>, OutputItem>
+                {
+                    {MoreCrops_Olive, new OutputItem(ItemID.Oil) {MinutesUntilReady = 1000}},
+                })
+                {
+                    Sounds = new List<Sound> {Sound.Bubbles, Sound.SipTea}
+                });
         }
 
         private static ItemInformation GetColorPickles()
@@ -405,7 +433,7 @@ namespace Igorious.StardewValley.NewMachinesMod
             };
         }
 
-         private static ItemInformation GetSake()
+        private static ItemInformation GetSake()
         {
             return new ItemInformation(SakeID, "Sake", "A Japanese alcohol drink.")
             {

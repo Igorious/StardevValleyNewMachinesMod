@@ -292,6 +292,7 @@ namespace Igorious.StardewValley.DynamicAPI.Objects
             {
                 DrawObject(spriteBatch, x, y, alpha, Color);
             }
+            DrawLoom(spriteBatch, x, y, alpha);
             DrawHeldObject(spriteBatch, x, y);
         }
 
@@ -322,6 +323,23 @@ namespace Igorious.StardewValley.DynamicAPI.Objects
                 Vector2.Zero,
                 SpriteEffects.None,
                 depth + (color.HasValue ? 0.0001f : 0));
+        }
+
+        private void DrawLoom(SpriteBatch spriteBatch, int x, int y, float alpha)
+        {
+            if (ID != (int)CraftableID.Loom || minutesUntilReady <= 0) return;
+
+            var itemTextureInfo = TextureInfo.Default[TextureType.Items];
+            spriteBatch.Draw(
+                itemTextureInfo.Texture, 
+                getLocalPosition(Game1.viewport) + new Vector2(TileSize / 2f, 0), 
+                itemTextureInfo.GetSourceRect(435), 
+                XColor.White * alpha, 
+                scale.X, 
+                new Vector2(8, 8), 
+                Game1.pixelZoom, 
+                SpriteEffects.None, 
+                Math.Max(0, (y + 1) * TileSize / 10000f + 0.0001f + x * 0.00000001f));        
         }
 
         protected void DrawHeldObject(SpriteBatch spriteBatch, int x, int y)
