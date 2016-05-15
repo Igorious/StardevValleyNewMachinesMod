@@ -27,5 +27,8 @@ namespace Igorious.StardewValley.DynamicAPI.Constants
 
         [Description("sipTea")]
         SipTea,
+
+        [Description("explosion")]
+        Explosion,
     }
 }

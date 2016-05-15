@@ -14,22 +14,18 @@ namespace Igorious.StardewValley.DynamicAPI.Objects
 {
     public class SmartObject : Object, ISmartObject
     {
-        protected static Rectangle Rectangle(float x, float y, float width, float height)
-        {
-            return new Rectangle((int)x, (int)y, (int)width, (int)height);
-        }
-
-        protected bool UsedPreviewIcon => (SpriteHeight > 2) || (SpriteWidth > 1);
-
-        protected static int TileSize => Game1.tileSize;
-        public XColor? Color { get; set; }
         public int ID => ParentSheetIndex;
+        protected static int TileSize => Game1.tileSize;
+
+        #region	Constructors
 
         public SmartObject() { }
 
         public SmartObject(int id) : base(Vector2.Zero, id) { }
 
         public SmartObject(int id, int count) : base(Vector2.Zero, id, count) { }
+
+        #endregion
 
         #region Bounding
 
@@ -59,51 +55,29 @@ namespace Igorious.StardewValley.DynamicAPI.Objects
 
         #region Draw
 
+        #region	Properties
+
         protected virtual TextureType TextureType => TextureType.Items;
         protected Texture2D Texture => TextureInfo.Default[TextureType].Texture;
         protected virtual int SpriteWidth { get; } = 1;
         protected virtual int SpriteHeight { get; } = 1;
         protected virtual int VerticalShift { get; } = 0;
-
         protected virtual Rectangle SourceRect => GetSourceRect(ParentSheetIndex);
+        protected bool UsedPreviewIcon => (SpriteHeight > 2) || (SpriteWidth > 1);
+        public XColor? Color { get; set; }
+
+        #endregion
+
+        #region Native Methods
 
         public override void drawPlacementBounds(SpriteBatch spriteBatch, GameLocation location)
         {
             if (!isPlaceable()) return;
 
-            var x = Game1.getOldMouseX() + Game1.viewport.X;
-            var y = Game1.getOldMouseY() + Game1.viewport.Y;
-            var grabbedTile = Game1.player.GetGrabTile();
-
-            if (Game1.mouseCursorTransparency == 0)
-            {
-                x = (int)grabbedTile.X * TileSize;
-                y = (int)grabbedTile.Y * TileSize;
-            }
-            if (grabbedTile.Equals(Game1.player.getTileLocation()) && Game1.mouseCursorTransparency == 0)
-            {
-                var translatedVector2 = Utility.getTranslatedVector2(grabbedTile, Game1.player.facingDirection, 1);
-                x = (int)translatedVector2.X * TileSize;
-                y = (int)translatedVector2.Y * TileSize;
-            }
-
-            DrawPlacementMarker(spriteBatch, location, x + 0 * TileSize, y + 0 * TileSize);
+            int x, y;
+            GetPlacementMarkerPosition(out x, out y);
+            DrawPlacementMarker(spriteBatch, location, x, y);
             draw(spriteBatch, x / TileSize, y / TileSize, 0.5f);
-        }
-
-        private void DrawPlacementMarker(SpriteBatch spriteBatch, GameLocation location, int x, int y)
-        {
-            var markerSourceRect = Rectangle(Utility.playerCanPlaceItemHere(location, this, x, y, Game1.player) ? 194 : 210, 388, 16, 16);
-            spriteBatch.Draw(
-                Game1.mouseCursors,
-                new Vector2(x / TileSize * TileSize - Game1.viewport.X, y / TileSize * TileSize - Game1.viewport.Y),
-                markerSourceRect,
-                XColor.White,
-                0,
-                Vector2.Zero,
-                Game1.pixelZoom,
-                SpriteEffects.None,
-                0.01f);
         }
 
         public override void drawInMenu(SpriteBatch spriteBatch, Vector2 location, float scaleSize, float transparency, float layerDepth, bool drawStackNumber)
@@ -115,23 +89,70 @@ namespace Igorious.StardewValley.DynamicAPI.Objects
             }
 
             DrawMenuItem(spriteBatch, location, transparency, scaleSize, layerDepth);
-            if (Color != null)
-            {
-                DrawMenuItem(spriteBatch, location, transparency, scaleSize, layerDepth, Color);
-            }
-
-            if (!bigCraftable)
-            {
-                DrawShadow(spriteBatch, location, scaleSize, layerDepth);
-                DrawStackNumber(location, scaleSize, drawStackNumber);
-                DrawQualityStar(spriteBatch, location, scaleSize, transparency, layerDepth, drawStackNumber);
-                DrawTackleBar(spriteBatch, location, scaleSize);
-            }
-
+            if (Color != null) DrawMenuItem(spriteBatch, location, transparency, scaleSize, layerDepth, Color);
+            DrawShadow(spriteBatch, location, scaleSize, layerDepth);
+            DrawStackNumber(location, scaleSize, drawStackNumber);
+            DrawQualityStar(spriteBatch, location, scaleSize, transparency, layerDepth, drawStackNumber);
+            DrawTackleBar(spriteBatch, location, scaleSize);
             DrawRecipe(spriteBatch, location, layerDepth);
         }
 
-        private void DrawMenuItem(SpriteBatch spriteBatch, Vector2 location, float transparency, float scaleSize, float layerDepth, Color? color = null)
+        public override void drawWhenHeld(SpriteBatch spriteBatch, Vector2 objectPosition, Farmer farmer)
+        {
+            DrawHeld(spriteBatch, objectPosition, farmer);
+            if (Color != null) DrawHeld(spriteBatch, objectPosition, farmer, Color);
+        }
+
+        public override void draw(SpriteBatch spriteBatch, int x, int y, float alpha = 1)
+        {
+            DrawObject(spriteBatch, x, y, alpha);
+            if (Color != null) DrawObject(spriteBatch, x, y, alpha, Color);
+        }
+
+        #endregion
+
+        #region	Auxiliary Methods
+
+        protected void GetPlacementMarkerPosition(out int x, out int y)
+        {
+            if (Game1.mouseCursorTransparency == 0)
+            {
+                var grabbedTile = Game1.player.GetGrabTile();
+                if (grabbedTile.Equals(Game1.player.getTileLocation()))
+                {
+                    var translatedVector2 = Utility.getTranslatedVector2(grabbedTile, Game1.player.facingDirection, 1);
+                    x = (int)translatedVector2.X * TileSize;
+                    y = (int)translatedVector2.Y * TileSize;
+                }
+                else
+                {
+                    x = (int)grabbedTile.X * TileSize;
+                    y = (int)grabbedTile.Y * TileSize;
+                }
+            }
+            else
+            {
+                x = Game1.getOldMouseX() + Game1.viewport.X;
+                y = Game1.getOldMouseY() + Game1.viewport.Y;
+            }
+        }
+
+        protected void DrawPlacementMarker(SpriteBatch spriteBatch, GameLocation location, int x, int y)
+        {
+            var canPlace = Utility.playerCanPlaceItemHere(location, this, x, y, Game1.player);
+            spriteBatch.Draw(
+                Game1.mouseCursors,
+                new Vector2(x / TileSize * TileSize - Game1.viewport.X, y / TileSize * TileSize - Game1.viewport.Y),
+                Rectangle(canPlace ? 194 : 210, 388, 16, 16),
+                XColor.White,
+                0,
+                Vector2.Zero,
+                Game1.pixelZoom,
+                SpriteEffects.None,
+                0.01f);
+        }
+
+        protected void DrawMenuItem(SpriteBatch spriteBatch, Vector2 location, float transparency, float scaleSize, float layerDepth, Color? color = null)
         {
             var sourceRect = GetSourceRect(ParentSheetIndex + (color.HasValue ? 1 : 0) + (UsedPreviewIcon ? -1 : 0), UsedPreviewIcon ? 1 : (int?)null, UsedPreviewIcon ? 1 : (int?)null);
             var scaleX = scaleSize * 16 / sourceRect.Height;
@@ -157,7 +178,7 @@ namespace Igorious.StardewValley.DynamicAPI.Objects
             return TextureInfo.Default[TextureType].GetSourceRect(index + (UsedPreviewIcon ? 1 : 0) + (showNextIndex ? 1 : 0), length ?? SpriteWidth, height ?? SpriteHeight);
         }
 
-        private void DrawRecipe(SpriteBatch spriteBatch, Vector2 location, float layerDepth)
+        protected void DrawRecipe(SpriteBatch spriteBatch, Vector2 location, float layerDepth)
         {
             if (!isRecipe) return;
 
@@ -173,7 +194,7 @@ namespace Igorious.StardewValley.DynamicAPI.Objects
                 layerDepth + 0.0001f);
         }
 
-        private void DrawTackleBar(SpriteBatch spriteBatch, Vector2 location, float scaleSize)
+        protected void DrawTackleBar(SpriteBatch spriteBatch, Vector2 location, float scaleSize)
         {
             if (category != tackleCategory || scale.Y == 1) return;
 
@@ -187,7 +208,7 @@ namespace Igorious.StardewValley.DynamicAPI.Objects
                 Utility.getRedToGreenLerpColor(scale.Y));
         }
 
-        private void DrawQualityStar(SpriteBatch spriteBatch, Vector2 location, float scaleSize, float transparency, float layerDepth, bool drawStackNumber)
+        protected void DrawQualityStar(SpriteBatch spriteBatch, Vector2 location, float scaleSize, float transparency, float layerDepth, bool drawStackNumber)
         {
             if (!drawStackNumber || quality == 0) return;
 
@@ -204,7 +225,7 @@ namespace Igorious.StardewValley.DynamicAPI.Objects
                 layerDepth + 0.0003f);
         }
 
-        private void DrawStackNumber(Vector2 location, float scaleSize, bool drawStackNumber)
+        protected void DrawStackNumber(Vector2 location, float scaleSize, bool drawStackNumber)
         {
             if (!drawStackNumber || maximumStackSize() <= 1 || scaleSize <= 0.3 || Stack == int.MaxValue || Stack <= 1) return;
 
@@ -236,16 +257,7 @@ namespace Igorious.StardewValley.DynamicAPI.Objects
                 layerDepth - 0.00001f);
         }
 
-        public override void drawWhenHeld(SpriteBatch spriteBatch, Vector2 objectPosition, Farmer farmer)
-        {
-            DrawHeld(spriteBatch, objectPosition, farmer);
-            if (Color != null)
-            {
-                DrawHeld(spriteBatch, objectPosition, farmer, Color);
-            }
-        }
-
-        private void DrawHeld(SpriteBatch spriteBatch, Vector2 objectPosition, Farmer farmer, XColor? color = null)
+        protected void DrawHeld(SpriteBatch spriteBatch, Vector2 objectPosition, Farmer farmer, XColor? color = null)
         {
             var sourceRect = GetSourceRect(ParentSheetIndex + (color.HasValue ? SpriteWidth : 0));
             spriteBatch.Draw(
@@ -260,43 +272,14 @@ namespace Igorious.StardewValley.DynamicAPI.Objects
                 Math.Max(0, (farmer.getStandingY() + 2 + (color.HasValue ? 1 : 0)) / 10000f));
         }
 
-        protected Vector2 GetScale(bool change = true)
+        protected virtual Vector2 GetScale(bool change = true)
         {
-            if (category == -22) return Vector2.Zero;
-            if (!bigCraftable)
-            {
-                scale.Y = Math.Max(Game1.pixelZoom, scale.Y - Game1.pixelZoom / 100f);
-                return scale;
-            }
-            if (heldObject == null && minutesUntilReady <= 0 || readyForHarvest) return Vector2.Zero;
-            if (ID == (int)CraftableID.BeeHouse || name.Contains("Table") || ID == (int)CraftableID.Tapper) return Vector2.Zero;
-            if (ID == (int)CraftableID.Loom)
-            {
-                scale.X = (float)((scale.X + Game1.pixelZoom / 100.0) % (2.0 * Math.PI));
-                return Vector2.Zero;
-            }
-            if (change)
-            {
-                scale.X -= 0.1f;
-                scale.Y += 0.1f;
-                if (scale.X <= 0) scale.X = 10;
-                if (scale.Y >= 10) scale.Y = 0;
-            }
-            return new Vector2(Math.Abs(scale.X - 5), Math.Abs(scale.Y - 5));
+            if (category == tackleCategory || name.Contains("Table")) return Vector2.Zero;
+            scale.Y = Math.Max(Game1.pixelZoom, scale.Y - Game1.pixelZoom / 100f);
+            return scale;
         }
 
-        public override void draw(SpriteBatch spriteBatch, int x, int y, float alpha = 1)
-        {
-            DrawObject(spriteBatch, x, y, alpha);
-            if (Color != null)
-            {
-                DrawObject(spriteBatch, x, y, alpha, Color);
-            }
-            DrawLoom(spriteBatch, x, y, alpha);
-            DrawHeldObject(spriteBatch, x, y);
-        }
-
-        protected void DrawObject(SpriteBatch spriteBatch, int x, int y, float alpha, XColor? color = null, int sheetIndexDelta = 0)
+        protected virtual void DrawObject(SpriteBatch spriteBatch, int x, int y, float alpha, XColor? color = null, int sheetIndexDelta = 0)
         {
             var currentScale = GetScale(color == null) * Game1.pixelZoom;
             var destVector = Game1.GlobalToLocal(Game1.viewport, new Vector2(TileSize * x, TileSize * (y + VerticalShift)));
@@ -325,72 +308,6 @@ namespace Igorious.StardewValley.DynamicAPI.Objects
                 depth + (color.HasValue ? 0.0001f : 0));
         }
 
-        private void DrawLoom(SpriteBatch spriteBatch, int x, int y, float alpha)
-        {
-            if (ID != (int)CraftableID.Loom || minutesUntilReady <= 0) return;
-
-            var itemTextureInfo = TextureInfo.Default[TextureType.Items];
-            spriteBatch.Draw(
-                itemTextureInfo.Texture, 
-                getLocalPosition(Game1.viewport) + new Vector2(TileSize / 2f, 0), 
-                itemTextureInfo.GetSourceRect(435), 
-                XColor.White * alpha, 
-                scale.X, 
-                new Vector2(8, 8), 
-                Game1.pixelZoom, 
-                SpriteEffects.None, 
-                Math.Max(0, (y + 1) * TileSize / 10000f + 0.0001f + x * 0.00000001f));        
-        }
-
-        protected void DrawHeldObject(SpriteBatch spriteBatch, int x, int y)
-        {
-            if (!readyForHarvest || heldObject == null) return;
-
-            var deltaY = (float)(4 * Math.Round(Math.Sin(DateTime.Now.TimeOfDay.TotalMilliseconds / 250), 2));
-            var depth = (y + 1) * Game1.tileSize / 10000f + tileLocation.X / 10000f;
-
-            spriteBatch.Draw(
-                Game1.mouseCursors,
-                Game1.GlobalToLocal(Game1.viewport, new Vector2(x * TileSize - 8, y * TileSize - TileSize * 3 / 2 - 16 + deltaY)),
-                Rectangle(141, 465, 20, 24),
-                XColor.White * 0.75f,
-                0,
-                Vector2.Zero,
-                4,
-                SpriteEffects.None,
-                depth - 0.0002f);
-
-            var baloonCenterAbsolute = Game1.GlobalToLocal(Game1.viewport, new Vector2(x * TileSize + TileSize / 2, y * TileSize - TileSize - TileSize / 8 + deltaY));
-            var itemCenterRelative = new Vector2(8, 8);
-
-            var itemsTextureInfo = TextureInfo.Default[TextureType.Items];
-            spriteBatch.Draw(
-                itemsTextureInfo.Texture,
-                baloonCenterAbsolute,
-                itemsTextureInfo.GetSourceRect(heldObject.parentSheetIndex),
-                XColor.White * 0.75f,
-                0,
-                itemCenterRelative,
-                Game1.pixelZoom,
-                SpriteEffects.None,
-                depth - 0.0001f);
-
-            var color = heldObject.GetColor();
-            if (color != null)
-            {
-                spriteBatch.Draw(
-                    itemsTextureInfo.Texture,
-                    baloonCenterAbsolute,
-                    itemsTextureInfo.GetSourceRect(heldObject.parentSheetIndex + 1),
-                    color.Value,
-                    0,
-                    itemCenterRelative,
-                    Game1.pixelZoom,
-                    SpriteEffects.None,
-                    depth);
-            }
-        }
-
         protected void PlayAnimation(Farmer farmer, Animation animation)
         {
             var animationSprites = farmer.currentLocation.temporarySprites;
@@ -399,21 +316,23 @@ namespace Igorious.StardewValley.DynamicAPI.Objects
             {
                 case Animation.Steam:
                     animationSprites.Add(new TemporaryAnimatedSprite(
-                        27, 
-                        tileLocation * Game1.tileSize + new Vector2(-TileSize / 4f, -TileSize * 2), 
-                        XColor.White, 
-                        4, 
-                        false, 
-                        50, 
-                        10, 
-                        TileSize, 
+                        27,
+                        tileLocation * Game1.tileSize + new Vector2(-TileSize / 4f, -TileSize * 2),
+                        XColor.White,
+                        4,
+                        false,
+                        50,
+                        10,
+                        TileSize,
                         (tileLocation.Y + 1) * TileSize / 10000 + 0.0001f)
-                        {
-                            alphaFade = 0.005f,
-                        });
+                    {
+                        alphaFade = 0.005f,
+                    });
                     break;
             }
         }
+
+        #endregion
 
         #endregion
 
@@ -421,14 +340,12 @@ namespace Igorious.StardewValley.DynamicAPI.Objects
 
         private static readonly Object ProbeObject = new Object();
 
+        #region Native
+
         public sealed override bool checkForAction(Farmer who, bool justCheckingForActivity = false)
         {
             return justCheckingForActivity ? CanDoAction(who) : DoAction(who);
         }
-
-        protected virtual bool CanDoAction(Farmer farmer) => base.checkForAction(farmer, true);
-
-        protected virtual bool DoAction(Farmer farmer) => base.checkForAction(farmer);
 
         public sealed override bool performObjectDropInAction(Object item, bool isProbe, Farmer farmer)
         {
@@ -445,16 +362,13 @@ namespace Igorious.StardewValley.DynamicAPI.Objects
             }
         }
 
-        protected void PutItem(int itemID, int count, int itemQuality = 0, string overridedName = null, int? overridedPrice = null, XColor? color = null)
-        {
-            heldObject = new SmartObject(itemID, count)
-            {
-                quality = itemQuality,
-                Color = color,
-            };
-            if (overridedName != null) heldObject.Name = string.Format(overridedName, heldObject.Name);
-            if (overridedPrice != null) heldObject.Price = overridedPrice.Value;
-        }
+        #endregion
+
+        #region	Auxiliary Methods
+
+        protected virtual bool CanDoAction(Farmer farmer) => base.checkForAction(farmer, true);
+
+        protected virtual bool DoAction(Farmer farmer) => base.checkForAction(farmer);
 
         protected virtual bool CanPerformDropIn(Object item, Farmer farmer) => CanPerformDropInRaw(item, farmer);
 
@@ -472,34 +386,32 @@ namespace Igorious.StardewValley.DynamicAPI.Objects
 
         #endregion
 
+        #endregion
+
         #region Tool Action
 
         public sealed override bool performToolAction(Tool tool)
         {
             if (tool is Pickaxe) return OnPickaxeAction((Pickaxe)tool);
             if (tool is Axe) return OnAxeAction((Axe)tool);
+            if (tool is Hoe) return OnHoeAction((Hoe)tool);
             if (tool is WateringCan)
             {
                 OnWateringCanAction((WateringCan)tool);
                 return false;
             }
-            return base.performToolAction(tool);
+            return OnOtherToolAction(tool);
         }
 
-        protected virtual bool OnPickaxeAction(Pickaxe pickaxe)
-        {
-            return base.performToolAction(pickaxe);
-        }
+        protected virtual bool OnPickaxeAction(Pickaxe pickaxe) => base.performToolAction(pickaxe);
 
-        protected virtual bool OnAxeAction(Axe axe)
-        {
-            return base.performToolAction(axe);
-        }
+        protected virtual bool OnAxeAction(Axe axe) => base.performToolAction(axe);
 
-        protected virtual void OnWateringCanAction(WateringCan wateringCan)
-        {
-            base.performToolAction(wateringCan);
-        }
+        protected virtual bool OnHoeAction(Hoe hoe) => base.performToolAction(hoe);
+
+        protected virtual void OnWateringCanAction(WateringCan wateringCan) => base.performToolAction(wateringCan);
+
+        protected virtual bool OnOtherToolAction(Tool tool) => base.performToolAction(tool);
 
         #endregion
 
@@ -513,6 +425,11 @@ namespace Igorious.StardewValley.DynamicAPI.Objects
         protected Random GetRandom()
         {
             return new Random((int)Game1.uniqueIDForThisGame / 2 + (int)Game1.stats.DaysPlayed + Game1.timeOfDay + (int)tileLocation.X * 200 + (int)tileLocation.Y);
+        }
+
+        protected static Rectangle Rectangle(float x, float y, float width, float height)
+        {
+            return new Rectangle((int)x, (int)y, (int)width, (int)height);
         }
 
         protected void PlaySound(Sound sound) => Game1.playSound(sound.GetDescription());

@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Igorious.StardewValley.DynamicAPI</RootNamespace>
-    <AssemblyName>Igorious.StardewValley.DynamicAPI.4_0_1</AssemblyName>
+    <AssemblyName>Igorious.StardewValley.DynamicAPI.4_0_3</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
@@ -61,6 +61,7 @@
     <Compile Include="Attributes\ExpressionAttribute.cs" />
     <Compile Include="Constants\Animation.cs" />
     <Compile Include="Constants\CharacterName.cs" />
+    <Compile Include="Helpers\InventoryHelper.cs" />
     <Compile Include="Interfaces\IRecipeInformation.cs" />
     <Compile Include="Data\OverridedBundleInformation.cs" />
     <Compile Include="Data\Supporting\DynamicID.cs" />
@@ -105,46 +106,24 @@
     <Compile Include="Data\Supporting\CharacterGiftPreferences.cs" />
     <Compile Include="Data\Supporting\GiftPreferences.cs" />
     <Compile Include="Interfaces\ISmartLocation.cs" />
-    <Compile Include="Locations\SmartAdventureGuild.cs" />
-    <Compile Include="Locations\SmartAnimalHouse.cs" />
-    <Compile Include="Locations\SmartBathHousePool.cs" />
-    <Compile Include="Locations\SmartBeach.cs" />
-    <Compile Include="Locations\SmartBusStop.cs" />
-    <Compile Include="Locations\SmartClub.cs" />
-    <Compile Include="Locations\SmartCommunityCenter.cs" />
-    <Compile Include="Locations\SmartDesert.cs" />
-    <Compile Include="Locations\SmartFarmCave.cs" />
-    <Compile Include="Locations\SmartFarmHouse.cs" />
-    <Compile Include="Locations\SmartForest.cs" />
-    <Compile Include="Locations\SmartGameLocation.cs" />
-    <Compile Include="Locations\SmartJojaMart.cs" />
-    <Compile Include="Locations\SmartLibraryMuseum.cs" />
     <Compile Include="Locations\SmartLocationProxy.cs" />
-    <Compile Include="Locations\SmartMineShaft.cs" />
-    <Compile Include="Locations\SmartMountain.cs" />
-    <Compile Include="Locations\SmartRailroad.cs" />
-    <Compile Include="Locations\SmartSeedShop.cs" />
-    <Compile Include="Locations\SmartSewer.cs" />
-    <Compile Include="Locations\SmartSlimeHutch.cs" />
-    <Compile Include="Locations\SmartSummit.cs" />
-    <Compile Include="Locations\SmartTown.cs" />
-    <Compile Include="Locations\SmartWizardHouse.cs" />
-    <Compile Include="Locations\SmartWoods.cs" />
     <Compile Include="Objects\SmartBigCrafrable.cs" />
     <Compile Include="Data\BundleInformation.cs" />
     <Compile Include="Data\Supporting\BundleItemInformation.cs" />
-    <Compile Include="Locations\SmartFarm.cs" />
     <Compile Include="Data\Supporting\TextureInfo.cs" />
     <Compile Include="Services\BundlesService.cs" />
     <Compile Include="Services\Internal\Cloner.cs" />
     <Compile Include="Services\GiftPreferencesService.cs" />
     <Compile Include="Extensions\ObjectExtensions.cs" />
+    <Compile Include="Events\InventoryEvents.cs" />
+    <Compile Include="Events\ObjectEventArgs.cs" />
     <Compile Include="Services\RecipesService.cs" />
     <Compile Include="Services\InformationService.cs" />
     <Compile Include="Data\Supporting\IngredientInfo.cs" />
     <Compile Include="Services\ClassMapperService.cs" />
     <Compile Include="Constants\TextureType.cs" />
     <Compile Include="Data\ShopInfo.cs" />
+    <Compile Include="Events\SavingEvents.cs" />
     <Compile Include="Services\ShopService.cs" />
     <Compile Include="Data\Supporting\TextureRect.cs" />
     <Compile Include="Services\TexturesService.cs" />

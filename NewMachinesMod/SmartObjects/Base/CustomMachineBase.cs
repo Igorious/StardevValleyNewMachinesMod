@@ -1,12 +1,12 @@
 ﻿using System.Linq;
 using Igorious.StardewValley.DynamicAPI.Constants;
 using Igorious.StardewValley.DynamicAPI.Data.Supporting;
+using Igorious.StardewValley.DynamicAPI.Extensions;
 using Igorious.StardewValley.DynamicAPI.Utils;
 using Igorious.StardewValley.NewMachinesMod.Data;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
-using StardewValley.Objects;
 
 namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
 {
@@ -17,22 +17,19 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
         protected abstract MachineInformation MachineInformation { get; }
         protected override MachineOutputInformation Output => MachineInformation.Output;
 
-        public override void draw(SpriteBatch spriteBatch, int x, int y, float alpha = 1)
+        protected override void DrawObject(SpriteBatch spriteBatch, int x, int y, float alpha, Color? color = null, int sheetIndexDelta = 0)
         {
-            int spriteDelta;
-            string color;
-            GetSpriteDeltaAndColor(out spriteDelta, out color);
+            GetSpriteDeltaAndColor(out sheetIndexDelta, out color);
 
             if (color == null)
             {
-                DrawObject(spriteBatch, x, y, alpha, null, spriteDelta);
+                base.DrawObject(spriteBatch, x, y, alpha, null, sheetIndexDelta);
             }
             else
             {
-                DrawObject(spriteBatch, x, y, alpha);
-                DrawObject(spriteBatch, x, y, alpha, ConvertColor(color), spriteDelta);
+                base.DrawObject(spriteBatch, x, y, alpha);
+                base.DrawObject(spriteBatch, x, y, alpha, color, sheetIndexDelta);
             }
-            DrawHeldObject(spriteBatch, x, y);
         }
 
         private MachineDraw GetDrawInfo()
@@ -46,7 +43,7 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
             return MachineInformation.Draw;
         }
 
-        protected void GetSpriteDeltaAndColor(out int spriteDelta, out string color)
+        private void GetSpriteDeltaAndColor(out int spriteDelta, out Color? color)
         {
             var draw = GetDrawInfo();
             color = null;
@@ -60,12 +57,12 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
 
                 case MachineState.Working:
                     spriteDelta = draw?.Working ?? 0;
-                    color = draw?.WorkingColor;
+                    color = ConvertColor(draw?.WorkingColor);
                     break;
 
                 case MachineState.Ready:
                     spriteDelta = draw?.Ready ?? 0;
-                    color = draw?.ReadyColor;
+                    color = ConvertColor(draw?.ReadyColor);
                     break;
             }
         }
@@ -75,7 +72,8 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
             if (color == null) return null;
             if (color != "@") return RawColor.FromHex(color).ToXnaColor();
             if (heldObject == null) return null;
-            if (heldObject is ColoredObject) return ((ColoredObject)heldObject).color;
+            var heldColor = heldObject.GetColor();
+            if (heldColor != null) return heldColor;
             return DominantColorFinder.GetDominantColor(heldObject.ParentSheetIndex, Game1.objectSpriteSheet, 16, 16);
         }
     }

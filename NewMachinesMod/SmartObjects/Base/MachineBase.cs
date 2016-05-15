@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Igorious.StardewValley.DynamicAPI.Constants;
 using Igorious.StardewValley.DynamicAPI.Data.Supporting;
+using Igorious.StardewValley.DynamicAPI.Helpers;
 using Igorious.StardewValley.DynamicAPI.Objects;
 using Igorious.StardewValley.DynamicAPI.Utils;
 using Igorious.StardewValley.NewMachinesMod.Data;
@@ -28,16 +28,10 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
             if (!ProcessRequiredItems(item, farmer)) return false;
 
             PutItem(GetOutputID(item), GetOutputCount(item), GetOutputQuality(item), GetOutputName(item), GetOutputPrice(item), GetColor(item));
-            PlayDropInSounds();
-            PlayDropInAnimation(farmer);
+            (Output.Sounds ?? DefaultSound).ForEach(PlaySound);
+            if (Output.Animation != null) PlayAnimation(farmer, Output.Animation.Value);
             minutesUntilReady = GetMinutesUntilReady(item);
             return true;
-        }
-
-        private void PlayDropInAnimation(Farmer farmer)
-        {
-            if (Output.Animation == null) return;
-            PlayAnimation(farmer, Output.Animation.Value);
         }
 
         protected bool ProcessRequiredItems(Object item, Farmer farmer)
@@ -67,37 +61,17 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
             else
             {
                 item.Stack -= (outputItem.InputCount - 1);
-                RemoveItems(and.ID, and.Count, farmer);
+                InventoryHelper.RemoveItem(and.ID, and.Count, farmer);
                 return true;
             }
         }
 
-        private void RemoveItems(int id, int count, Farmer farmer)
-        {
-            var items = farmer.Items;
-            var remainedCount = count;
-            for (var i = items.Count - 1; i >= 0; --i)
-            {
-                if ((items[i] as Object)?.ParentSheetIndex != id) continue;
-
-                var delta = Math.Min(items[i].Stack, remainedCount);
-                items[i].Stack -= delta;
-                remainedCount -= delta;
-
-                if (items[i].Stack == 0) items[i] = null;
-                if (remainedCount == 0) break;
-            }
-        }
-
-        protected virtual void PlayDropInSounds()
-        {
-            (Output.Sounds ?? DefaultSound).ForEach(PlaySound);
-        }
+        #region Config Getters
 
         private OutputItem GetOutputItem(Object item)
         {
             OutputItem outputInfo;
-            return Output.Items.TryGetValue(item.ParentSheetIndex, out outputInfo) ? outputInfo : Output.Items[item.Category];
+            return Output.Items.TryGetValue(item.ParentSheetIndex, out outputInfo)? outputInfo : Output.Items[item.Category];
         }
 
         protected virtual string GetOutputName(Object item)
@@ -105,7 +79,7 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
             var itemNameFormat = GetOutputItem(item)?.Name;
             if (!string.IsNullOrWhiteSpace(itemNameFormat)) return string.Format(itemNameFormat, "{0}", item.Name);
             if (itemNameFormat != null && string.IsNullOrWhiteSpace(itemNameFormat)) return null;
-            return (Output.Name != null) ? string.Format(Output.Name, "{0}", item.Name) : null;
+            return (Output.Name != null)? string.Format(Output.Name, "{0}", item.Name) : null;
         }
 
         protected virtual int GetOutputQuality(Object item)
@@ -154,5 +128,7 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
                 ? RawColor.FromHex(color).ToXnaColor()
                 : DominantColorFinder.GetDominantColor(dropInItem.ParentSheetIndex, Game1.objectSpriteSheet, 16, 16);
         }
+
+        #endregion
     }
 }

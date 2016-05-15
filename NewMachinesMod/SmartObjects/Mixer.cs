@@ -63,9 +63,8 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects
             return true;
         }
 
-        public override void draw(SpriteBatch spriteBatch, int x, int y, float alpha = 1)
+        protected override void DrawDetails(SpriteBatch spriteBatch, int x, int y, float alpha)
         {
-            base.draw(spriteBatch, x, y, alpha);
             DrawObject(spriteBatch, x, y, alpha, FirstDroppedItem.GetColor() ?? XColor.White, +1);
             DrawObject(spriteBatch, x, y, alpha, SecondDroppedItem.GetColor() ?? XColor.White, +2);
         }

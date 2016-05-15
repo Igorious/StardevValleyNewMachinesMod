@@ -56,7 +56,7 @@ namespace Igorious.StardewValley.NewMachinesMod
         private void InitializeRecipes()
         {
             _machines.ForEach(m => RecipesService.Instance.Register((CraftingRecipeInformation)m));
-            Config.Totems.ForEach(t => RecipesService.Instance.Register((CraftingRecipeInformation)t));
+            //Config.Totems.ForEach(t => RecipesService.Instance.Register((CraftingRecipeInformation)t));
             Config.CookingRecipes.ForEach(RecipesService.Instance.Register);
             Config.CraftingRecipes.ForEach(RecipesService.Instance.Register);
         }

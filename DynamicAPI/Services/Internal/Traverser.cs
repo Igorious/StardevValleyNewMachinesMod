@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using Igorious.StardewValley.DynamicAPI.Utils;
 using StardewValley;
 using StardewValley.Locations;
 using StardewValley.Objects;
@@ -22,12 +21,11 @@ namespace Igorious.StardewValley.DynamicAPI.Services.Internal
 
         #region	Public Methods
 
-        public void ConvertLocations(Predicate<GameLocation> condition, Func<GameLocation, GameLocation> convert)
+        public void TraverseLocations(Action<GameLocation> processLocation)
         {
-            for (var i = 0; i < Game1.locations.Count; ++i)
+            foreach (var location in Game1.locations)
             {
-                var location = Game1.locations[i];
-                if (condition(location)) Game1.locations[i] = convert(location);
+                processLocation(location);
 
                 var buildableLocation = location as BuildableGameLocation;
                 if (buildableLocation == null) continue;
@@ -36,93 +34,59 @@ namespace Igorious.StardewValley.DynamicAPI.Services.Internal
                 {
                     var indoorLocation = building.indoors;
                     if (indoorLocation == null) continue;
-                    if (!condition(indoorLocation)) continue;
-                    building.indoors = convert(indoorLocation);
+                    processLocation(indoorLocation);
                 }
             }
         }
 
-        public void ConvertObjectsInLocation(GameLocation location, Predicate<Object> condition, Func<Object, Object> convert)
+        public void TraverseLocation(GameLocation location, Func<Object, Object> processObject)
         {
-            var locationObjects = location.Objects;
-            var wrongObjectInfos = locationObjects.Where(o => condition(o.Value)).ToList();
-            if (wrongObjectInfos.Count != 0)
+            if (location == null) return;
+            var objectInfos = location.Objects.ToList();
+            if (location is FarmHouse) TraverseChest(((FarmHouse)location).fridge, processObject);
+            foreach (var objectInfo in objectInfos)
             {
-                Log.Info($"Found {wrongObjectInfos.Count} objects in {location.Name}.");
-                foreach (var wrongObjectInfo in wrongObjectInfos)
+                var oldObject = objectInfo.Value;
+                var newObject = processObject(oldObject);
+                if (newObject.heldObject != null)
                 {
-                    locationObjects.Remove(wrongObjectInfo.Key);
-                    var newObject = convert(wrongObjectInfo.Value);
-                    locationObjects.Add(wrongObjectInfo.Key, newObject);
+                    newObject.heldObject = processObject(newObject.heldObject);
+                }
+                TraverseChest(newObject as Chest, processObject);
+                if (oldObject != newObject)
+                {
+                    location.Objects[objectInfo.Key] = newObject;
                 }
             }
-
-            ConvertObjectsInChests(location, condition, convert);
-            ConvertObjectsInMachines(location, condition, convert);
-            ConvertObjectsInBuildings(location, condition, convert);
         }
 
-        public void ConvertObjectsInInventory(Farmer farmer, Predicate<Object> condition, Func<Object, Object> convert)
+        public void TraverseInventory(Farmer farmer, Func<Object, Object> processObject)
         {
-            var count = 0;
+            if (farmer == null) return;
             for (var i = 0; i < farmer.Items.Count; ++i)
             {
-                var chestObject = farmer.Items[i] as Object;
-                if (chestObject == null || !condition(chestObject)) continue;
-                farmer.Items[i] = convert(chestObject);
-                ++count;
+                var inventoryObject = farmer.Items[i] as Object;
+                if (inventoryObject == null) continue;
+                farmer.Items[i] = processObject(inventoryObject);
             }
-
-            if (count != 0) Log.Info($"Found {count} objects in inventory.");
+            if (farmer.ActiveObject != null)
+            {
+                farmer.ActiveObject = processObject(farmer.ActiveObject);
+            }
         }
 
         #endregion
 
         #region	Auxiliary Methods
 
-        private void ConvertObjectsInChests(GameLocation location, Predicate<Object> condition, Func<Object, Object> convert)
+        private void TraverseChest(Chest chest, Func<Object, Object> processObject)
         {
-            var chests = location.Objects.Values.OfType<Chest>().ToList();
-            if (location is FarmHouse) chests.Add(((FarmHouse)location).fridge);
-            foreach (var chest in chests)
+            if (chest == null) return;
+            for (var i = 0; i < chest.items.Count; ++i)
             {
-                var count = 0;
-                for (var i = 0; i < chest.items.Count; ++i)
-                {
-                    var chestObject = chest.items[i] as Object;
-                    if (chestObject == null || !condition(chestObject)) continue;
-                    chest.items[i] = convert(chestObject);
-                    ++count;
-                }
-                if (count != 0) Log.Info($"Found {count} objects in {chest.Name}.");
-            }
-        }
-
-        private void ConvertObjectsInMachines(GameLocation location, Predicate<Object> condition, Func<Object, Object> convert)
-        {
-            var count = 0;
-            var machines = location.Objects.Values.Where(o => o.bigCraftable).ToList();
-            foreach (var machine in machines)
-            {
-                var heldObject = machine.heldObject;
-                if (heldObject == null || !condition(heldObject)) continue;
-                machine.heldObject = convert(heldObject);
-                ++count;
-            }
-            if (count != 0) Log.Info($"Found {count} objects in machines.");
-        }
-
-        private void ConvertObjectsInBuildings(GameLocation location, Predicate<Object> condition, Func<Object, Object> convert)
-        {
-            var buildableLocation = location as BuildableGameLocation;
-            if (buildableLocation == null) return;
-
-            foreach (var building in buildableLocation.buildings)
-            {
-                if (building.indoors != null)
-                {
-                    ConvertObjectsInLocation(building.indoors, condition, convert);
-                }
+                var chestObject = chest.items[i] as Object;
+                if (chestObject == null) continue;
+                chest.items[i] = processObject(chestObject);
             }
         }
 

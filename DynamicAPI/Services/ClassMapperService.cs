@@ -3,15 +3,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Igorious.StardewValley.DynamicAPI.Data.Supporting;
+using Igorious.StardewValley.DynamicAPI.Events;
 using Igorious.StardewValley.DynamicAPI.Extensions;
 using Igorious.StardewValley.DynamicAPI.Interfaces;
-using Igorious.StardewValley.DynamicAPI.Locations;
 using Igorious.StardewValley.DynamicAPI.Services.Internal;
 using Igorious.StardewValley.DynamicAPI.Utils;
 using StardewModdingAPI.Events;
 using StardewValley;
-using StardewValley.Locations;
-using StardewValley.Menus;
 using StardewValley.Objects;
 using Object = StardewValley.Object;
 
@@ -23,16 +21,12 @@ namespace Igorious.StardewValley.DynamicAPI.Services
 
         private ClassMapperService()
         {
-            MapDefaultLocations();
-
             PlayerEvents.LoadedGame += (s, e) =>
             {
                 if (!ActivateMapping()) return;
                 Log.ImportantInfo("Activation after loading...");
                 ConvertToSmartInWorld();
             };
-
-            LocationEvents.CurrentLocationChanged += BuildableActivation;
 
             TimeEvents.TimeOfDayChanged += (s, e) =>
             {
@@ -42,54 +36,46 @@ namespace Igorious.StardewValley.DynamicAPI.Services
                 ConvertToSmartInWorld();
             };
 
-            TimeEvents.OnNewDay += (s, e) =>
+            SavingEvents.BeforeSaving += () =>
             {
-                if (e.IsNewDay) return;
                 if (!DeactivateMapping()) return;
+                Log.ImportantInfo("Deactivation before saving...");
                 ConvertToRawInWorld(); // Allow use native serializer.
             };
 
-            GameEvents.UpdateTick += (s, e) => ConvertActiveInventoryObject();
-            PlayerEvents.InventoryChanged += OnInventoryChanged;
-
-            MenuEvents.MenuChanged += (s, e) =>
+            SavingEvents.AfterSaving += () =>
             {
-                if (!(e.NewMenu is GameMenu)) return;
-
-                CraftingMenu = e.NewMenu.GetField<List<IClickableMenu>>("pages").OfType<CraftingPage>().First();
-                GameEvents.UpdateTick += OnCrafted;
-                MenuEvents.MenuClosed += OnCraftingMenuClosed;
+                if (!ActivateMapping()) return;
+                Log.ImportantInfo("Activation after saving...");
+                ConvertToSmartInWorld();
             };
-        }
 
-        private void MapDefaultLocations()
-        {
-            MapLocation<AdventureGuild, SmartAdventureGuild>();
-            MapLocation<AnimalHouse, SmartAnimalHouse>();
-            MapLocation<BathHousePool, SmartBathHousePool>();
-            MapLocation<Beach, SmartBeach>();
-            MapLocation<BusStop, SmartBusStop>();
-            MapLocation<Club, SmartClub>();
-            MapLocation<CommunityCenter, SmartCommunityCenter>();
-            MapLocation<Desert, SmartDesert>();
-            MapLocation<Farm, SmartFarm>();
-            MapLocation<FarmCave, SmartFarmCave>();
-            MapLocation<FarmHouse, SmartFarmHouse>();
-            MapLocation<Forest, SmartForest>();
-            MapLocation<JojaMart, SmartJojaMart>();
-            MapLocation<LibraryMuseum, SmartLibraryMuseum>();
-            MapLocation<MineShaft, SmartMineShaft>();
-            MapLocation<Mountain, SmartMountain>();
-            MapLocation<Railroad, SmartRailroad>();
-            MapLocation<SeedShop, SmartSeedShop>();
-            MapLocation<Sewer, SmartSewer>();
-            MapLocation<SlimeHutch, SmartSlimeHutch>();
-            MapLocation<Summit, SmartSummit>();
-            MapLocation<Town, SmartTown>();
-            MapLocation<WizardHouse, SmartWizardHouse>();
-            MapLocation<Woods, SmartWoods>();
+            InventoryEvents.ActiveObjectChanged += args =>
+            {
+                if (!IsActivated || !IsRawObject(args.Object)) return;
+                args.Object = ToSmartObject(args.Object);
+            };
 
-            MapLocation<GameLocation, SmartGameLocation>();
+            InventoryEvents.CraftedObjectChanged += args =>
+            {
+                if (!IsActivated || !IsRawObject(args.Object)) return;
+                args.Object = ToSmartObject(args.Object);
+            };
+
+            PlayerEvents.InventoryChanged += (s, e) =>
+            {
+                if (!IsActivated || !e.Added.Any()) return;
+
+                var inventory = Game1.player.Items;
+                foreach (var addedItemInfo in e.Added)
+                {
+                    var addedItem = addedItemInfo.Item as Object;
+                    if (!IsRawObject(addedItem)) continue;
+
+                    var index = inventory.FindIndex(i => i == addedItem);
+                    inventory[index] = ToSmartObject(addedItem);
+                }
+            };
         }
 
         private static ClassMapperService _instance;
@@ -102,9 +88,6 @@ namespace Igorious.StardewValley.DynamicAPI.Services
 
         private bool IsActivated { get; set; }
 
-        private Object PreviousActiveObject { get; set; }
-
-        private readonly Dictionary<Type, Type> _locationTypeMap = new Dictionary<Type, Type>();
         private readonly Dictionary<int, Type> _itemTypeMap = new Dictionary<int, Type>();
         private readonly Dictionary<int, Type> _craftableTypeMap = new Dictionary<int, Type>();
         private readonly Dictionary<int, DynamicTypeInfo> _dynamicCraftableTypeMap = new Dictionary<int, DynamicTypeInfo>();
@@ -116,65 +99,6 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         public IReadOnlyDictionary<int, Type> ItemTypeMap => _itemTypeMap;
         public IReadOnlyDictionary<int, Type> CraftableTypeMap => _craftableTypeMap;
         public IReadOnlyDictionary<int, DynamicTypeInfo> DynamicCraftableTypeMap => _dynamicCraftableTypeMap;
-
-        #endregion
-
-        #region Handlers
-
-        private void OnCraftingMenuClosed(object sender, EventArgsClickableMenuClosed eventArgsClickableMenuClosed)
-        {
-            GameEvents.UpdateTick -= OnCrafted;
-            MenuEvents.MenuClosed -= OnCraftingMenuClosed;
-            CraftingMenu = null;
-        }
-
-        private CraftingPage CraftingMenu { get; set; }
-
-        private void OnCrafted(object sender, EventArgs e)
-        {
-            if (CraftingMenu == null || !IsActivated) return;
-
-            var heldItem = CraftingMenu.GetField<Item>("heldItem") as Object;
-            if (IsRawObject(heldItem))
-            {
-                CraftingMenu.SetField<Item>("heldItem", ToSmartObject(heldItem));
-            }
-        }
-
-        private void ConvertActiveInventoryObject()
-        {
-            if (!IsActivated) return;
-
-            var activeObject = Game1.player.ActiveObject;
-            if (activeObject == PreviousActiveObject) return;
-
-            if (IsRawObject(activeObject))
-            {
-                Game1.player.ActiveObject = ToSmartObject(activeObject);
-            }
-            PreviousActiveObject = Game1.player.ActiveObject;
-        }
-
-        private void OnInventoryChanged(object sender, EventArgsInventoryChanged args)
-        {
-            if (!IsActivated || !args.Added.Any()) return;
-
-            var inventory = Game1.player.Items;
-            foreach (var addedItemInfo in args.Added)
-            {
-                var addedItem = addedItemInfo.Item as Object;
-                if (!IsRawObject(addedItem)) continue;
-
-                var index = inventory.FindIndex(i => i == addedItem);
-                inventory[index] = ToSmartObject(addedItem);
-            }
-        }
-
-        private void BuildableActivation(object sender, EventArgsCurrentLocationChanged args)
-        {
-            if (!(args.NewLocation is BuildableGameLocation)) return;
-            ConvertToSmartLocations();
-        }
 
         #endregion
 
@@ -220,23 +144,15 @@ namespace Igorious.StardewValley.DynamicAPI.Services
             return _itemTypeMap.First(kv => kv.Value == typeof(TObject)).Key;
         }
 
-        public void MapLocation<TLocationBase, TLocationSmart>() where TLocationSmart : TLocationBase, ISmartLocation where TLocationBase : GameLocation
-        {
-            _locationTypeMap.Add(typeof(TLocationBase), typeof(TLocationSmart));
-        }
-
         public Object ToSmartObject(Object rawObject)
         {
+            if (!IsRawObject(rawObject)) return rawObject;
+
             var smartObject = rawObject.bigCraftable
                 ? CraftableToSmartObject(rawObject)
-                : ItemToSmartObject(rawObject);
+                : ObjectToSmartObject(rawObject);
             Cloner.Instance.CopyData(rawObject, smartObject);
             return smartObject;
-        }
-
-        public bool IsRawObject(Object o)
-        {
-            return IsRawCraftable(o) || IsRawItem(o);
         }
 
         #endregion
@@ -245,15 +161,9 @@ namespace Igorious.StardewValley.DynamicAPI.Services
 
         #region Handlers
 
-        private void OnMenuClosed(object sender, EventArgsClickableMenuClosed args)
-        {
-            if (!(args.PriorMenu is SaveGameMenu)) return;
-            if (!ActivateMapping()) return;
-            ConvertToSmartInWorld();
-        }
-
         private void OnLocationObjectsChanged(object sender, EventArgsLocationObjectsChanged eventArgsLocationObjectsChanged)
         {
+            if (!IsActivated) return;
             ConvertToSmartObjectsInLocation();
         }
 
@@ -287,7 +197,7 @@ namespace Igorious.StardewValley.DynamicAPI.Services
             return rawObject;
         }
 
-        private Object ItemToSmartObject(Object rawObject)
+        private Object ObjectToSmartObject(Object rawObject)
         {
             var itemID = rawObject.ParentSheetIndex;
             var type = _itemTypeMap[itemID];
@@ -298,12 +208,19 @@ namespace Igorious.StardewValley.DynamicAPI.Services
             return rawObject;
         }
 
+        public Object ToRawObject(Object smartObject)
+        {
+            if (!(smartObject is ISmartObject)) return smartObject;
+            var rawObject = (smartObject.GetColor() != null)? new ColoredObject() : new Object();
+            Cloner.Instance.CopyData(smartObject, rawObject);
+            return rawObject;
+        }
+
         private void ConvertToSmartObjectsInLocation()
         {
             var sw = Stopwatch.StartNew();
             Log.Info($"Activating objects (changes in {Game1.currentLocation?.Name})...");
-            Traverser.Instance.ConvertObjectsInLocation(Game1.currentLocation, IsRawObject, ToSmartObject);
-            Game1.getAllFarmers().ForEach(f => Traverser.Instance.ConvertObjectsInInventory(f, IsRawObject, ToSmartObject));
+            Traverser.Instance.TraverseLocation(Game1.currentLocation, ToSmartObject);
             Log.Info($"Convertion ('smart') finished: {sw.ElapsedMilliseconds} ms");
         }
 
@@ -311,12 +228,8 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         {
             var sw = Stopwatch.StartNew();
             Log.Info("Deactivating objects in world...");
-            Traverser.Instance.ConvertLocations(l => l is ISmartLocation, l => ConvertLocation(l, GetRawLocationType));
-            foreach (var gameLocation in Game1.locations)
-            {
-                Traverser.Instance.ConvertObjectsInLocation(gameLocation, IsSmartObject, Cloner.Instance.ToRawObject);
-            }
-            Game1.getAllFarmers().ForEach(f => Traverser.Instance.ConvertObjectsInInventory(f, IsSmartObject, Cloner.Instance.ToRawObject));
+            Traverser.Instance.TraverseLocations(l => Traverser.Instance.TraverseLocation(l, ToRawObject));
+            Traverser.Instance.TraverseInventory(Game1.player, ToRawObject);
             Log.Info($"Convertion ('raw') finished: {sw.ElapsedMilliseconds} ms");
         }
 
@@ -324,61 +237,23 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         {
             var sw = Stopwatch.StartNew();
             Log.Info("Activating objects in world...");
-            ConvertToSmartLocations();
-            foreach (var gameLocation in Game1.locations)
-            {
-                Traverser.Instance.ConvertObjectsInLocation(gameLocation, IsRawObject, ToSmartObject);
-            }
-            Game1.getAllFarmers().ForEach(f => Traverser.Instance.ConvertObjectsInInventory(f, IsRawObject, ToSmartObject));
+            Traverser.Instance.TraverseLocations(l => Traverser.Instance.TraverseLocation(l, ToSmartObject));
+            Traverser.Instance.TraverseInventory(Game1.player, ToSmartObject);
             Log.Info($"Convertion ('smart') finished: {sw.ElapsedMilliseconds} ms");
-        }
-
-        private void ConvertToSmartLocations()
-        {
-            Traverser.Instance.ConvertLocations(l => !(l is ISmartLocation), l => ConvertLocation(l, GetSmartLocationType));
-        }
-
-        private Type GetRawLocationType(Type smartLocationType)
-        {
-            return _locationTypeMap.FirstOrDefault(p => p.Value == smartLocationType).Key;
-        }
-
-        private Type GetSmartLocationType(Type rawLocationType)
-        {
-            Type newType;
-            return _locationTypeMap.TryGetValue(rawLocationType, out newType) ? newType : null;
-        }
-
-        private GameLocation ConvertLocation(GameLocation oldLocation, Func<Type, Type> getNewType)
-        {
-            var newType = getNewType(oldLocation.GetType());
-            if (newType == null)
-            {
-                Log.Fail($"Can't find mapping for {oldLocation.GetType()}:{oldLocation.Name}");
-                return oldLocation;
-            }
-            var ctor = newType.GetConstructor(Type.EmptyTypes);
-            if (ctor != null)
-            {
-                var newLocation = (GameLocation)ctor.Invoke(new object[] { });
-                Cloner.Instance.CopyData(oldLocation, newLocation, oldLocation.GetType());
-                Log.Info($"Converted location {oldLocation.Name}.");
-                return newLocation;
-            }
-            else
-            {
-                Log.Error($"Can't find {newType.FullName}.ctor for Location={oldLocation.Name}.");
-                return oldLocation;
-            }
         }
 
         #endregion
 
         #region Checks
 
+        private bool IsRawObject(Object o)
+        {
+            return (o != null) && !(o is ISmartObject) && (IsRawCraftable(o) || IsRawItem(o));
+        }
+
         private bool IsRawCraftable(Object o)
         {
-            if (o == null || !o.bigCraftable) return false;
+            if (!o.bigCraftable) return false;
             var craftableID = o.ParentSheetIndex;
 
             Type type;
@@ -398,7 +273,7 @@ namespace Igorious.StardewValley.DynamicAPI.Services
 
         private bool IsRawItem(Object o)
         {
-            if (o == null || o.bigCraftable) return false;
+            if (o.bigCraftable) return false;
             var itemID = o.ParentSheetIndex;
 
             Type type;
@@ -410,27 +285,21 @@ namespace Igorious.StardewValley.DynamicAPI.Services
             return false;
         }
 
-        private bool IsSmartObject(Object o)
-        {
-            return (_craftableTypeMap.ContainsKey(o.ParentSheetIndex) || _itemTypeMap.ContainsKey(o.ParentSheetIndex) || _dynamicCraftableTypeMap.ContainsKey(o.ParentSheetIndex))
-                   && !IsSerializable(o);
-        }
-
-        private static bool IsSerializable(Item o)
-        {
-            return new[] { typeof(Item), typeof(Object), typeof(ColoredObject) }.Contains(o.GetType());
-        }
-
         #endregion
 
         #region Activation
+
+        public void ForceDeactivation()
+        {
+            DeactivateMapping();
+            ConvertToRawInWorld();
+        }
 
         private bool ActivateMapping()
         {
             if (IsActivated) return false;
             IsActivated = true;
             LocationEvents.LocationObjectsChanged += OnLocationObjectsChanged;
-            MenuEvents.MenuClosed -= OnMenuClosed;
             Log.ImportantInfo("Class mapping activated.");
             return true;
         }
@@ -440,7 +309,6 @@ namespace Igorious.StardewValley.DynamicAPI.Services
             if (!IsActivated) return false;
             IsActivated = false;
             LocationEvents.LocationObjectsChanged -= OnLocationObjectsChanged;
-            MenuEvents.MenuClosed += OnMenuClosed; // Prevent issue with crash after finishing bundle.
             Log.ImportantInfo("Class mapping deactivated.");
             return true;
         }

@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Igorious.StardewValley.DynamicAPI.Extensions;
-using Igorious.StardewValley.DynamicAPI.Objects;
 using StardewValley.Objects;
 using Object = StardewValley.Object;
 
@@ -22,7 +21,7 @@ namespace Igorious.StardewValley.DynamicAPI.Services.Internal
 
         #region	Public Methods
 
-        public void CopyData<T>(T from, T to) => CopyData(@from, to, typeof(T));
+        public void CopyData<T>(T from, T to) => CopyData(from, to, typeof(T));
 
         public void CopyData(object from, object to, Type type)
         {
@@ -43,36 +42,6 @@ namespace Igorious.StardewValley.DynamicAPI.Services.Internal
         {
             CopyData<Object>(from, to);
             to.SetColor(from.GetColor());
-        }
-
-        public Object ToRawObject(Object smartObject)
-        {
-            var rawObject = (smartObject.GetColor() != null)
-                ? ColoredToRawObject((SmartObject)smartObject)
-                : (smartObject.bigCraftable
-                    ? CraftableToRawObject(smartObject)
-                    : ItemToRawObject(smartObject));
-            CopyData(smartObject, rawObject);
-            return rawObject;
-        }
-
-        #endregion
-
-        #region	Auxiliary Methods
-
-        private static Object ColoredToRawObject(SmartObject smartObject)
-        {
-            return new ColoredObject(smartObject.ParentSheetIndex, smartObject.stack, smartObject.Color.Value);
-        }
-
-        private static Object CraftableToRawObject(Object smartObject)
-        {
-            return new Object(smartObject.TileLocation, smartObject.ParentSheetIndex);
-        }
-
-        private static Object ItemToRawObject(Object smartObject)
-        {
-            return new Object(smartObject.ParentSheetIndex, smartObject.stack);
         }
 
         #endregion
