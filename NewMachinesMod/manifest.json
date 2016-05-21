@@ -3,9 +3,9 @@
   Authour: "Igorious",
   Version: {
     MajorVersion: 4,
-    MinorVersion: 0,
-    PatchVersion: 3,
-    Build: 1103,
+    MinorVersion: 1,
+    PatchVersion: 1,
+    Build: 1212,
   },
   Description: "Adds new machines to create flour, sugar and vinegar.",
   UniqueID: "F70D4FAB-0AB2-4B78-9F1B-AF2CA2236A59",

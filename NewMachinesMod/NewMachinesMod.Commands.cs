@@ -10,7 +10,6 @@ using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
-using StardewValley.Events;
 using Object = StardewValley.Object;
 
 namespace Igorious.StardewValley.NewMachinesMod

@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Igorious.StardewValley.DynamicAPI.Extensions;
-using StardewValley.Objects;
 using Object = StardewValley.Object;
 
 namespace Igorious.StardewValley.DynamicAPI.Services.Internal

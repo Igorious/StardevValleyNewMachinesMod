@@ -12,14 +12,15 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects
 {
     public class BigWarpTotem : SmartObject
     {
-        public BigWarpTotem() : base(ClassMapperService.Instance.GetItemID<BigWarpTotem>()) { }
+        public BigWarpTotem() : base(ClassMapperService.Instance.GetItemID<BigWarpTotem>())
+        {
+            BoundingTileHeight = Config.TileHeight;
+            BoundingTileWidth = Config.TileWidth;
+            SpriteHeight = Config.TileHeight;
+            SpriteWidth = Config.TileWidth;
+        }
 
         private WarpTotemInformation Config => NewMachinesMod.Config.Totems.First(t => t.ID == ParentSheetIndex);
-
-        protected override int BoundingTileHeight { get; } = 2;
-        protected override int BoundingTileWidth { get; } = 2;
-        protected override int SpriteHeight { get; } = 2;
-        protected override int SpriteWidth { get; } = 2;
 
         public override int maximumStackSize() => 1;
 

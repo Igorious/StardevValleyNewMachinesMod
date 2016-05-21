@@ -14,7 +14,12 @@ namespace Igorious.StardewValley.DynamicAPI.Objects
 {
     public class SmartObject : Object, ISmartObject
     {
-        public int ID => ParentSheetIndex;
+        public int ID
+        {
+            get { return ParentSheetIndex; }
+            set { ParentSheetIndex = value; }
+        }
+
         protected static int TileSize => Game1.tileSize;
 
         #region	Constructors
@@ -29,8 +34,8 @@ namespace Igorious.StardewValley.DynamicAPI.Objects
 
         #region Bounding
 
-        protected virtual int BoundingTileWidth { get; } = 1;
-        protected virtual int BoundingTileHeight { get; } = 1;
+        public int BoundingTileWidth { get; set; } = 1;
+        public int BoundingTileHeight { get; set; } = 1;
 
         public sealed override Rectangle getBoundingBox(Vector2 tile)
         {
@@ -57,11 +62,11 @@ namespace Igorious.StardewValley.DynamicAPI.Objects
 
         #region	Properties
 
-        protected virtual TextureType TextureType => TextureType.Items;
+        protected virtual TextureType TextureType { get; set; } = TextureType.Items;
         protected Texture2D Texture => TextureInfo.Default[TextureType].Texture;
-        protected virtual int SpriteWidth { get; } = 1;
-        protected virtual int SpriteHeight { get; } = 1;
-        protected virtual int VerticalShift { get; } = 0;
+        public int SpriteWidth { get; set; } = 1;
+        public int SpriteHeight { get; set; } = 1;
+        public int VerticalShift { get; set; } = 0;
         protected virtual Rectangle SourceRect => GetSourceRect(ParentSheetIndex);
         protected bool UsedPreviewIcon => (SpriteHeight > 2) || (SpriteWidth > 1);
         public XColor? Color { get; set; }
@@ -88,9 +93,9 @@ namespace Igorious.StardewValley.DynamicAPI.Objects
                 scaleSize *= 0.75f;
             }
 
+            DrawShadow(spriteBatch, location, scaleSize, layerDepth);
             DrawMenuItem(spriteBatch, location, transparency, scaleSize, layerDepth);
             if (Color != null) DrawMenuItem(spriteBatch, location, transparency, scaleSize, layerDepth, Color);
-            DrawShadow(spriteBatch, location, scaleSize, layerDepth);
             DrawStackNumber(location, scaleSize, drawStackNumber);
             DrawQualityStar(spriteBatch, location, scaleSize, transparency, layerDepth, drawStackNumber);
             DrawTackleBar(spriteBatch, location, scaleSize);
@@ -254,7 +259,7 @@ namespace Igorious.StardewValley.DynamicAPI.Objects
                 new Vector2(Game1.shadowTexture.Bounds.Center.X, Game1.shadowTexture.Bounds.Center.Y),
                 3,
                 SpriteEffects.None,
-                layerDepth - 0.00001f);
+                layerDepth - 0.0001f);
         }
 
         protected void DrawHeld(SpriteBatch spriteBatch, Vector2 objectPosition, Farmer farmer, XColor? color = null)

@@ -19,6 +19,9 @@ namespace Igorious.StardewValley.NewMachinesMod
         private const int VinegarJugID = 168;
         private const int DryerID = 169;
         private const int MixerID = 172;
+        private const int SeparatorID = 179;
+        private const int FermenterID = 180;
+        private const int ChurnID = 182;
 
         private const int MoreCrops_Rice = 839;
         private const int MoreCrops_Cotton = 836;
@@ -40,6 +43,8 @@ namespace Igorious.StardewValley.NewMachinesMod
         private const int BigWarpTotemMountainsID = 924;
         private const int BigWarpTotemBeachID = 927;
         private const int SakeID = 930;
+        private const int ButterID = 931;
+        private const int SourCreamID = 932;
 
         #endregion
 
@@ -56,6 +61,9 @@ namespace Igorious.StardewValley.NewMachinesMod
 
             Tank = GetTank();
             Mixer = GetMixer();
+            Fermenter = GetFermenter();
+            Churn = GetChurn();
+            Separator = GetSeparator();
 
             ItemOverrides = new List<ItemInformation>
             {
@@ -82,6 +90,8 @@ namespace Igorious.StardewValley.NewMachinesMod
                 GetDriedFruits(),
                 GetBlackRisinsMaffin(),
                 GetSake(),
+                GetSourCream(),
+                GetButter(),
             };
             Totems = GetWarpTotems();
 
@@ -271,9 +281,9 @@ namespace Igorious.StardewValley.NewMachinesMod
                     Sounds = new List<Sound> { Sound.OpenBox, Sound.Fireball },
                     Animation = Animation.Steam,
                 })
-                {
-                    Draw = new MachineDraw { Working = +1 },
-                };
+            {
+                Draw = new MachineDraw { Working = +1 },
+            };
         }
 
         private static OverridedMachineInformation GetLoomOverride()
@@ -283,9 +293,9 @@ namespace Igorious.StardewValley.NewMachinesMod
                 {
                     { MoreCrops_Cotton, new OutputItem(ItemID.Cloth) { InputCount = 4, MinutesUntilReady = 240 } },
                 }))
-                {
-                    Draw = new MachineDraw { Ready = +1 },
-                };
+            {
+                Draw = new MachineDraw { Ready = +1 },
+            };
         }
 
         private static OverridedMachineInformation GetOilMakerOverride()
@@ -296,7 +306,7 @@ namespace Igorious.StardewValley.NewMachinesMod
                     {MoreCrops_Olive, new OutputItem(ItemID.Oil) {MinutesUntilReady = 1000}},
                 })
                 {
-                    Sounds = new List<Sound> {Sound.Bubbles, Sound.SipTea}
+                    Sounds = new List<Sound> { Sound.Bubbles, Sound.SipTea }
                 });
         }
 
@@ -447,6 +457,30 @@ namespace Igorious.StardewValley.NewMachinesMod
             };
         }
 
+        private static ItemInformation GetButter()
+        {
+            return new ItemInformation(ButterID, "Butter", "A milk product.")
+            {
+                Category = CategoryID.ArtisanGoods,
+                Price = 180,
+                Edibility = 17,
+                MealCategory = MealCategory.Food,
+                ResourceIndex = 31,
+            };
+        }
+
+        private static ItemInformation GetSourCream()
+        {
+            return new ItemInformation(SourCreamID, "Sour Cream", "A milk product.")
+            {
+                Category = CategoryID.ArtisanGoods,
+                Price = 180,
+                Edibility = 17,
+                MealCategory = MealCategory.Food,
+                ResourceIndex = 32,
+            };
+        }
+
         private static ItemInformation GetMead()
         {
             return new ItemInformation(MeadID, "Mead", "Drink from honey.")
@@ -587,6 +621,92 @@ namespace Igorious.StardewValley.NewMachinesMod
                     MinutesUntilReady = 360,
                     Sounds = new List<Sound> { Sound.Ship, Sound.Bubbles },
                 },
+            };
+        }
+
+        private static MachineInformation GetSeparator()
+        {
+            return new MachineInformation
+            {
+                ID = SeparatorID,
+                ResourceIndex = 15,
+                Name = "Separator",
+                Description = "Performs separation of liquids. Section: Requires additional modules to work.",
+                Skill = Skill.Farming,
+                SkillLevel = 8,
+                Materials = new Dictionary<DynamicID<ItemID>, int>
+                {
+                    { ItemID.IronBar, 2 },
+                },
+                Output = new MachineOutputInformation
+                {
+                    Items = new Dictionary<DynamicID<ItemID, CategoryID>, OutputItem>(),
+                    Price = "3 * p / 2",
+                    MinutesUntilReady = 60,
+                    Animation = Animation.Steam,
+                    Sounds = new List<Sound> { Sound.Ship, Sound.Bubbles },
+                },
+                AllowedModules = new List<DynamicID<CraftableID>> { ChurnID, FermenterID }
+            };
+        }
+
+        private static MachineInformation GetChurn()
+        {
+            return new MachineInformation
+            {
+                ID = ChurnID,
+                ResourceIndex = 18,
+                ResourceLength = 4,
+                Name = "Churn",
+                Description = "Used for creating butter. Module: Place to the right of Separator.",
+                Skill = Skill.Farming,
+                SkillLevel = 8,
+                Materials = new Dictionary<DynamicID<ItemID>, int>
+                {
+                    { ItemID.IronBar, 2 },
+                },
+                Output = new MachineOutputInformation
+                {
+                    ID = ButterID,
+                    Items = new Dictionary<DynamicID<ItemID, CategoryID>, OutputItem>
+                    {
+                        { ItemID.Milk, new OutputItem { Quality = "0" } },
+                        { ItemID.LargeMilk, new OutputItem { Quality = "2" } },
+                    },
+                    Price = "3 * p / 2",
+                    MinutesUntilReady = 60,
+                },
+                AllowedSections = new List<DynamicID<CraftableID>> { SeparatorID },
+            };
+        }
+
+        private static MachineInformation GetFermenter()
+        {
+            return new MachineInformation
+            {
+                ID = FermenterID,
+                ResourceIndex = 16,
+                ResourceLength = 2,
+                Name = "Fermenter",
+                Description = "Used for creating sour cream. Module: Place to the right of Separator.",
+                Skill = Skill.Farming,
+                SkillLevel = 8,
+                Materials = new Dictionary<DynamicID<ItemID>, int>
+                {
+                    { ItemID.IronBar, 2 },
+                },
+                Output = new MachineOutputInformation
+                {
+                    ID = SourCreamID,
+                    Items = new Dictionary<DynamicID<ItemID, CategoryID>, OutputItem>
+                    {
+                        { ItemID.Milk, new OutputItem { Quality = "0" } },
+                        { ItemID.LargeMilk, new OutputItem { Quality = "2" } },
+                    },
+                    Price = "3 * p / 2",
+                    MinutesUntilReady = 60,
+                },
+                AllowedSections = new List<DynamicID<CraftableID>> { SeparatorID },
             };
         }
 

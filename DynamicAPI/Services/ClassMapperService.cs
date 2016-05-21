@@ -40,6 +40,7 @@ namespace Igorious.StardewValley.DynamicAPI.Services
             {
                 if (!DeactivateMapping()) return;
                 Log.ImportantInfo("Deactivation before saving...");
+                DelayedTimeOfDayChangedHandlers = DelayEventHandlers(typeof(TimeEvents), nameof(TimeEvents.TimeOfDayChanged), h => h.Method.Module.Name == "FarmAutomation.ItemCollector.dll");
                 ConvertToRawInWorld(); // Allow use native serializer.
             };
 
@@ -48,6 +49,19 @@ namespace Igorious.StardewValley.DynamicAPI.Services
                 if (!ActivateMapping()) return;
                 Log.ImportantInfo("Activation after saving...");
                 ConvertToSmartInWorld();
+                RestoreEventHandlers(typeof(TimeEvents), nameof(TimeEvents.TimeOfDayChanged), DelayedTimeOfDayChangedHandlers);
+                foreach (var handler in DelayedTimeOfDayChangedHandlers)
+                {
+                    try
+                    {
+                        handler.Method.Invoke(handler.Target, new object[] { null, new EventArgsIntChanged(600, 600) });
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Error(e.ToString());
+                    }
+                }
+                DelayedTimeOfDayChangedHandlers = null;
             };
 
             InventoryEvents.ActiveObjectChanged += args =>
@@ -92,6 +106,8 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         private readonly Dictionary<int, Type> _craftableTypeMap = new Dictionary<int, Type>();
         private readonly Dictionary<int, DynamicTypeInfo> _dynamicCraftableTypeMap = new Dictionary<int, DynamicTypeInfo>();
 
+        private IReadOnlyList<Delegate> DelayedTimeOfDayChangedHandlers { get; set; }
+
         #endregion
 
         #region	Properties
@@ -133,7 +149,9 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         /// </summary>
         public int GetCraftableID<TObject>() where TObject : ISmartObject
         {
-            return _craftableTypeMap.First(kv => kv.Value == typeof(TObject)).Key;
+            var result = _craftableTypeMap.FirstOrDefault(kv => kv.Value == typeof(TObject));
+            if (result.Value == null) Log.Error($"Type {typeof(TObject).Name} is not registered!");
+            return result.Key;
         }
 
         /// <summary>
@@ -141,7 +159,9 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         /// </summary>
         public int GetItemID<TObject>() where TObject : ISmartObject
         {
-            return _itemTypeMap.First(kv => kv.Value == typeof(TObject)).Key;
+            var result = _itemTypeMap.FirstOrDefault(kv => kv.Value == typeof(TObject));
+            if (result.Value == null) Log.Error($"Type {typeof(TObject).Name} is not registered!");
+            return result.Key;
         }
 
         public Object ToSmartObject(Object rawObject)
@@ -211,7 +231,7 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         public Object ToRawObject(Object smartObject)
         {
             if (!(smartObject is ISmartObject)) return smartObject;
-            var rawObject = (smartObject.GetColor() != null)? new ColoredObject() : new Object();
+            var rawObject = (smartObject.GetColor() != null) ? new ColoredObject() : new Object();
             Cloner.Instance.CopyData(smartObject, rawObject);
             return rawObject;
         }
@@ -248,7 +268,7 @@ namespace Igorious.StardewValley.DynamicAPI.Services
 
         private bool IsRawObject(Object o)
         {
-            return (o != null) && !(o is ISmartObject) && (IsRawCraftable(o) || IsRawItem(o));
+            return (o != null) && (IsRawCraftable(o) || IsRawItem(o));
         }
 
         private bool IsRawCraftable(Object o)
@@ -311,6 +331,29 @@ namespace Igorious.StardewValley.DynamicAPI.Services
             LocationEvents.LocationObjectsChanged -= OnLocationObjectsChanged;
             Log.ImportantInfo("Class mapping deactivated.");
             return true;
+        }
+
+        #endregion
+
+        #region Delay Events
+
+        private IReadOnlyList<Delegate> DelayEventHandlers(Type type, string eventName, Func<Delegate, bool> filter)
+        {
+            var handlers = type.GetEventHandlers(eventName);
+            var automationHandlers = handlers.Where(filter).ToList();
+            foreach (var handler in automationHandlers)
+            {
+                type.RemoveEventHandler(eventName, handler);
+            }
+            return automationHandlers;
+        }
+
+        private void RestoreEventHandlers(Type type, string eventName, IReadOnlyList<Delegate> delayedHandlers)
+        {
+            foreach (var handler in delayedHandlers)
+            {
+                type.AddEventHandler(eventName, handler);
+            }
         }
 
         #endregion

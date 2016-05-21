@@ -11,7 +11,10 @@ namespace Igorious.StardewValley.DynamicAPI.Objects
 {
     public abstract class SmartBigCrafrableBase : SmartObject
     {
-        protected SmartBigCrafrableBase(int id) : base(id) { }
+        protected SmartBigCrafrableBase(int id) : base(id)
+        {
+            VerticalShift = -1;
+        }
 
         protected MachineState State
         {
@@ -27,8 +30,7 @@ namespace Igorious.StardewValley.DynamicAPI.Objects
 
         #region Properties
 
-        protected override TextureType TextureType { get; } = TextureType.Craftables;
-        protected override int VerticalShift { get; } = -1;
+        protected override TextureType TextureType { get; set; } = TextureType.Craftables;
 
         #endregion
 

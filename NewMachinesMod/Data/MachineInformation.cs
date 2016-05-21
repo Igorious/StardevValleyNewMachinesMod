@@ -43,6 +43,12 @@ namespace Igorious.StardewValley.NewMachinesMod.Data
         [JsonProperty, DefaultValue(1)]
         public int ResourceLength { get; set; } = 1;
 
+        [JsonProperty]
+        public List<DynamicID<CraftableID>> AllowedModules { get; set; }
+
+        [JsonProperty]
+        public List<DynamicID<CraftableID>> AllowedSections { get; set; }
+
         #endregion
 
         #region Contracts

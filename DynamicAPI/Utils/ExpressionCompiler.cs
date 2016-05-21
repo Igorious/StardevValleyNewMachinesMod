@@ -26,7 +26,7 @@ namespace Igorious.StardewValley.DynamicAPI.Utils
             var delegateParameters = delegateInfo.GetParameters();
             var args = delegateParameters.Select(p => p.Name).ToList();
 
-            var key = $"{string.Join(", ", args)} => {body}";
+            var key = $"{typeof(TDelegate).Name}: {string.Join(", ", args)} => {body}";
             object value;
             if (CachedFunctions.TryGetValue(key, out value)) return (TDelegate)value;
 

@@ -83,6 +83,12 @@ namespace Igorious.StardewValley.DynamicAPI.Data
         [JsonProperty, DefaultValue(1)]
         public int ResourceHeight { get; set; } = 1;
 
+        [JsonProperty, DefaultValue(1)]
+        public int TileWidth { get; set; } = 1;
+
+        [JsonProperty, DefaultValue(1)]
+        public int TileHeight { get; set; } = 1;
+
         #endregion
 
         #region Serialization

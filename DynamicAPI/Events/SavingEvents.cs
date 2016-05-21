@@ -11,20 +11,23 @@ namespace Igorious.StardewValley.DynamicAPI.Events
 
         static SavingEvents()
         {
+            MenuEvents.MenuChanged += OnMenuChanged;
             MenuEvents.MenuClosed += OnMenuClosed;
-            TimeEvents.OnNewDay += OnNewDay;
         }
 
-        private static void OnNewDay(object sender, EventArgsNewDay e)
+        private static void OnMenuChanged(object sender, EventArgsClickableMenuChanged args)
         {
-            if (e.IsNewDay) return;
-            BeforeSaving?.Invoke();
+            if (IsSaveGameMenu(args.NewMenu)) BeforeSaving?.Invoke();
         }
 
         private static void OnMenuClosed(object sender, EventArgsClickableMenuClosed args)
         {
-            if (!(args.PriorMenu is SaveGameMenu)) return;
-            AfterSaving?.Invoke();
+            if (IsSaveGameMenu(args.PriorMenu)) AfterSaving?.Invoke();
+        }
+
+        private static bool IsSaveGameMenu(IClickableMenu menu)
+        {
+            return (menu is SaveGameMenu) || (menu is ShippingMenu);
         }
     }
 }

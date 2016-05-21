@@ -38,7 +38,15 @@ namespace Igorious.StardewValley.DynamicAPI.Data.Supporting
         public Rectangle GetSourceRect(Texture2D texture, int index, int length = 1, int height = 1)
         {
             var rowLength = texture.Width / SpriteWidth;
-            return new Rectangle(index % rowLength * SpriteWidth, index / rowLength * SpriteHeight, SpriteWidth * length, SpriteHeight * height);
+            var x = index % rowLength * SpriteWidth;
+            var width = SpriteWidth * length;
+            if (x + width > texture.Width)
+            {
+                height += (x + width) / texture.Width;
+                x = 0;
+                width = texture.Width;
+            }
+            return new Rectangle(x, index / rowLength * SpriteHeight, width, SpriteHeight * height);
         }
     }
 }

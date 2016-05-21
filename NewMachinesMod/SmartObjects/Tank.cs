@@ -9,23 +9,21 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects
 {
     public sealed class FullTank : Tank
     {
-        private static readonly int ID = ClassMapperService.Instance.GetCraftableID<FullTank>();
-
-        public FullTank() : base(ID) { }
+        public FullTank() : base(ClassMapperService.Instance.GetCraftableID<FullTank>()) { }
     }
 
     public class Tank : CustomMachineBase
     {
-        private static readonly int ID = ClassMapperService.Instance.GetCraftableID<Tank>();
+        private static readonly int TankID = ClassMapperService.Instance.GetCraftableID<Tank>();
 
-        public Tank() : this(ID) { }
+        public Tank() : this(TankID) { }
 
         protected Tank(int id) : base(id) { }
 
         protected bool IsEmpty
         {
-            get { return (ParentSheetIndex == ID); }
-            set { ParentSheetIndex = ID + (value ? 0 : 1); }
+            get { return (ID == TankID); }
+            set { ID = TankID + (value? 0 : 1); }
         }
 
         public override bool minutesElapsed(int minutes, GameLocation environment)

@@ -119,20 +119,27 @@ namespace Igorious.StardewValley.DynamicAPI.Services
                 foreach (var spriteOverride in spriteOverrides)
                 {
                     var textureRect = spriteOverride.Value;
-                    if (textureRect.Height > 1)
+                    try
                     {
-                        var data = new Color[tileWidth * textureRect.Length * tileHeight * textureRect.Height];
-                        overrideTexture.GetData(0, info.GetSourceRect(overrideTexture, textureRect.Index, textureRect.Length, textureRect.Height), data, 0, data.Length);
-                        originalTexture.SetData(0, info.GetSourceRect(originalTexture, spriteOverride.Key, textureRect.Length, textureRect.Height), data, 0, data.Length);
-                    }
-                    else
-                    {
-                        for (var i = 0; i < textureRect.Length; ++i)
+                        if (textureRect.Height > 1)
                         {
-                            var data = new Color[tileWidth * tileHeight];
-                            overrideTexture.GetData(0, info.GetSourceRect(overrideTexture, textureRect.Index + i), data, 0, data.Length);
-                            originalTexture.SetData(0, info.GetSourceRect(originalTexture, spriteOverride.Key + i), data, 0, data.Length);
+                            var data = new Color[tileWidth * textureRect.Length * tileHeight * textureRect.Height];
+                            overrideTexture.GetData(0, info.GetSourceRect(overrideTexture, textureRect.Index, textureRect.Length, textureRect.Height), data, 0, data.Length);
+                            originalTexture.SetData(0, info.GetSourceRect(originalTexture, spriteOverride.Key, textureRect.Length, textureRect.Height), data, 0, data.Length);
                         }
+                        else
+                        {
+                            for (var i = 0; i < textureRect.Length; ++i)
+                            {
+                                var data = new Color[tileWidth * tileHeight];
+                                overrideTexture.GetData(0, info.GetSourceRect(overrideTexture, textureRect.Index + i), data, 0, data.Length);
+                                originalTexture.SetData(0, info.GetSourceRect(originalTexture, spriteOverride.Key + i), data, 0, data.Length);
+                            }
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        throw new Exception($"Fail during overriding {textureType}: {textureRect}", e);
                     }
                 }
             }
@@ -142,7 +149,6 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         {
             var textureInfo = TextureInfo.Default[textureType];
             var maxHeight = spriteOverrides.Select(so => textureInfo.GetSourceRect(so.Key, so.Value.Length, so.Value.Height)).Max(r => r.Bottom);
-            
             if (maxHeight > originalTexture.Height)
             {
                 var allData = new Color[originalTexture.Width * originalTexture.Height];

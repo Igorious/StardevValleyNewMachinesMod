@@ -7,6 +7,25 @@ namespace Igorious.StardewValley.DynamicAPI.Extensions
 {
     public static class ReflectionExtensions
     {
+        public static IReadOnlyList<Delegate> GetEventHandlers(this Type type, string eventName)
+        {
+            var fieldInfo = type.GetField(eventName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+            var field = fieldInfo?.GetValue(null) as Delegate;
+            return field?.GetInvocationList() ?? new Delegate[] {};
+        }
+
+        public static void RemoveEventHandler(this Type type, string eventName, Delegate handler)
+        {
+            var eventInfo = type.GetEvent(eventName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+            eventInfo?.RemoveEventHandler(null, handler);
+        }
+
+        public static void AddEventHandler(this Type type, string eventName, Delegate handler)
+        {
+            var eventInfo = type.GetEvent(eventName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+            eventInfo?.AddEventHandler(null, handler);
+        }
+
         public static IEnumerable<FieldInfo> GetAllFields(this Type type)
         {
             if (type == null) return Enumerable.Empty<FieldInfo>();

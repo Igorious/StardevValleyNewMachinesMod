@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Igorious.StardewValley.DynamicAPI.Constants;
@@ -12,6 +13,7 @@ using Igorious.StardewValley.NewMachinesMod.SmartObjects;
 using Igorious.StardewValley.NewMachinesMod.SmartObjects.Dynamic;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
+using Log = Igorious.StardewValley.DynamicAPI.Utils.Log;
 
 namespace Igorious.StardewValley.NewMachinesMod
 {
@@ -24,7 +26,7 @@ namespace Igorious.StardewValley.NewMachinesMod
         public override void Entry(params object[] objects)
         {
             Config.Load(PathOnDisk);
-            _machines = new List<MachineInformation>(Config.SimpleMachines) { Config.Tank, Config.Mixer };
+            _machines = new List<MachineInformation>(Config.SimpleMachines) { Config.Tank, Config.Mixer, Config.Separator, Config.Churn, Config.Fermenter };
 
             InitializeRecipes();
             InitializeObjectInformation();
@@ -46,6 +48,9 @@ namespace Igorious.StardewValley.NewMachinesMod
             ClassMapperService.Instance.MapCraftable<Tank>(Config.Tank.ID);
             ClassMapperService.Instance.MapCraftable<FullTank>(Config.Tank.ID + 1);
             ClassMapperService.Instance.MapCraftable<Mixer>(Config.Mixer.ID);
+            ClassMapperService.Instance.MapCraftable<Separator>(Config.Separator.ID);
+            ClassMapperService.Instance.MapCraftable<Churn>(Config.Churn.ID);
+            ClassMapperService.Instance.MapCraftable<Fermenter>(Config.Fermenter.ID);
 
             Config.Totems.ForEach(t => ClassMapperService.Instance.MapItem<BigWarpTotem>(t.ID));
             Config.Items.ForEach(i => ClassMapperService.Instance.MapItem<SmartObject>(i.ID));
@@ -90,20 +95,29 @@ namespace Igorious.StardewValley.NewMachinesMod
         {
             var compilingTask = Task.Run(() =>
             {
-                var machineOutputs = _machines.Select(m => m.Output).Concat(Config.MachineOverrides.Select(m => m.Output));
-                foreach (var machineOutput in machineOutputs)
+                try
                 {
-                    ExpressionCompiler.CompileExpression<CountExpression>(machineOutput.Count);
-                    ExpressionCompiler.CompileExpression<QualityExpression>(machineOutput.Quality);
-                    ExpressionCompiler.CompileExpression<PriceExpression>(machineOutput.Price);
-
-                    foreach (var outputItem in machineOutput.Items.Values)
+                    var machineOutputs = _machines.Select(m => m.Output).Concat(Config.MachineOverrides.Select(m => m.Output));
+                    foreach (var machineOutput in machineOutputs)
                     {
-                        if (outputItem == null) continue;
-                        ExpressionCompiler.CompileExpression<CountExpression>(outputItem.Count);
-                        ExpressionCompiler.CompileExpression<QualityExpression>(outputItem.Quality);
-                        ExpressionCompiler.CompileExpression<QualityExpression>(outputItem.Price);
+                        if (machineOutput == null) continue;
+                        ExpressionCompiler.CompileExpression<CountExpression>(machineOutput.Count);
+                        ExpressionCompiler.CompileExpression<QualityExpression>(machineOutput.Quality);
+                        ExpressionCompiler.CompileExpression<PriceExpression>(machineOutput.Price);
+
+                        foreach (var outputItem in machineOutput.Items.Values)
+                        {
+                            if (outputItem == null) continue;
+                            ExpressionCompiler.CompileExpression<CountExpression>(outputItem.Count);
+                            ExpressionCompiler.CompileExpression<QualityExpression>(outputItem.Quality);
+                            ExpressionCompiler.CompileExpression<PriceExpression>(outputItem.Price);
+                        }
                     }
+                }
+                catch (Exception e)
+                {
+                    Log.Error($"Fail during precompiling expressions! Cause: {e}");
+                    throw;
                 }
             });
 

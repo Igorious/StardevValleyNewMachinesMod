@@ -17,6 +17,11 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
         protected abstract MachineInformation MachineInformation { get; }
         protected override MachineOutputInformation Output => MachineInformation.Output;
 
+        protected void DrawObjectRaw(SpriteBatch spriteBatch, int x, int y, float alpha, Color? color = null, int sheetIndexDelta = 0)
+        {
+            base.DrawObject(spriteBatch, x, y, alpha, color, sheetIndexDelta);
+        }
+
         protected override void DrawObject(SpriteBatch spriteBatch, int x, int y, float alpha, Color? color = null, int sheetIndexDelta = 0)
         {
             GetSpriteDeltaAndColor(out sheetIndexDelta, out color);
@@ -43,7 +48,7 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
             return MachineInformation.Draw;
         }
 
-        private void GetSpriteDeltaAndColor(out int spriteDelta, out Color? color)
+        protected virtual void GetSpriteDeltaAndColor(out int spriteDelta, out Color? color)
         {
             var draw = GetDrawInfo();
             color = null;

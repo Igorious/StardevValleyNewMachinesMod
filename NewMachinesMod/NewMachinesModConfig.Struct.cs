@@ -45,6 +45,9 @@ namespace Igorious.StardewValley.NewMachinesMod
         public List<OverridedMachineInformation> MachineOverrides { get; set; } = new List<OverridedMachineInformation>();
         public MachineInformation Tank { get; set; }
         public MachineInformation Mixer { get; set; }
+        public MachineInformation Separator { get; set; }
+        public MachineInformation Churn { get; set; }
+        public MachineInformation Fermenter { get; set; }
         public List<CookingRecipeInformation> CookingRecipes { get; set; } = new List<CookingRecipeInformation>();
         public List<CraftingRecipeInformation> CraftingRecipes { get; set; } = new List<CraftingRecipeInformation>();
         public List<ItemInformation> ItemOverrides { get; set; } = new List<ItemInformation>();

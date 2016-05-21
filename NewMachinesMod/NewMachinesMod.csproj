@@ -17,7 +17,7 @@
     <UpdateAssemblyFileVersion>False</UpdateAssemblyFileVersion>
     <UpdateAssemblyInfoVersion>False</UpdateAssemblyInfoVersion>
     <AssemblyVersionSettings>None.None.None.Increment</AssemblyVersionSettings>
-    <AssemblyVersion>4.0.0.1108</AssemblyVersion>
+    <AssemblyVersion>4.1.1.1213</AssemblyVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -92,9 +92,14 @@
     <Compile Include="SmartObjects\Base\OverridedMachineBase.cs" />
     <Compile Include="SmartObjects\Base\MachineBase.cs" />
     <Compile Include="SmartObjects\BigWarpTotem.cs" />
+    <Compile Include="SmartObjects\Churn.cs" />
+    <Compile Include="SmartObjects\Separator.cs" />
     <Compile Include="SmartObjects\Dynamic\DynamicOverridedMachine.cs" />
     <Compile Include="SmartObjects\Dynamic\DynamicCustomMachine.cs" />
     <Compile Include="SmartObjects\Base\CustomMachineBase.cs" />
+    <Compile Include="SmartObjects\Fermenter.cs" />
+    <Compile Include="SmartObjects\Modules\MachineModule.cs" />
+    <Compile Include="SmartObjects\Modules\MachineMainSection.cs" />
     <Compile Include="SmartObjects\Mixer.cs" />
     <Compile Include="SmartObjects\Tank.cs" />
   </ItemGroup>

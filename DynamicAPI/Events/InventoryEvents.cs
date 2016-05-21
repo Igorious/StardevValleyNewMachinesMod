@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Igorious.StardewValley.DynamicAPI.Extensions;
-using Igorious.StardewValley.DynamicAPI.Services;
 using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.Menus;
