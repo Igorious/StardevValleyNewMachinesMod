@@ -20,7 +20,11 @@ namespace Igorious.StardewValley.DynamicAPI.Services.Internal
 
         #region	Public Methods
 
-        public void CopyData<T>(T from, T to) => CopyData(from, to, typeof(T));
+        public void CopyData(object from, object to)
+        {
+            CopyData(from, to, from.GetType().Intersect(to.GetType()));
+            (to as Object).SetColor((from as Object).GetColor());
+        }
 
         public void CopyData(object from, object to, Type type)
         {
@@ -35,12 +39,6 @@ namespace Igorious.StardewValley.DynamicAPI.Services.Internal
             {
                 field.SetValue(to, field.GetValue(from));
             }
-        }
-
-        public void CopyData(Object from, Object to)
-        {
-            CopyData<Object>(from, to);
-            to.SetColor(from.GetColor());
         }
 
         #endregion

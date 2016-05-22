@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Igorious.StardewValley.DynamicAPI.Constants;
 using Igorious.StardewValley.DynamicAPI.Data.Supporting;
 using Igorious.StardewValley.DynamicAPI.Events;
 using Igorious.StardewValley.DynamicAPI.Extensions;
@@ -123,7 +124,7 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         /// <summary>
         /// Map game Item ID to specific class.
         /// </summary>
-        public void MapItem<TObject>(int id) where TObject : ISmartObject, new()
+        public void MapItem<TObject>(DynamicID<ItemID> id) where TObject : ISmartObject, new()
         {
             _itemTypeMap.Add(id, typeof(TObject));
         }
@@ -131,7 +132,7 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         /// <summary>
         /// Map game Craftable ID to specific class.
         /// </summary>
-        public void MapCraftable<TObject>(int id) where TObject : ISmartObject, new()
+        public void MapCraftable<TObject>(DynamicID<CraftableID> id) where TObject : ISmartObject, new()
         {
             _craftableTypeMap.Add(id, typeof(TObject));
         }
@@ -231,7 +232,7 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         public Object ToRawObject(Object smartObject)
         {
             if (!(smartObject is ISmartObject)) return smartObject;
-            var rawObject = (smartObject.GetColor() != null) ? new ColoredObject() : new Object();
+            var rawObject = (smartObject is Chest)? new Chest() : (smartObject.GetColor() != null)? new ColoredObject() : new Object();
             Cloner.Instance.CopyData(smartObject, rawObject);
             return rawObject;
         }
