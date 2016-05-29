@@ -7,22 +7,27 @@ namespace Igorious.StardewValley.DynamicAPI.Utils
     {
         public static void Error(string message)
         {
-            LogApi.SyncColour($"[NMM] {message}", ConsoleColor.Red);
+            LogApi.SyncColour($"[DAPI] {message}", ConsoleColor.Red);
         }
 
         public static void Fail(string message)
         {
-            LogApi.SyncColour($"[NMM] {message}", ConsoleColor.DarkRed);
+            LogApi.SyncColour($"[DAPI] {message}", ConsoleColor.DarkRed);
         }
 
         public static void Info(string message)
         {
-            LogApi.SyncColour($"[NMM] {message}", ConsoleColor.DarkGray);
+            LogApi.SyncColour($"[DAPI] {message}", ConsoleColor.DarkGray);
+        }
+
+        public static void InfoAsync(string message)
+        {
+            LogApi.AsyncColour($"[DAPI] {message}", ConsoleColor.DarkGray);
         }
 
         public static void ImportantInfo(string message)
         {
-            LogApi.SyncColour($"[NMM] {message}", ConsoleColor.DarkYellow);
+            LogApi.SyncColour($"[DAPI] {message}", ConsoleColor.DarkYellow);
         }
     }
 }

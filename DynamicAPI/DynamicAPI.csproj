@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Igorious.StardewValley.DynamicAPI</RootNamespace>
-    <AssemblyName>Igorious.StardewValley.DynamicAPI.4_1_1</AssemblyName>
+    <AssemblyName>Igorious.StardewValley.DynamicAPI.4_2_0</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
@@ -107,11 +107,19 @@
     <Compile Include="Data\Supporting\GiftPreferences.cs" />
     <Compile Include="Interfaces\ISmartLocation.cs" />
     <Compile Include="Locations\SmartLocationProxy.cs" />
+    <Compile Include="Menu\Aligment.cs" />
+    <Compile Include="Menu\GridToolTip.cs" />
+    <Compile Include="Menu\IconMenuCell.cs" />
+    <Compile Include="Menu\ItemMenuCell.cs" />
+    <Compile Include="Menu\MenuCell.cs" />
+    <Compile Include="Menu\TextMenuCell.cs" />
+    <Compile Include="Menu\ToolTipManager.cs" />
     <Compile Include="Objects\SmartBigCrafrable.cs" />
     <Compile Include="Data\BundleInformation.cs" />
     <Compile Include="Data\Supporting\BundleItemInformation.cs" />
     <Compile Include="Data\Supporting\TextureInfo.cs" />
     <Compile Include="Services\BundlesService.cs" />
+    <Compile Include="Data\Supporting\EventInfo.cs" />
     <Compile Include="Services\Internal\Cloner.cs" />
     <Compile Include="Services\GiftPreferencesService.cs" />
     <Compile Include="Extensions\ObjectExtensions.cs" />
@@ -129,6 +137,7 @@
     <Compile Include="Services\TexturesService.cs" />
     <Compile Include="Objects\SmartObject.cs" />
     <Compile Include="Services\Internal\Traverser.cs" />
+    <Compile Include="Utils\Constructor.cs" />
     <Compile Include="Utils\DominantColorFinder.cs" />
     <Compile Include="Utils\ExpressionCompiler.cs" />
     <Compile Include="Utils\Log.cs" />

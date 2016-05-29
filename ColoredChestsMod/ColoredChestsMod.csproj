@@ -33,6 +33,10 @@
     <Reference Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553" />
     <Reference Include="Microsoft.Xna.Framework.Game, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553" />
     <Reference Include="Microsoft.Xna.Framework.Graphics, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="Stardew Valley">
       <HintPath>D:\Games\Steam\steamapps\common\Stardew Valley\Stardew Valley.exe</HintPath>
       <Private>False</Private>
@@ -55,10 +59,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ColoredChestsModConfig.cs" />
+    <Compile Include="Utils\ColorParser.cs" />
+    <Compile Include="Menu\ColorCell.cs" />
+    <Compile Include="Menu\ColorChooser.cs" />
     <Compile Include="ColoredChestsMod.cs" />
-    <Compile Include="ColoredChest.cs" />
+    <Compile Include="SmartObjects\ColoredChest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Textures.cs" />
+    <Compile Include="Utils\Textures.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DynamicAPI\DynamicAPI.csproj">
@@ -67,16 +75,17 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="manifest.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Resources\Chest_Tint.png">
+    <Content Include="Resources\ChestTint.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\ColorIcon.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>"$(SolutionDir)BuildTools\bin\Release\Igorious.BuildManifest.exe" "$(TargetPath)"</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

@@ -39,7 +39,22 @@ namespace Igorious.StardewValley.DynamicAPI.Services.Internal
             }
         }
 
-        public void TraverseLocation(GameLocation location, Func<Object, Object> processObject)
+        public void TraverseLocationLight(GameLocation location, Func<Object, Object> processObject)
+        {
+            if (location == null) return;
+            var objectInfos = location.Objects.ToList();
+            foreach (var objectInfo in objectInfos)
+            {
+                var oldObject = objectInfo.Value;
+                var newObject = processObject(oldObject);
+                if (oldObject != newObject)
+                {
+                    location.Objects[objectInfo.Key] = newObject;
+                }
+            }
+        }
+
+        public void TraverseLocationDeep(GameLocation location, Func<Object, Object> processObject)
         {
             if (location == null) return;
             var objectInfos = location.Objects.ToList();

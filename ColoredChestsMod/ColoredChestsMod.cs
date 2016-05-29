@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Linq;
-using System.Reflection;
-using System.Text.RegularExpressions;
+using Igorious.StardewValley.ColoredChestsMod.Menu;
+using Igorious.StardewValley.ColoredChestsMod.SmartObjects;
+using Igorious.StardewValley.ColoredChestsMod.Utils;
 using Igorious.StardewValley.DynamicAPI.Constants;
-using Igorious.StardewValley.DynamicAPI.Data.Supporting;
+using Igorious.StardewValley.DynamicAPI.Menu;
 using Igorious.StardewValley.DynamicAPI.Services;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
@@ -16,11 +17,14 @@ namespace Igorious.StardewValley.ColoredChestsMod
     public sealed class ColoredChestsMod : Mod
     {
         public static string RootPath { get; private set; }
+        public static ColoredChestsModConfig Config { get; } = new ColoredChestsModConfig();
 
         public override void Entry(params object[] objects)
         {
             RootPath = PathOnDisk;
+            Config.Load(RootPath);
             ClassMapperService.Instance.MapCraftable<ColoredChest>(CraftableID.Chest);
+            ToolTipManager.Instance.Register<ColorChooser>();
             RegisterCommands();
         }
 
@@ -85,21 +89,11 @@ namespace Igorious.StardewValley.ColoredChestsMod
             }
             var y = args[1].AsInt32();
 
-            var colorName = args[2];
-            Color color;
-            if (Regex.Match(colorName, @"#?[\dA-Fa-f]{6}").Success)
+            var color = ColorParser.Parse(args[2]);
+            if (color == null)
             {
-                color = RawColor.FromHex(colorName.Substring(1)).ToXnaColor();
-            }
-            else
-            {
-                var propertyInfo = typeof(Color).GetProperty(colorName, BindingFlags.Static | BindingFlags.Public);
-                if (propertyInfo == null)
-                {
-                    Log.Error("Third argument must be color name.");
-                    return;
-                }
-                color = (Color)propertyInfo.GetValue(null);
+                Log.Error("Third argument must be color name.");
+                return;
             }
 
             var chest = Game1.currentLocation.Objects
@@ -111,7 +105,7 @@ namespace Igorious.StardewValley.ColoredChestsMod
                 return;
             }
 
-            chest.tint = color;
+            chest.tint = color.Value;
         }
     }
 }

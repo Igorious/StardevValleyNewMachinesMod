@@ -18,6 +18,12 @@ namespace Igorious.StardewValley.DynamicAPI.Services
 {
     public sealed class ClassMapperService
     {
+        #region Constants
+
+        private static readonly EventInfo TimeOfDayChangedEventInfo = new EventInfo(typeof(TimeEvents), nameof(TimeEvents.TimeOfDayChanged));
+
+        #endregion
+
         #region Singleton Access
 
         private ClassMapperService()
@@ -41,7 +47,7 @@ namespace Igorious.StardewValley.DynamicAPI.Services
             {
                 if (!DeactivateMapping()) return;
                 Log.ImportantInfo("Deactivation before saving...");
-                DelayedTimeOfDayChangedHandlers = DelayEventHandlers(typeof(TimeEvents), nameof(TimeEvents.TimeOfDayChanged), h => h.Method.Module.Name == "FarmAutomation.ItemCollector.dll");
+                DelayTimeOfDayChanged();
                 ConvertToRawInWorld(); // Allow use native serializer.
             };
 
@@ -50,47 +56,29 @@ namespace Igorious.StardewValley.DynamicAPI.Services
                 if (!ActivateMapping()) return;
                 Log.ImportantInfo("Activation after saving...");
                 ConvertToSmartInWorld();
-                RestoreEventHandlers(typeof(TimeEvents), nameof(TimeEvents.TimeOfDayChanged), DelayedTimeOfDayChangedHandlers);
-                foreach (var handler in DelayedTimeOfDayChangedHandlers)
-                {
-                    try
-                    {
-                        handler.Method.Invoke(handler.Target, new object[] { null, new EventArgsIntChanged(600, 600) });
-                    }
-                    catch (Exception e)
-                    {
-                        Log.Error(e.ToString());
-                    }
-                }
-                DelayedTimeOfDayChangedHandlers = null;
+                RestoreTimeOfDayChanged();
             };
 
-            InventoryEvents.ActiveObjectChanged += args =>
+            InventoryEvents.ActiveObjectChanged += OnObjectChanged;
+            InventoryEvents.CraftedObjectChanged += OnObjectChanged;
+            PlayerEvents.InventoryChanged += OnInventoryChanged;
+        }
+
+        private void OnInventoryChanged(object s, EventArgsInventoryChanged e)
+        {
+            if (!IsActivated || !e.Added.Any()) return;
+
+            var sw = Stopwatch.StartNew();
+            var inventory = Game1.player.Items;
+            foreach (var addedItemInfo in e.Added)
             {
-                if (!IsActivated || !IsRawObject(args.Object)) return;
-                args.Object = ToSmartObject(args.Object);
-            };
+                var addedItem = addedItemInfo.Item as Object;
+                if (!IsRawObject(addedItem)) continue;
 
-            InventoryEvents.CraftedObjectChanged += args =>
-            {
-                if (!IsActivated || !IsRawObject(args.Object)) return;
-                args.Object = ToSmartObject(args.Object);
-            };
-
-            PlayerEvents.InventoryChanged += (s, e) =>
-            {
-                if (!IsActivated || !e.Added.Any()) return;
-
-                var inventory = Game1.player.Items;
-                foreach (var addedItemInfo in e.Added)
-                {
-                    var addedItem = addedItemInfo.Item as Object;
-                    if (!IsRawObject(addedItem)) continue;
-
-                    var index = inventory.FindIndex(i => i == addedItem);
-                    inventory[index] = ToSmartObject(addedItem);
-                }
-            };
+                var index = inventory.FindIndex(i => i == addedItem);
+                inventory[index] = ToSmartObject(addedItem);
+            }
+            Log.InfoAsync($"Convertion ('smart') in inventory finished: {sw.ElapsedMilliseconds} ms");
         }
 
         private static ClassMapperService _instance;
@@ -106,6 +94,10 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         private readonly Dictionary<int, Type> _itemTypeMap = new Dictionary<int, Type>();
         private readonly Dictionary<int, Type> _craftableTypeMap = new Dictionary<int, Type>();
         private readonly Dictionary<int, DynamicTypeInfo> _dynamicCraftableTypeMap = new Dictionary<int, DynamicTypeInfo>();
+
+        private readonly Dictionary<Type, ConstructorBase> _itemTypeCtorCache = new Dictionary<Type, ConstructorBase>();
+        private readonly Dictionary<Type, ConstructorBase> _craftableTypeCtorCache = new Dictionary<Type, ConstructorBase>();
+        private readonly Dictionary<Type, ConstructorBase> _dynamicCraftableCtorCache = new Dictionary<Type, ConstructorBase>();
 
         private IReadOnlyList<Delegate> DelayedTimeOfDayChangedHandlers { get; set; }
 
@@ -127,6 +119,10 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         public void MapItem<TObject>(DynamicID<ItemID> id) where TObject : ISmartObject, new()
         {
             _itemTypeMap.Add(id, typeof(TObject));
+            if (!_itemTypeCtorCache.ContainsKey(typeof(TObject)))
+            {
+                _itemTypeCtorCache.Add(typeof(TObject), new Constructor<TObject>());
+            }
         }
 
         /// <summary>
@@ -135,6 +131,10 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         public void MapCraftable<TObject>(DynamicID<CraftableID> id) where TObject : ISmartObject, new()
         {
             _craftableTypeMap.Add(id, typeof(TObject));
+            if (!_craftableTypeCtorCache.ContainsKey(typeof(TObject)))
+            {
+                _craftableTypeCtorCache.Add(typeof(TObject), new Constructor<TObject>());
+            }
         }
 
         /// <summary>
@@ -143,6 +143,10 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         public void MapCraftable(DynamicTypeInfo dynamicTypeInfo)
         {
             _dynamicCraftableTypeMap.Add(dynamicTypeInfo.ClassID, dynamicTypeInfo);
+            if (!_dynamicCraftableCtorCache.ContainsKey(dynamicTypeInfo.BaseType))
+            {
+                _dynamicCraftableCtorCache.Add(dynamicTypeInfo.BaseType, new Constructor<int, Object>(dynamicTypeInfo.BaseType));
+            }
         }
 
         /// <summary>
@@ -169,11 +173,19 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         {
             if (!IsRawObject(rawObject)) return rawObject;
 
-            var smartObject = rawObject.bigCraftable
-                ? CraftableToSmartObject(rawObject)
-                : ObjectToSmartObject(rawObject);
-            Cloner.Instance.CopyData(rawObject, smartObject);
-            return smartObject;
+            try
+            {
+                var smartObject = rawObject.bigCraftable
+                    ? CraftableToSmartObject(rawObject)
+                    : ObjectToSmartObject(rawObject);
+                Cloner.Instance.CopyData(rawObject, smartObject);
+                return smartObject;
+            }
+            catch (Exception e)
+            {
+                Log.Error(e.ToString());
+                throw;
+            }
         }
 
         #endregion
@@ -182,10 +194,26 @@ namespace Igorious.StardewValley.DynamicAPI.Services
 
         #region Handlers
 
-        private void OnLocationObjectsChanged(object sender, EventArgsLocationObjectsChanged eventArgsLocationObjectsChanged)
+        private void OnObjectChanged(ObjectEventArgs args)
+        {
+            if (!IsActivated || !IsRawObject(args.Object)) return;
+            args.Object = ToSmartObject(args.Object);
+        }
+
+        private void OnLocationObjectsChanged(object sender, EventArgsLocationObjectsChanged e)
         {
             if (!IsActivated) return;
-            ConvertToSmartObjectsInLocation();
+            var sw = Stopwatch.StartNew();
+            Traverser.Instance.TraverseLocationLight(Game1.currentLocation, ToSmartObject);
+            Log.InfoAsync($"Activation of objects (cause: changes in {Game1.currentLocation?.Name}) finished: {sw.ElapsedMilliseconds} ms");
+        }
+
+        private void OnCurrentLocationChanged(object sender, EventArgsCurrentLocationChanged e)
+        {
+            if (!IsActivated) return;
+            var sw = Stopwatch.StartNew();
+            Traverser.Instance.TraverseLocationDeep(Game1.currentLocation, ToSmartObject);
+            Log.Info($"Activation of objects(cause: entered to {Game1.currentLocation?.Name}) finished: {sw.ElapsedMilliseconds} ms");
         }
 
         #endregion
@@ -199,19 +227,15 @@ namespace Igorious.StardewValley.DynamicAPI.Services
             Type type;
             if (_craftableTypeMap.TryGetValue(craftableID, out type))
             {
-                var ctor = type.GetConstructor(Type.EmptyTypes);
-                if (ctor != null) return (Object)ctor.Invoke(new object[] { });
-                Log.Error($"Can't find .ctor (static) for CraftableID={craftableID}.");
-                return rawObject;
+                var ctor = _craftableTypeCtorCache[type];
+                return (Object)ctor.Invoke();
             }
 
             DynamicTypeInfo dynamicTypeInfo;
             if (_dynamicCraftableTypeMap.TryGetValue(craftableID, out dynamicTypeInfo))
             {
-                var ctor = dynamicTypeInfo.BaseType.GetConstructor(new[] { typeof(int) });
-                if (ctor != null) return (Object)ctor.Invoke(new object[] { dynamicTypeInfo.ClassID });
-                Log.Error($"Can't find .ctor (dynamic) for CraftableID={craftableID}.");
-                return rawObject;
+                var ctor = _dynamicCraftableCtorCache[dynamicTypeInfo.BaseType];
+                return (Object)ctor.Invoke(dynamicTypeInfo.ClassID);
             }
 
             Log.Error($"Can't find mapping for CraftableID={craftableID}.");
@@ -222,34 +246,23 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         {
             var itemID = rawObject.ParentSheetIndex;
             var type = _itemTypeMap[itemID];
-            var ctor = type.GetConstructor(Type.EmptyTypes);
-            if (ctor != null) return (Object)ctor.Invoke(new object[] { });
-
-            Log.Error($"Can't find .ctor (static) for ItemID={itemID}.");
-            return rawObject;
+            var ctor = _itemTypeCtorCache[type];
+            return (Object)ctor.Invoke();
         }
 
         public Object ToRawObject(Object smartObject)
         {
             if (!(smartObject is ISmartObject)) return smartObject;
-            var rawObject = (smartObject is Chest)? new Chest() : (smartObject.GetColor() != null)? new ColoredObject() : new Object();
+            var rawObject = (smartObject is Chest) ? new Chest() : (smartObject.GetColor() != null) ? new ColoredObject() : new Object();
             Cloner.Instance.CopyData(smartObject, rawObject);
             return rawObject;
-        }
-
-        private void ConvertToSmartObjectsInLocation()
-        {
-            var sw = Stopwatch.StartNew();
-            Log.Info($"Activating objects (changes in {Game1.currentLocation?.Name})...");
-            Traverser.Instance.TraverseLocation(Game1.currentLocation, ToSmartObject);
-            Log.Info($"Convertion ('smart') finished: {sw.ElapsedMilliseconds} ms");
         }
 
         private void ConvertToRawInWorld()
         {
             var sw = Stopwatch.StartNew();
             Log.Info("Deactivating objects in world...");
-            Traverser.Instance.TraverseLocations(l => Traverser.Instance.TraverseLocation(l, ToRawObject));
+            Traverser.Instance.TraverseLocations(l => Traverser.Instance.TraverseLocationDeep(l, ToRawObject));
             Traverser.Instance.TraverseInventory(Game1.player, ToRawObject);
             Log.Info($"Convertion ('raw') finished: {sw.ElapsedMilliseconds} ms");
         }
@@ -258,7 +271,7 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         {
             var sw = Stopwatch.StartNew();
             Log.Info("Activating objects in world...");
-            Traverser.Instance.TraverseLocations(l => Traverser.Instance.TraverseLocation(l, ToSmartObject));
+            Traverser.Instance.TraverseLocations(l => Traverser.Instance.TraverseLocationDeep(l, ToSmartObject));
             Traverser.Instance.TraverseInventory(Game1.player, ToSmartObject);
             Log.Info($"Convertion ('smart') finished: {sw.ElapsedMilliseconds} ms");
         }
@@ -320,6 +333,7 @@ namespace Igorious.StardewValley.DynamicAPI.Services
         {
             if (IsActivated) return false;
             IsActivated = true;
+            LocationEvents.CurrentLocationChanged += OnCurrentLocationChanged;
             LocationEvents.LocationObjectsChanged += OnLocationObjectsChanged;
             Log.ImportantInfo("Class mapping activated.");
             return true;
@@ -330,6 +344,7 @@ namespace Igorious.StardewValley.DynamicAPI.Services
             if (!IsActivated) return false;
             IsActivated = false;
             LocationEvents.LocationObjectsChanged -= OnLocationObjectsChanged;
+            LocationEvents.CurrentLocationChanged -= OnCurrentLocationChanged;
             Log.ImportantInfo("Class mapping deactivated.");
             return true;
         }
@@ -338,22 +353,44 @@ namespace Igorious.StardewValley.DynamicAPI.Services
 
         #region Delay Events
 
-        private IReadOnlyList<Delegate> DelayEventHandlers(Type type, string eventName, Func<Delegate, bool> filter)
+        private void DelayTimeOfDayChanged()
         {
-            var handlers = type.GetEventHandlers(eventName);
+            DelayedTimeOfDayChangedHandlers = DelayEventHandlers(TimeOfDayChangedEventInfo, h => h.Method.Module.Name == "FarmAutomation.ItemCollector.dll");
+        }
+
+        private void RestoreTimeOfDayChanged()
+        {
+            RestoreEventHandlers(TimeOfDayChangedEventInfo, DelayedTimeOfDayChangedHandlers);
+            foreach (var handler in DelayedTimeOfDayChangedHandlers)
+            {
+                try
+                {
+                    handler.Method.Invoke(handler.Target, new object[] { null, new EventArgsIntChanged(600, 600) });
+                }
+                catch (Exception e)
+                {
+                    Log.Error(e.ToString());
+                }
+            }
+            DelayedTimeOfDayChangedHandlers = null;
+        }
+
+        private static IReadOnlyList<Delegate> DelayEventHandlers(EventInfo eventInfo, Func<Delegate, bool> filter)
+        {
+            var handlers = eventInfo.Type.GetEventHandlers(eventInfo.EventName);
             var automationHandlers = handlers.Where(filter).ToList();
             foreach (var handler in automationHandlers)
             {
-                type.RemoveEventHandler(eventName, handler);
+                eventInfo.Type.RemoveEventHandler(eventInfo.EventName, handler);
             }
             return automationHandlers;
         }
 
-        private void RestoreEventHandlers(Type type, string eventName, IReadOnlyList<Delegate> delayedHandlers)
+        private static void RestoreEventHandlers(EventInfo eventInfo, IReadOnlyList<Delegate> delayedHandlers)
         {
             foreach (var handler in delayedHandlers)
             {
-                type.AddEventHandler(eventName, handler);
+                eventInfo.Type.AddEventHandler(eventInfo.EventName, handler);
             }
         }
 

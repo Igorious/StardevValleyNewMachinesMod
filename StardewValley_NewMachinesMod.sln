@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DynamicAPI.Tests", "Dynamic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ColoredChestsMod", "ColoredChestsMod\ColoredChestsMod.csproj", "{4BEFDE5C-731C-4853-8E4B-C5CDF946805F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuildTools", "BuildTools\BuildTools.csproj", "{B4BABC77-4799-4CF8-9AD8-78613286EF75}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{4BEFDE5C-731C-4853-8E4B-C5CDF946805F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4BEFDE5C-731C-4853-8E4B-C5CDF946805F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4BEFDE5C-731C-4853-8E4B-C5CDF946805F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B4BABC77-4799-4CF8-9AD8-78613286EF75}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B4BABC77-4799-4CF8-9AD8-78613286EF75}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B4BABC77-4799-4CF8-9AD8-78613286EF75}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B4BABC77-4799-4CF8-9AD8-78613286EF75}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

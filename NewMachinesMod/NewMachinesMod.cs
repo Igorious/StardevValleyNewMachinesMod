@@ -1,18 +1,25 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Igorious.StardewValley.DynamicAPI.Constants;
 using Igorious.StardewValley.DynamicAPI.Data;
 using Igorious.StardewValley.DynamicAPI.Data.Supporting;
+using Igorious.StardewValley.DynamicAPI.Extensions;
+using Igorious.StardewValley.DynamicAPI.Menu;
 using Igorious.StardewValley.DynamicAPI.Objects;
 using Igorious.StardewValley.DynamicAPI.Services;
 using Igorious.StardewValley.DynamicAPI.Utils;
 using Igorious.StardewValley.NewMachinesMod.Data;
+using Igorious.StardewValley.NewMachinesMod.Menu;
 using Igorious.StardewValley.NewMachinesMod.SmartObjects;
 using Igorious.StardewValley.NewMachinesMod.SmartObjects.Dynamic;
+using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
+using StardewValley;
+using StardewValley.Menus;
 using Log = Igorious.StardewValley.DynamicAPI.Utils.Log;
 
 namespace Igorious.StardewValley.NewMachinesMod
@@ -36,7 +43,28 @@ namespace Igorious.StardewValley.NewMachinesMod
             OverrideTextures();
             PrecompileExpressions();
             RegisterCommands();
-        }
+            ToolTipManager.Instance.Register<MachineInfoMenu>();
+            ToolTipManager.Instance.Register<CropsInfoMenu>();
+
+            MenuEvents.MenuChanged += (s, e) =>
+            {
+                const int limit = 4;
+
+                var levelUpMenu = e.NewMenu as LevelUpMenu;
+                if (levelUpMenu == null) return;
+                var newCraftingRecipes = levelUpMenu.GetField<List<CraftingRecipe>>("newCraftingRecipes");
+                var extraInfoForLevel = levelUpMenu.GetField<List<string>>("extraInfoForLevel");
+                if (newCraftingRecipes.Count <= limit + 1) return;
+                var copy = newCraftingRecipes.ToList();
+                newCraftingRecipes.Clear();
+                newCraftingRecipes.AddRange(copy.Take(limit));
+                var size = copy.Skip(limit).Sum(r => r.bigCraftable? 2 : 1) * Game1.tileSize - Game1.tileSize * 3 / 4;
+                var extraInfo = $"New recipes for {string.Join(", ", copy.Skip(limit).Select(r => r.name))}";
+                extraInfoForLevel.Add(extraInfo);
+                levelUpMenu.height -= size;
+                levelUpMenu.gameWindowSizeChanged(Rectangle.Empty, Rectangle.Empty);
+            };
+        }    
 
         private static void InitializeGiftPreferences()
         {

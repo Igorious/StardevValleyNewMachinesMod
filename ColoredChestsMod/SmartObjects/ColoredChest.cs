@@ -1,10 +1,11 @@
-﻿using Igorious.StardewValley.DynamicAPI.Interfaces;
+﻿using Igorious.StardewValley.ColoredChestsMod.Utils;
+using Igorious.StardewValley.DynamicAPI.Interfaces;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 using StardewValley.Objects;
 
-namespace Igorious.StardewValley.ColoredChestsMod
+namespace Igorious.StardewValley.ColoredChestsMod.SmartObjects
 {
     public sealed class ColoredChest : Chest, ISmartObject
     {
