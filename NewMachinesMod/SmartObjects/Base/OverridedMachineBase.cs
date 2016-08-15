@@ -70,13 +70,19 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
             return base.PerformDropIn(item, farmer);
         }
 
-        protected sealed override bool PerformDropIn(Object item, Farmer farmer)
+        protected sealed override bool PerformDropIn(Object dropInItem, Farmer farmer)
         {
-            switch (UsedOverride)
+            if (UsedOverride == true)
             {
-                case true: return PerformDropInOverrided(item, farmer);
-                case false: return PerformDropInRaw(item, farmer);
-                default: return false;
+                return PerformDropInOverrided(dropInItem, farmer);
+            }
+            else if (UsedOverride == false)
+            {
+                return PerformDropInRaw(dropInItem, farmer);
+            }
+            else
+            {
+                return false;
             }
         }
     }

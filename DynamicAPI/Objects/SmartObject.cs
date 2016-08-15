@@ -3,6 +3,7 @@ using Igorious.StardewValley.DynamicAPI.Constants;
 using Igorious.StardewValley.DynamicAPI.Data.Supporting;
 using Igorious.StardewValley.DynamicAPI.Extensions;
 using Igorious.StardewValley.DynamicAPI.Interfaces;
+using Igorious.StardewValley.DynamicAPI.Utils;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
@@ -349,22 +350,25 @@ namespace Igorious.StardewValley.DynamicAPI.Objects
 
         public sealed override bool checkForAction(Farmer who, bool justCheckingForActivity = false)
         {
-            return justCheckingForActivity ? CanDoAction(who) : DoAction(who);
+            return ExceptionHandler.Invoke(() => justCheckingForActivity ? CanDoAction(who) : DoAction(who));
         }
 
         public sealed override bool performObjectDropInAction(Object item, bool isProbe, Farmer farmer)
         {
-            if (!CanPerformDropIn(item, farmer)) return false;
+            return ExceptionHandler.Invoke(() =>
+            {
+                if (!CanPerformDropIn(item, farmer)) return false;
 
-            if (isProbe)
-            {
-                heldObject = ProbeObject;
-                return true;
-            }
-            else
-            {
-                return PerformDropIn(item, farmer);
-            }
+                if (isProbe)
+                {
+                    heldObject = ProbeObject;
+                    return true;
+                }
+                else
+                {
+                    return PerformDropIn(item, farmer);
+                }
+            });
         }
 
         #endregion
@@ -377,7 +381,7 @@ namespace Igorious.StardewValley.DynamicAPI.Objects
 
         protected virtual bool CanPerformDropIn(Object item, Farmer farmer) => CanPerformDropInRaw(item, farmer);
 
-        protected virtual bool PerformDropIn(Object item, Farmer farmer) => PerformDropInRaw(item, farmer);
+        protected virtual bool PerformDropIn(Object dropInItem, Farmer farmer) => PerformDropInRaw(dropInItem, farmer);
 
         protected bool PerformDropInRaw(Object item, Farmer farmer) => base.performObjectDropInAction(item, false, farmer);
 
@@ -397,15 +401,18 @@ namespace Igorious.StardewValley.DynamicAPI.Objects
 
         public sealed override bool performToolAction(Tool tool)
         {
-            if (tool is Pickaxe) return OnPickaxeAction((Pickaxe)tool);
-            if (tool is Axe) return OnAxeAction((Axe)tool);
-            if (tool is Hoe) return OnHoeAction((Hoe)tool);
-            if (tool is WateringCan)
+            return ExceptionHandler.Invoke(() =>
             {
-                OnWateringCanAction((WateringCan)tool);
-                return false;
-            }
-            return OnOtherToolAction(tool);
+                if (tool is Pickaxe) return OnPickaxeAction((Pickaxe)tool);
+                if (tool is Axe) return OnAxeAction((Axe)tool);
+                if (tool is Hoe) return OnHoeAction((Hoe)tool);
+                if (tool is WateringCan)
+                {
+                    OnWateringCanAction((WateringCan)tool);
+                    return false;
+                }
+                return OnOtherToolAction(tool);
+            });
         }
 
         protected virtual bool OnPickaxeAction(Pickaxe pickaxe) => base.performToolAction(pickaxe);

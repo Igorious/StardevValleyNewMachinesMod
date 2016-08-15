@@ -13,7 +13,7 @@ namespace Igorious.StardewValley.DynamicAPI.Data.Supporting
         public string FriendshipWith { get; set; }
 
         [JsonProperty]
-        public int? Hearts { get; set; }
+        public decimal? Hearts { get; set; }
 
         [JsonProperty]
         public Skill Skill { get; set; }

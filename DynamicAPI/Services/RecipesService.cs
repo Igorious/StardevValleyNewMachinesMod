@@ -73,7 +73,7 @@ namespace Igorious.StardewValley.DynamicAPI.Services
                     recipes.Add(key, newValue);
                 }
                 else if (newValue != oldValue)
-                {                  
+                {
                     Log.Fail($"Recipe for ID={key} already has another mapping {key}->{oldValue} (current:{newValue})");
                 }
             }
@@ -104,8 +104,31 @@ namespace Igorious.StardewValley.DynamicAPI.Services
                 }
             }
 
-            var recipes = _cookingRecipeInformations.Select(i => new Object(i.ID, 1, true)).ToArray<Item>();
-            ShopService.Instance.AddShopInfo(new ShopInfo("Saloon", recipes));
+            foreach (var recipeInformation in _cookingRecipeInformations)
+            {
+                if (player.cookingRecipes.ContainsKey(recipeInformation.Name)) continue;
+
+                var wayToGet = recipeInformation.WayToGet;
+                if (!string.IsNullOrWhiteSpace(wayToGet.FriendshipWith))
+                {
+                    if (player.getFriendshipHeartLevelForNPC(wayToGet.FriendshipWith) >= 2 * (wayToGet.Hearts ?? 0.5m))
+                    {
+                        player.cookingRecipes.Add(recipeInformation.Name, 0);
+                    }
+                }
+                else if (wayToGet.Skill != Skill.Undefined)
+                {
+                    if (playerSkills[wayToGet.Skill] >= wayToGet.SkillLevel)
+                    {
+                        player.craftingRecipes.Add(recipeInformation.Name, 0);
+                    }
+                }
+                else
+                {
+                    var recipes = _cookingRecipeInformations.Select(i => new Object(i.ID, 1, true)).ToArray<Item>();
+                    ShopService.Instance.AddShopInfo(new ShopInfo("Saloon", recipes));
+                }
+            }
         }
 
         #endregion

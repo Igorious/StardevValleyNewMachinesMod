@@ -33,16 +33,16 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects
             return result;
         }
 
-        protected override bool PerformDropIn(Object item, Farmer farmer)
+        protected override bool PerformDropIn(Object dropInItem, Farmer farmer)
         {
             if (FirstDroppedItem == null)
             {
-                FirstDroppedItem = item;
+                FirstDroppedItem = dropInItem;
                 PlaySound(Sound.Ship);
             }
             else
             {
-                SecondDroppedItem = item;
+                SecondDroppedItem = dropInItem;
                 var q1 = FirstDroppedItem.quality;
                 var q2 = SecondDroppedItem.quality;
 
@@ -54,8 +54,8 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects
                 var hue = random.Next(0, 359); // TODO: Not random color.
                 var color = RawColor.FromHSL(hue, 0.75, 0.55).ToXnaColor();
 
-                PutItem(911, 1, itemQuality, $"{{0}} {postfix}", itemPrice, color);
-                minutesUntilReady = GetMinutesUntilReady(SecondDroppedItem); // TODO: From config?
+                PutItem(NewMachinesModConfig.ExperementalLiquidID, 1, itemQuality, $"{{0}} {postfix}", itemPrice, color); // TODO: From config?
+                minutesUntilReady = GetMinutesUntilReady(GetOutputItem(SecondDroppedItem)); // TODO: From config?
 
                 PlaySound(Sound.Ship);
                 PlaySound(Sound.Bubbles);

@@ -34,7 +34,7 @@ namespace Igorious.StardewValley.NewMachinesMod
         private const int ColorJellyID = 905;
         private const int ColorPicklesID = 907;
         private const int ColorJuiceID = 909;
-        private const int ExperementalLiquidID = 911;
+        public const int ExperementalLiquidID = 911;
         private const int PreservedMushroomID = 913;
         private const int BlackRaisinsID = 915;
         private const int DriedFruitID = 917;
@@ -102,6 +102,7 @@ namespace Igorious.StardewValley.NewMachinesMod
                 GetCharcoalKilnOverride(),
                 GetLoomOverride(),
                 GetOilMakerOverride(),
+                GetRecyclingMachineOverride(),
             };
 
             LocalizationStrings = new Dictionary<LocalizationString, string>
@@ -310,6 +311,25 @@ namespace Igorious.StardewValley.NewMachinesMod
                 });
         }
 
+        private static OverridedMachineInformation GetRecyclingMachineOverride()
+        {
+            return new OverridedMachineInformation(CraftableID.RecyclingMachine,
+                new MachineOutputInformation(new Dictionary<DynamicID<ItemID, CategoryID>, OutputItem>
+                {
+                    [ItemID.JojaCola] = new OutputItem
+                    {
+                        Switch = new List<OutputItem>
+                        {
+                            new OutputItem(ItemID.IronOre) {Chance = 0.3m},
+                            new OutputItem(ItemID.Slime),
+                        }
+                    }
+                })
+                {
+                    MinutesUntilReady = 60,
+                });
+        }
+
         private static ItemInformation GetColorPickles()
         {
             return new ItemInformation(ColorPicklesID, "Pickles", "A jar of your home-made pickles.")
@@ -402,6 +422,7 @@ namespace Igorious.StardewValley.NewMachinesMod
                 Category = CategoryID.ArtisanGoods,
                 ResourceIndex = 2,
                 ResourceLength = 2,
+                Edibility = 15,
                 IsColored = true,
             };
         }
@@ -413,6 +434,7 @@ namespace Igorious.StardewValley.NewMachinesMod
                 Category = CategoryID.ArtisanGoods,
                 ResourceIndex = 9,
                 ResourceLength = 2,
+                Edibility = 18,
                 IsColored = true,
             };
         }
@@ -671,7 +693,9 @@ namespace Igorious.StardewValley.NewMachinesMod
                     Items = new Dictionary<DynamicID<ItemID, CategoryID>, OutputItem>
                     {
                         { ItemID.Milk, new OutputItem { Quality = "0" } },
+                        { ItemID.GoatMilk, new OutputItem { Quality = "0" } },
                         { ItemID.LargeMilk, new OutputItem { Quality = "2" } },
+                        { ItemID.LargeGoatMilk, new OutputItem { Quality = "2" } },
                     },
                     Price = "3 * p / 2",
                     MinutesUntilReady = 60,
@@ -701,7 +725,9 @@ namespace Igorious.StardewValley.NewMachinesMod
                     Items = new Dictionary<DynamicID<ItemID, CategoryID>, OutputItem>
                     {
                         { ItemID.Milk, new OutputItem { Quality = "0" } },
+                        { ItemID.GoatMilk, new OutputItem { Quality = "0" } },
                         { ItemID.LargeMilk, new OutputItem { Quality = "2" } },
+                        { ItemID.LargeGoatMilk, new OutputItem { Quality = "2" } },
                     },
                     Price = "3 * p / 2",
                     MinutesUntilReady = 60,

@@ -56,7 +56,7 @@ namespace Igorious.StardewValley.DynamicAPI.Services
                 int price;
                 if ((shopItem as Object)?.isRecipe == true)
                 {
-                    if (cookingRecipes.ContainsKey(shopItem.Name)) return;
+                    if (cookingRecipes.ContainsKey(shopItem.Name)) continue;
                     obj = shopItem as Object;
                     price = obj.Price * 4;
                 }

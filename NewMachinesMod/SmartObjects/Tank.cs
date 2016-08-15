@@ -56,9 +56,9 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects
 
         protected override MachineInformation MachineInformation => NewMachinesMod.Config.Tank;
 
-        protected override bool PerformDropIn(Object item, Farmer farmer)
+        protected override bool PerformDropIn(Object dropInItem, Farmer farmer)
         {
-            if (!IsEmpty) return base.PerformDropIn(item, farmer);
+            if (!IsEmpty) return base.PerformDropIn(dropInItem, farmer);
             Game1.showRedMessage(NewMachinesMod.Config.LocalizationStrings[NewMachinesModConfig.LocalizationString.TankRequiresWater]);
             return false;
         }

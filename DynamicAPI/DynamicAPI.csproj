@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Igorious.StardewValley.DynamicAPI</RootNamespace>
-    <AssemblyName>Igorious.StardewValley.DynamicAPI.4_2_0</AssemblyName>
+    <AssemblyName>Igorious.StardewValley.DynamicAPI.4_2_1</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
@@ -34,6 +34,10 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EnsureThat, Version=4.0.0.26, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ensure.That.4.0.0\lib\net45\EnsureThat.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553" />
     <Reference Include="Microsoft.Xna.Framework.Game, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553" />
     <Reference Include="Microsoft.Xna.Framework.Graphics, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553" />
@@ -61,6 +65,7 @@
     <Compile Include="Attributes\ExpressionAttribute.cs" />
     <Compile Include="Constants\Animation.cs" />
     <Compile Include="Constants\CharacterName.cs" />
+    <Compile Include="Extensions\DictionaryExtensions.cs" />
     <Compile Include="Helpers\InventoryHelper.cs" />
     <Compile Include="Interfaces\IRecipeInformation.cs" />
     <Compile Include="Data\OverridedBundleInformation.cs" />
@@ -118,6 +123,7 @@
     <Compile Include="Data\BundleInformation.cs" />
     <Compile Include="Data\Supporting\BundleItemInformation.cs" />
     <Compile Include="Data\Supporting\TextureInfo.cs" />
+    <Compile Include="Objects\SmartBigCrafrable.Validation.cs" />
     <Compile Include="Services\BundlesService.cs" />
     <Compile Include="Data\Supporting\EventInfo.cs" />
     <Compile Include="Services\Internal\Cloner.cs" />
@@ -125,6 +131,7 @@
     <Compile Include="Extensions\ObjectExtensions.cs" />
     <Compile Include="Events\InventoryEvents.cs" />
     <Compile Include="Events\ObjectEventArgs.cs" />
+    <Compile Include="Services\LevelUpService.cs" />
     <Compile Include="Services\RecipesService.cs" />
     <Compile Include="Services\InformationService.cs" />
     <Compile Include="Data\Supporting\IngredientInfo.cs" />
@@ -139,6 +146,7 @@
     <Compile Include="Services\Internal\Traverser.cs" />
     <Compile Include="Utils\Constructor.cs" />
     <Compile Include="Utils\DominantColorFinder.cs" />
+    <Compile Include="Utils\ExceptionHandler.cs" />
     <Compile Include="Utils\ExpressionCompiler.cs" />
     <Compile Include="Utils\Log.cs" />
   </ItemGroup>

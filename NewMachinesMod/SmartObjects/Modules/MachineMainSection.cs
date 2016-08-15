@@ -29,7 +29,7 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Modules
             return module?.CanModuleProcessItem(item, farmer) ?? true;
         }
 
-        protected override bool PerformDropIn(Object item, Farmer farmer)
+        protected override bool PerformDropIn(Object dropInItem, Farmer farmer)
         {
             var module = GetModule(farmer);
             if (module == null)
@@ -38,7 +38,7 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Modules
                 return false;
             }
             if (Output.Animation != null) PlayAnimation(farmer, Output.Animation.Value);
-            return module.ModuleProcessItem(item, farmer);
+            return module.ModuleProcessItem(dropInItem, farmer);
         }
     }
 }

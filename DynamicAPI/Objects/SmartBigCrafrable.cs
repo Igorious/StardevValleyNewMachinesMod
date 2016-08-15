@@ -9,7 +9,7 @@ using XColor = Microsoft.Xna.Framework.Color;
 
 namespace Igorious.StardewValley.DynamicAPI.Objects
 {
-    public abstract class SmartBigCrafrableBase : SmartObject
+    public abstract partial class SmartBigCrafrableBase : SmartObject
     {
         protected SmartBigCrafrableBase(int id) : base(id)
         {
@@ -133,6 +133,8 @@ namespace Igorious.StardewValley.DynamicAPI.Objects
 
         protected void PutItem(int itemID, int count, int itemQuality = 0, string overridedName = null, int? overridedPrice = null, XColor? color = null)
         {
+            PutItemValidator.Validate(itemID, count, itemQuality, overridedName, overridedPrice, color);
+
             heldObject = new SmartObject(itemID, count)
             {
                 quality = itemQuality,

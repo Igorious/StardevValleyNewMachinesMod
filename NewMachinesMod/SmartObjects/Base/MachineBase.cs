@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Igorious.StardewValley.DynamicAPI.Constants;
 using Igorious.StardewValley.DynamicAPI.Data.Supporting;
 using Igorious.StardewValley.DynamicAPI.Helpers;
@@ -8,6 +10,7 @@ using Igorious.StardewValley.NewMachinesMod.Data;
 using Microsoft.Xna.Framework;
 using StardewValley;
 using Object = StardewValley.Object;
+using Igorious.StardewValley.DynamicAPI.Extensions;
 
 namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
 {
@@ -23,31 +26,39 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
             return (heldObject == null) && (Output.Items.ContainsKey(item.ParentSheetIndex) || Output.Items.ContainsKey(item.Category));
         }
 
-        protected override bool PerformDropIn(Object item, Farmer farmer)
+        protected override bool PerformDropIn(Object dropInItem, Farmer farmer)
         {
-            if (!ProcessRequiredItems(item, farmer)) return false;
+            if (!ProcessRequiredItems(dropInItem, farmer)) return false;
 
-            PutItem(GetOutputID(item), GetOutputCount(item), GetOutputQuality(item), GetOutputName(item), GetOutputPrice(item), GetColor(item));
+            var outputItem = GetOutputItem(dropInItem);
+            PutItem(
+                GetOutputID(outputItem),
+                GetOutputCount(outputItem, dropInItem),
+                GetOutputQuality(outputItem, dropInItem),
+                GetOutputName(outputItem, dropInItem),
+                GetOutputPrice(outputItem, dropInItem),
+                GetColor(outputItem, dropInItem));
+
             (Output.Sounds ?? DefaultSound).ForEach(PlaySound);
             if (Output.Animation != null) PlayAnimation(farmer, Output.Animation.Value);
-            minutesUntilReady = GetMinutesUntilReady(item);
+            minutesUntilReady = GetMinutesUntilReady(outputItem);
             return true;
         }
 
-        protected bool ProcessRequiredItems(Object item, Farmer farmer)
+        protected bool ProcessRequiredItems(Object dropInItem, Farmer farmer)
         {
-            var outputItem = GetOutputItem(item);
+            var outputItem = GetOutputItem(dropInItem);
 
-            if (item.Stack < outputItem.InputCount)
+            if (dropInItem.Stack < outputItem.InputCount)
             {
-                ShowRedMessage(farmer, $"Requires {outputItem.InputCount} {item.Name}");
+                ShowRedMessage(farmer, $"Requires {outputItem.InputCount} {dropInItem.Name}");
                 return false;
             }
 
             var and = outputItem.And;
             if (and == null)
             {
-                item.Stack -= (outputItem.InputCount - 1);
+                dropInItem.Stack -= (outputItem.InputCount - 1);
                 return true;
             }
 
@@ -60,7 +71,7 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
             }
             else
             {
-                item.Stack -= (outputItem.InputCount - 1);
+                dropInItem.Stack -= (outputItem.InputCount - 1);
                 InventoryHelper.RemoveItem(and.ID, and.Count, farmer);
                 return true;
             }
@@ -68,65 +79,90 @@ namespace Igorious.StardewValley.NewMachinesMod.SmartObjects.Base
 
         #region Config Getters
 
-        private OutputItem GetOutputItem(Object item)
+        protected OutputItem GetOutputItem(Object dropInItem)
         {
-            OutputItem outputInfo;
-            return Output.Items.TryGetValue(item.ParentSheetIndex, out outputInfo)? outputInfo : Output.Items[item.Category];
+            var outputInfo = TryGetOutputItemByID(dropInItem) ?? TryGetOutputItemByCategory(dropInItem);
+            return ResolveVariants(outputInfo);
         }
 
-        protected virtual string GetOutputName(Object item)
+        protected virtual string GetOutputName(OutputItem outputItem, Object dropInItem)
         {
-            var itemNameFormat = GetOutputItem(item)?.Name;
-            if (!string.IsNullOrWhiteSpace(itemNameFormat)) return string.Format(itemNameFormat, "{0}", item.Name);
+            var itemNameFormat = outputItem?.Name;
+            if (!string.IsNullOrWhiteSpace(itemNameFormat)) return string.Format(itemNameFormat, "{0}", dropInItem.Name);
             if (itemNameFormat != null && string.IsNullOrWhiteSpace(itemNameFormat)) return null;
-            return (Output.Name != null)? string.Format(Output.Name, "{0}", item.Name) : null;
+            return (Output.Name != null) ? string.Format(Output.Name, "{0}", dropInItem.Name) : null;
         }
 
-        protected virtual int GetOutputQuality(Object item)
+        protected virtual int GetOutputQuality(OutputItem outputItem, Object dropInItem)
         {
-            var qualityExpression = GetOutputItem(item)?.Quality ?? Output.Quality;
+            var qualityExpression = outputItem?.Quality ?? Output.Quality;
             var calculateQuality = ExpressionCompiler.CompileExpression<QualityExpression>(qualityExpression);
             if (calculateQuality == null) return 0;
 
             var random = GetRandom();
-            return calculateQuality(item.Price, item.quality, random.NextDouble(), random.NextDouble());
+            return calculateQuality(dropInItem.Price, dropInItem.quality, random.NextDouble(), random.NextDouble());
         }
 
-        protected virtual int GetOutputCount(Object item)
+        protected virtual int GetOutputCount(OutputItem outputItem, Object dropInItem)
         {
-            var countExpression = GetOutputItem(item)?.Count ?? Output.Count;
+            var countExpression = outputItem?.Count ?? Output.Count;
             var calculateCount = ExpressionCompiler.CompileExpression<CountExpression>(countExpression);
             if (calculateCount == null) return 1;
 
             var random = GetRandom();
-            return calculateCount(item.Price, item.quality, random.NextDouble(), random.NextDouble());
+            return calculateCount(dropInItem.Price, dropInItem.quality, random.NextDouble(), random.NextDouble());
         }
 
-        protected virtual int? GetOutputPrice(Object item)
+        protected virtual int? GetOutputPrice(OutputItem outputItem, Object dropInItem)
         {
-            var priceExpression = GetOutputItem(item)?.Price ?? Output.Price;
+            var priceExpression = outputItem?.Price ?? Output.Price;
             var calculatePrice = ExpressionCompiler.CompileExpression<PriceExpression>(priceExpression);
-            return calculatePrice?.Invoke(item.price, item.quality);
+            return calculatePrice?.Invoke(dropInItem.price, dropInItem.quality);
         }
 
-        protected virtual int GetOutputID(Object item)
+        protected virtual int GetOutputID(OutputItem outputItem)
         {
-            return GetOutputItem(item)?.ID ?? Output.ID ?? 0;
+            return outputItem?.ID ?? Output.ID ?? 0;
         }
 
-        protected virtual int GetMinutesUntilReady(Object item)
+        protected virtual int GetMinutesUntilReady(OutputItem outputItem)
         {
-            return GetOutputItem(item)?.MinutesUntilReady ?? Output.MinutesUntilReady ?? 0;
+            return outputItem?.MinutesUntilReady ?? Output.MinutesUntilReady ?? 0;
         }
 
-        private Color? GetColor(Object dropInItem)
+        private Color? GetColor(OutputItem outputItem, Object dropInItem)
         {
-            var color = GetOutputItem(dropInItem)?.Color;
+            var color = outputItem?.Color;
             if (string.IsNullOrWhiteSpace(color)) return null;
 
             return (color != "@")
                 ? RawColor.FromHex(color).ToXnaColor()
                 : DominantColorFinder.GetDominantColor(dropInItem.ParentSheetIndex, Game1.objectSpriteSheet, 16, 16);
+        }
+      
+        private OutputItem TryGetOutputItemByID(Object dropInItem)
+        {
+            return Output.Items.TryGetValue(dropInItem.ParentSheetIndex);
+        }
+
+        private OutputItem TryGetOutputItemByCategory(Object dropInItem)
+        {
+            return Output.Items.TryGetValue(dropInItem.Category);
+        }
+
+        private OutputItem ResolveVariants(OutputItem outputItem)
+        {
+            var variants = outputItem?.Switch;
+            if (variants == null) return outputItem;
+
+            var random = Convert.ToDecimal(GetRandom().NextDouble());
+            var current = 0m;
+            foreach (var variant in variants.Where(o => o.Chance != null))
+            {
+                current += variant.Chance.Value;
+                if (current >= random) return variant;
+            }
+            return variants.FirstOrDefault(o => o.Chance == null) ?? variants.Last();
         }
 
         #endregion

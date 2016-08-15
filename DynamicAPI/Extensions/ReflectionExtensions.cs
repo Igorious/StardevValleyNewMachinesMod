@@ -47,9 +47,7 @@ namespace Igorious.StardewValley.DynamicAPI.Extensions
 
         public static T GetField<T>(this object o, string fieldName) where T : class
         {
-            var fieldInfo = o.GetType().GetField(fieldName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            var value = fieldInfo?.GetValue(o);
-            return value as T;
+            return GetField<T>(o, o.GetType(), fieldName);
         }
 
         public static void SetField<T>(this object o, string fieldName, T value) where T : class
@@ -71,6 +69,17 @@ namespace Igorious.StardewValley.DynamicAPI.Extensions
                 yield return type;
                 type = type.BaseType;
             } while (type != null);
+        }
+
+        private static T GetField<T>(object o, Type type, string fieldName) where T : class
+        {
+            while (type != typeof(object))
+            {
+                var fieldInfo = type.GetField(fieldName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                if (fieldInfo != null) return fieldInfo.GetValue(o) as T;
+                type = type.BaseType;
+            }
+            return null;
         }
     }
 }

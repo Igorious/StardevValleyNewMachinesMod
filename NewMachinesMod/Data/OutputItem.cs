@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
 using Igorious.StardewValley.DynamicAPI.Attributes;
 using Igorious.StardewValley.DynamicAPI.Constants;
 using Igorious.StardewValley.DynamicAPI.Data.Supporting;
@@ -27,6 +28,9 @@ namespace Igorious.StardewValley.NewMachinesMod.Data
 
         #region	Properties
 
+        [JsonProperty]
+        public List<OutputItem> Switch { get; set; }
+
         [JsonProperty, DefaultValue(1)]
         public int InputCount { get; set; } = 1;
 
@@ -38,6 +42,9 @@ namespace Igorious.StardewValley.NewMachinesMod.Data
         /// </summary>
         [JsonProperty]
         public DynamicID<ItemID> ID { get; set; }
+
+        [JsonProperty]
+        public decimal? Chance { get; set; }
 
         /// <summary>
         /// Name format of output item. Use {0} to insert default name of output item, {1} to insert name of input item.
